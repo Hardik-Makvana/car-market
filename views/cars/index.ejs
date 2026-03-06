@@ -1,0 +1,430 @@
+<section class="hero-section">
+  <div class="hero-inner">
+    <h1 id="heroTitle">FIND YOUR CAR</h1>
+
+    <img
+      src="/images/hero-car.png"
+      alt="Find Your Car"
+      id="heroCar"
+      class="hero-image"
+    />
+
+    <a href="/cars" class="hero-btn" id="heroBtn"> Scroll Down </a>
+  </div>
+</section>
+
+<!-- ================= STATS SECTION ================= -->
+<section class="stats-section">
+  <div class="container">
+    <div class="row g-4 justify-content-center">
+      <!-- CARD 1 -->
+      <div class="col-md-3 col-sm-6">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="bi bi-house"></i>
+          </div>
+          <div>
+            <h3>0</h3>
+            <p>Branches 👍</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 2 -->
+      <div class="col-md-3 col-sm-6">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="bi bi-car-front"></i>
+          </div>
+          <div>
+            <h3>0</h3>
+            <p>Cars Sold 👍</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 3 -->
+      <div class="col-md-3 col-sm-6">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="bi bi-people"></i>
+          </div>
+          <div>
+            <h3>0</h3>
+            <p>Happy Clients 👍</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 4 -->
+      <div class="col-md-3 col-sm-6">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="bi bi-car-front-fill"></i>
+          </div>
+          <div>
+            <h3>0</h3>
+            <p>New Cars 👍</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FILTERS & CARS LIST ================= -->
+<div class="container mt-5">
+  <div class="cars-listing-wrapper">
+    <!-- FILTER SIDEBAR -->
+    <aside class="filter-sidebar">
+      <div class="filter-header">
+        <h3><i class="bi bi-funnel"></i> Filters</h3>
+        <button class="filter-toggle-mobile" id="filterToggle">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <form id="filterForm" method="GET" action="/cars" class="filter-form">
+        <!-- Price Range - Collapsible (Always Open by Default) -->
+        <!-- Price Range - Collapsible -->
+        <div class="filter-accordion <%= (filters.minPrice || filters.maxPrice) ? 'active' : '' %>">
+          <button type="button" class="filter-accordion-header" data-accordion="priceRange">
+            <span class="filter-label">
+              <i class="bi bi-currency-rupee text-success"></i> Price Range
+            </span>
+            <i class="bi bi-chevron-down accordion-icon"></i>
+          </button>
+          <div class="filter-accordion-content" data-content="priceRange">
+            <div class="range-inputs">
+              <input
+                type="number"
+                name="minPrice"
+                id="minPrice"
+                placeholder="Min"
+                value="<%= filters.minPrice %>"
+              />
+              <span class="range-separator">-</span>
+              <input
+                type="number"
+                name="maxPrice"
+                id="maxPrice"
+                placeholder="Max"
+                value="<%= filters.maxPrice %>"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Year Range - Collapsible -->
+        <div class="filter-accordion <%= (filters.minYear || filters.maxYear) ? 'active' : '' %>">
+          <button type="button" class="filter-accordion-header" data-accordion="yearRange">
+            <span class="filter-label">
+              <i class="bi bi-calendar"></i> Year Range
+            </span>
+            <i class="bi bi-chevron-down accordion-icon"></i>
+          </button>
+          <div class="filter-accordion-content" data-content="yearRange">
+            <div class="range-inputs">
+              <input
+                type="number"
+                name="minYear"
+                id="minYear"
+                placeholder="Min"
+                value="<%= filters.minYear %>"
+              />
+              <span class="range-separator">-</span>
+              <input
+                type="number"
+                name="maxYear"
+                id="maxYear"
+                placeholder="Max"
+                value="<%= filters.maxYear %>"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Fuel Type - Collapsible -->
+        <div class="filter-accordion <%= filters.fuel ? 'active' : '' %>">
+          <button type="button" class="filter-accordion-header" data-accordion="fuelType">
+            <span class="filter-label">
+              <i class="bi bi-fuel-pump"></i> Fuel Type
+            </span>
+            <i class="bi bi-chevron-down accordion-icon"></i>
+          </button>
+          <div class="filter-accordion-content" data-content="fuelType">
+            <select name="fuel" id="fuel" class="filter-select">
+              <option value="">All Fuel Types</option>
+              <% if (typeof filterOptions !== 'undefined' && filterOptions.fuels) { %>
+              <% filterOptions.fuels.forEach(f => { %>
+              <option value="<%= f %>" <%= filters.fuel === f ? 'selected' : '' %>>
+                <%= f %>
+              </option>
+              <% }); %>
+              <% } %>
+            </select>
+          </div>
+        </div>
+
+        <!-- Transmission - Collapsible -->
+        <div class="filter-accordion <%= filters.transmission ? 'active' : '' %>">
+          <button type="button" class="filter-accordion-header" data-accordion="transmission">
+            <span class="filter-label">
+              <i class="bi bi-gear"></i> Transmission
+            </span>
+            <i class="bi bi-chevron-down accordion-icon"></i>
+          </button>
+          <div class="filter-accordion-content" data-content="transmission">
+            <select name="transmission" id="transmission" class="filter-select">
+              <option value="">All Types</option>
+              <% if (typeof filterOptions !== 'undefined' && filterOptions.transmissions) { %>
+              <% filterOptions.transmissions.forEach(t => { %>
+              <option value="<%= t %>" <%= filters.transmission === t ? 'selected' : '' %>>
+                <%= t %>
+              </option>
+              <% }); %>
+              <% } %>
+            </select>
+          </div>
+        </div>
+
+        <!-- City - Collapsible -->
+        <div class="filter-accordion <%= filters.city ? 'active' : '' %>">
+          <button type="button" class="filter-accordion-header" data-accordion="city">
+            <span class="filter-label">
+              <i class="bi bi-geo-alt"></i> City
+            </span>
+            <i class="bi bi-chevron-down accordion-icon"></i>
+          </button>
+          <div class="filter-accordion-content" data-content="city">
+            <select name="city" id="city" class="filter-select">
+              <option value="">All Cities</option>
+              <% if (typeof filterOptions !== 'undefined' && filterOptions.cities) { %>
+              <% filterOptions.cities.forEach(c => { %>
+              <option value="<%= c %>" <%= filters.city === c ? 'selected' : '' %>>
+                <%= c %>
+              </option>
+              <% }); %>
+              <% } %>
+            </select>
+          </div>
+        </div>
+
+        <!-- State - Collapsible -->
+        <div class="filter-accordion <%= filters.state ? 'active' : '' %>">
+          <button type="button" class="filter-accordion-header" data-accordion="state">
+            <span class="filter-label">
+              <i class="bi bi-map"></i> State
+            </span>
+            <i class="bi bi-chevron-down accordion-icon"></i>
+          </button>
+          <div class="filter-accordion-content" data-content="state">
+            <select name="state" id="state" class="filter-select">
+              <option value="">All States</option>
+              <% if (typeof filterOptions !== 'undefined' && filterOptions.states) { %>
+              <% filterOptions.states.forEach(s => { %>
+              <option value="<%= s %>" <%= filters.state === s ? 'selected' : '' %>>
+                <%= s %>
+              </option>
+              <% }); %>
+              <% } %>
+            </select>
+          </div>
+        </div>
+
+        <!-- Preserve search query -->
+        <% if (filters.search) { %>
+        <input type="hidden" name="search" value="<%= filters.search %>" />
+        <% } %>
+
+        <!-- Filter Buttons -->
+        <div class="filter-actions">
+          <button type="submit" class="filter-btn filter-btn-primary">
+            <i class="bi bi-search"></i> Apply Filters
+          </button>
+          <a href="/cars" class="filter-btn filter-btn-secondary">
+            <i class="bi bi-arrow-clockwise"></i> Reset
+          </a>
+        </div>
+
+        <!-- Results Count -->
+        <div class="filter-results-count">
+          <strong><%= cars.length %></strong> car<%= cars.length !== 1 ? 's' : '' %> found
+        </div>
+      </form>
+    </aside>
+
+    <!-- CARS GRID -->
+    <div class="cars-grid-container">
+      <!-- Filter Toggle Button (Mobile) -->
+      <button class="filter-toggle-btn" id="filterToggleBtn">
+        <i class="bi bi-funnel"></i> Filters
+        <% if (cars.length > 0) { %>
+        <span class="filter-badge"><%= cars.length %></span>
+        <% } %>
+      </button>
+
+      <% if (cars.length === 0) { %>
+      <div class="alert alert-warning text-center">
+        <i class="bi bi-inbox"></i> No cars found matching your filters 🚫
+        <br />
+        <a href="/cars" class="btn btn-link mt-2">Clear all filters</a>
+      </div>
+      <% } else { %>
+      <div class="row">
+        <% for (let car of cars) { %>
+        <div class="col-md-6 col-lg-6 col-xl-4 mb-4">
+          <div class="card shadow h-100">
+            <% 
+              const cardImages = (car.images && car.images.length
+                ? car.images
+                : (car.image && car.image !== '' ? [car.image] : []));
+              const cardImgSrc = cardImages.length
+                ? cardImages[0]
+                : 'https://via.placeholder.com/400x250?text=No+Image';
+            %>
+            <img
+              src="<%= cardImgSrc %>"
+              class="card-img-top"
+              alt="Car Image"
+            />
+
+              <div class="card-body">
+                <h5 class="card-title" title="<%= car.carName %>"><%= car.carName %></h5>
+                <div class="card-price">₹ <%= car.price.toLocaleString('en-IN') %></div>
+                
+                <div class="card-location">
+                  <i class="bi bi-geo-alt-fill text-danger"></i> 
+                  <span><%= car.city %>, <%= car.state %></span>
+                </div>
+
+                <% if (car.year) { %>
+                <div class="card-specs-row">
+                  <div class="spec-item"><i class="bi bi-calendar"></i> <%= car.year %></div>
+                  <div class="spec-item"><i class="bi bi-fuel-pump"></i> <%= car.fuel || 'N/A' %></div>
+                  <div class="spec-item"><i class="bi bi-gear"></i> <%= car.transmission || 'N/A' %></div>
+                </div>
+                <% } %>
+
+                <a
+                  href="/cars/<%= car._id %>"
+                  class="btn btn-primary mt-auto"
+                >
+                  View Details
+                </a>
+              </div>
+            </div>
+          </div>
+          <% } %>
+        </div>
+        <% } %>
+      </div>
+  </div>
+</div>
+
+<!-- ================= SERVICE SECTION ================= -->
+<section class="services-section">
+  <div class="container">
+    <h2 class="services-title">Our Services</h2>
+
+    <div class="row g-4 mt-4">
+      <div class="col-md-4">
+        <div class="service-card">
+          <div class="service-icon">
+            <i class="bi bi-car-front-fill"></i>
+          </div>
+          <h4>Car Selling</h4>
+          <p>The Largest Used Car Selling Platform In India.</p>
+          <a
+            href="javascript:void(0)"
+            class="service-btn"
+            data-service="car-selling"
+          >
+            Read More
+          </a>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="service-card">
+          <div class="service-icon">
+            <i class="bi bi-tools"></i>
+          </div>
+          <h4>Parts Repair</h4>
+          <p>More Than 200+ Service Stations In India.</p>
+          <a
+            href="javascript:void(0)"
+            class="service-btn"
+            data-service="parts-repair"
+          >
+            Read More
+          </a>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="service-card">
+          <div class="service-icon">
+            <i class="bi bi-shield-check"></i>
+          </div>
+          <h4>Car Insurance</h4>
+          <p>Lowest Payment With Car Insurance.</p>
+          <a
+            href="javascript:void(0)"
+            class="service-btn"
+            data-service="insurance"
+          >
+            Read More
+          </a>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="service-card">
+          <div class="service-icon">
+            <i class="bi bi-battery-charging"></i>
+          </div>
+          <h4>Battery Replacement</h4>
+          <p>Battery Replacement For Every Client.</p>
+          <a
+            href="javascript:void(0)"
+            class="service-btn"
+            data-service="battery"
+          >
+            Read More
+          </a>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="service-card">
+          <div class="service-icon">
+            <i class="bi bi-fuel-pump"></i>
+          </div>
+          <h4>Oil Change</h4>
+          <p>Oil Change With Our Own Brand.</p>
+          <a href="javascript:void(0)" class="service-btn" data-service="oil">
+            Read More
+          </a>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="service-card">
+          <div class="service-icon">
+            <i class="bi bi-headset"></i>
+          </div>
+          <h4>24/7 Support</h4>
+          <p>Call Anytime You Want.</p>
+          <a
+            href="javascript:void(0)"
+            class="service-btn"
+            data-service="support"
+          >
+            Read More
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

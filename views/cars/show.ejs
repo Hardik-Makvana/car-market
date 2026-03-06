@@ -1,0 +1,400 @@
+<div class="container car-show-page py-3">
+  <!-- ROW 1: GALLERY & KEY INFO (SPECS) -->
+  <div class="row g-3">
+    <!-- TOP LEFT: GALLERY (Col-lg-7) -->
+    <div class="col-lg-7">
+      <div class="car-image-box-centered border rounded overflow-hidden shadow-sm h-100" style="background: #f8f9fa; min-height: 400px;">
+        <% 
+          const galleryImages = (car.images && car.images.length
+            ? car.images
+            : (car.image && car.image !== '' ? [car.image] : []));
+        %>
+        <div class="car-gallery h-100 d-flex flex-column" data-gallery>
+          <div class="car-gallery-main flex-grow-1 position-relative" style="height: 400px;">
+            <% if (galleryImages.length === 0) { %>
+              <img
+                src="https://via.placeholder.com/800x450?text=No+Image"
+                alt="No Image"
+                class="car-gallery-img active w-100 h-100"
+                style="object-fit: contain;"
+              />
+            <% } else { %>
+              <% galleryImages.forEach((img, index) => { %>
+                <img
+                  src="<%= img %>"
+                  alt="Car photo <%= index + 1 %>"
+                  class="car-gallery-img <%= index === 0 ? 'active' : '' %> w-100 h-100"
+                  style="object-fit: contain;"
+                  data-index="<%= index %>"
+                />
+              <% }); %>
+            <% } %>
+
+            <% if (galleryImages.length > 1) { %>
+            <button type="button" class="gallery-nav gallery-nav-prev" data-gallery-prev>
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <button type="button" class="gallery-nav gallery-nav-next" data-gallery-next>
+              <i class="bi bi-chevron-right"></i>
+            </button>
+            <% } %>
+          </div>
+
+          <% if (galleryImages.length > 1) { %>
+          <div class="car-gallery-thumbs p-2 bg-white border-top d-flex gap-2 start-0 end-0 overflow-auto" style="height: 80px;">
+            <% galleryImages.forEach((img, index) => { %>
+              <button
+                type="button"
+                style="width: 80px; flex-shrink: 0; padding: 0; border: 2px solid transparent;"
+                class="car-gallery-thumb <%= index === 0 ? 'active' : '' %> rounded overflow-hidden"
+                data-thumb-index="<%= index %>"
+              >
+                <img src="<%= img %>" alt="Thumbnail" class="w-100 h-100" style="object-fit: cover;" />
+              </button>
+            <% }); %>
+          </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOP RIGHT: SPECS & ACTIONS (Col-lg-5) -->
+    <div class="col-lg-5">
+      <div class="card shadow-sm h-100 border-0" style="background: #fff;">
+        <div class="card-body p-3 d-flex flex-column">
+          <!-- PRICE & TITLE HEADER -->
+          <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+            <div>
+              <h1 class="h5 fw-bolder mb-0 text-dark" style="letter-spacing: -0.5px;"><%= car.carName %></h1>
+              <div class="small text-muted mt-1"><i class="bi bi-geo-alt-fill text-danger me-1"></i><%= car.city || 'N/A' %></div>
+            </div>
+            <div class="text-end">
+              <h2 class="h3 fw-bold text-success mb-0" style="font-family: 'Poppins', sans-serif;">₹ <%= car.price.toLocaleString("en-IN") %></h2>
+            </div>
+          </div>
+
+          <!-- MODERN SPECS GRID -->
+          <div class="mb-3">
+            <h6 class="fw-bold text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">Specifications</h6>
+            <div class="row g-2">
+              <div class="col-6">
+                <div class="p-2 border rounded d-flex align-items-center bg-light">
+                  <div class="rounded-circle bg-white p-2 text-primary shadow-sm me-2">
+                    <i class="bi bi-calendar-check"></i>
+                  </div>
+                  <div style="line-height: 1;">
+                    <div class="text-muted" style="font-size: 0.7rem;">Model Year</div>
+                    <div class="fw-bold text-dark"><%= car.year || '-' %></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="p-2 border rounded d-flex align-items-center bg-light">
+                  <div class="rounded-circle bg-white p-2 text-danger shadow-sm me-2">
+                    <i class="bi bi-fuel-pump"></i>
+                  </div>
+                  <div style="line-height: 1;">
+                    <div class="text-muted" style="font-size: 0.7rem;">Fuel Type</div>
+                    <div class="fw-bold text-dark"><%= car.fuel || '-' %></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="p-2 border rounded d-flex align-items-center bg-light">
+                  <div class="rounded-circle bg-white p-2 text-warning shadow-sm me-2">
+                    <i class="bi bi-gear-wide-connected"></i>
+                  </div>
+                  <div style="line-height: 1;">
+                    <div class="text-muted" style="font-size: 0.7rem;">Transmission</div>
+                    <div class="fw-bold text-dark"><%= car.transmission || '-' %></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="p-2 border rounded d-flex align-items-center bg-light">
+                  <div class="rounded-circle bg-white p-2 text-info shadow-sm me-2">
+                    <i class="bi bi-speedometer2"></i>
+                  </div>
+                  <div style="line-height: 1;">
+                    <div class="text-muted" style="font-size: 0.7rem;">Mileage</div>
+                    <div class="fw-bold text-dark"><%= car.mileage ? car.mileage + ' km' : 'N/A' %></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SELLER BADGE & CONTACT -->
+          <div class="mt-auto">
+            <h6 class="fw-bold text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">Seller Information</h6>
+            <div class="border rounded p-2 d-flex justify-content-between align-items-center mb-2" style="background: linear-gradient(to right, #ffffff, #f8f9fa);">
+              <div class="d-flex align-items-center">
+                 <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 38px; height: 38px;">
+                   <i class="bi bi-person-fill fs-5"></i>
+                 </div>
+                 <div>
+                   <div class="fw-bold text-dark" style="font-size: 0.9rem;"><%= car.dealerName %></div>
+                   <div class="text-success small" style="font-size: 0.7rem;"><i class="bi bi-patch-check-fill me-1"></i>Verified Seller</div>
+                 </div>
+              </div>
+            </div>
+
+            <div class="row g-2">
+              <div class="col-6">
+                <a href="tel:<%= car.dealerPhone %>" class="btn btn-dark w-100 d-flex justify-content-center align-items-center py-2">
+                  <i class="bi bi-telephone-fill me-2"></i> Call
+                </a>
+              </div>
+              <div class="col-6">
+                <a href="https://wa.me/<%= car.dealerPhone.replace(/[^0-9]/g, '') %>" target="_blank" class="btn btn-success w-100 d-flex justify-content-center align-items-center py-2">
+                  <i class="bi bi-whatsapp me-2"></i> Chat
+                </a>
+              </div>
+            </div>
+            
+            <!-- OWNER EDIT/DELETE -->
+            <% if (currentUser && car.owner && car.owner.toString() === currentUser._id.toString()) { %>
+              <div class="mt-2 pt-2 border-top d-flex gap-2">
+                <a href="/cars/<%= car._id %>/edit" class="btn btn-sm btn-outline-secondary flex-fill">Edit Listing</a>
+                <form action="/cars/<%= car._id %>?_method=DELETE" method="POST" class="flex-fill" onsubmit="return confirm('Delete?');">
+                  <button class="btn btn-sm btn-outline-danger w-100">Delete</button>
+                </form>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 2: DESCRIPTION & REVIEWS -->
+  <div class="row g-3 mt-1">
+    <!-- DESCRIPTION (Col-lg-7) -->
+    <div class="col-lg-7">
+      <div class="card shadow-sm h-100 border-0">
+        <div class="card-header bg-white py-2 border-bottom-0">
+          <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-card-text me-2 text-primary"></i>Description</h6>
+        </div>
+        <div class="card-body pt-0">
+          <p class="text-secondary small mb-0" style="white-space: pre-line; line-height: 1.6;">
+            <%= car.description || 'No description available for this vehicle.' %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIEWS (Col-lg-5) -->
+    <div class="col-lg-5">
+      <div class="card shadow-sm h-100 border-0">
+        <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center border-bottom-0">
+          <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-star-fill me-2 text-warning"></i>Reviews (<%= car.reviews.length %>)</h6>
+          <% if (!currentUser) { %>
+            <small><a href="/login" class="text-decoration-none">Login</a> to review</small>
+          <% } %>
+        </div>
+        
+        <div class="card-body p-0 d-flex flex-column">
+          <!-- REVIEW LIST (SCROLLABLE) -->
+          <div class="review-list flex-grow-1 overflow-auto px-3" style="max-height: 200px;">
+            <% if (car.reviews.length > 0) { %>
+              <% for (let review of car.reviews) { %>
+                <div class="mb-2 p-2 rounded bg-light border-0">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                      <div class="fw-bold small me-2"><%= review.author ? review.author.username : 'User' %></div>
+                      <div class="text-warning" style="font-size: 0.7rem;">
+                        <% for(let i=1; i<=5; i++) { %><span><%= i<=review.rating ? '★' : '☆' %></span><% } %>
+                      </div>
+                    </div>
+                    <% if (currentUser && review.author && review.author.toString() === currentUser._id.toString()) { %>
+                    <form action="/cars/<%= car._id %>/reviews/<%= review._id %>?_method=DELETE" method="POST">
+                       <button class="btn btn-link text-muted p-0" style="font-size: 0.8rem;"><i class="bi bi-x-circle"></i></button>
+                    </form>
+                    <% } %>
+                  </div>
+                  <p class="small text-muted mb-0 mt-1 fst-italic">"<%= review.comment %>"</p>
+                </div>
+              <% } %>
+            <% } else { %>
+              <div class="text-center text-muted small my-3 py-3 border rounded border-dashed">No reviews yet.</div>
+            <% } %>
+          </div>
+
+          <!-- ADD REVIEW -->
+          <% if (currentUser) { %>
+          <div class="p-2 border-top">
+            <form action="/cars/<%= car._id %>/reviews" method="POST">
+              <div class="input-group input-group-sm">
+                <select name="review[rating]" class="form-select bg-light border-0" style="max-width: 60px;" required>
+                  <option value="5">5★</option>
+                  <option value="4">4★</option>
+                  <option value="3">3★</option>
+                  <option value="2">2★</option>
+                  <option value="1">1★</option>
+                </select>
+                <input type="text" name="review[comment]" class="form-control bg-light border-0" placeholder="Type a review..." required>
+                <button class="btn btn-primary"><i class="bi bi-send-fill"></i></button>
+              </div>
+            </form>
+          </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox Modal -->
+<div class="image-modal" id="imageModal">
+  <button class="image-modal-close">&times;</button>
+  <button class="image-modal-nav image-modal-prev"><i class="bi bi-chevron-left"></i></button>
+  <img src="" alt="Full Screen View" class="image-modal-content" id="modalImage">
+  <button class="image-modal-nav image-modal-next"><i class="bi bi-chevron-right"></i></button>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Gallery Elements
+    const mainContainer = document.querySelector('.car-gallery-main');
+    const mainImages = document.querySelectorAll('.car-gallery-img');
+    const thumbs = document.querySelectorAll('.car-gallery-thumb');
+    const prevBtn = document.querySelector('[data-gallery-prev]');
+    const nextBtn = document.querySelector('[data-gallery-next]');
+    
+    // Modal Elements
+    const modal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const modalClose = document.querySelector('.image-modal-close');
+    const modalPrev = document.querySelector('.image-modal-prev');
+    const modalNext = document.querySelector('.image-modal-next');
+
+    let currentIndex = 0;
+
+    // --- Inline Gallery Logic ---
+    function updateGallery(index) {
+      // Remove active class from all
+      mainImages.forEach(img => img.classList.remove('active'));
+      thumbs.forEach(thumb => thumb.classList.remove('active'));
+      
+      // Add active to current
+      if(mainImages[index]) mainImages[index].classList.add('active');
+      if(thumbs[index]) {
+        thumbs[index].classList.add('active');
+        thumbs[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+      
+      currentIndex = index;
+    }
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent modal open
+        let newIndex = currentIndex - 1;
+        if (newIndex < 0) newIndex = mainImages.length - 1;
+        updateGallery(newIndex);
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent modal open
+        let newIndex = currentIndex + 1;
+        if (newIndex >= mainImages.length) newIndex = 0;
+        updateGallery(newIndex);
+      });
+    }
+
+    thumbs.forEach((thumb, idx) => {
+      thumb.addEventListener('click', () => updateGallery(idx));
+    });
+
+    // --- Lightbox / Zoom Logic ---
+    
+    // Open Modal
+    if (mainContainer) {
+      mainContainer.addEventListener('click', (e) => {
+        // Only open if clicking the image itself, not the nav buttons
+        if (e.target.closest('.car-gallery-img')) {
+          const currentImg = mainImages[currentIndex];
+          if (currentImg) {
+            modalImage.src = currentImg.src;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Disable scroll
+          }
+        }
+      });
+    }
+
+    // Close Modal
+    function closeModal() {
+      modal.classList.remove('active');
+      modalImage.classList.remove('zoomed'); // Reset zoom
+      document.body.style.overflow = '';
+      modalImage.style.transformOrigin = 'center center';
+    }
+
+    if (modalClose) modalClose.addEventListener('click', closeModal);
+    
+    // Close on background click
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+    }
+    
+    // Escape key to close
+    document.addEventListener('keydown', (e) => {
+      if (modal && modal.classList.contains('active')) {
+        if (e.key === 'Escape') closeModal();
+        if (e.key === 'ArrowLeft') modalPrev.click();
+        if (e.key === 'ArrowRight') modalNext.click();
+      }
+    });
+
+    // Modal Navigation
+    function updateModalImage(index) {
+      updateGallery(index); // Sync main gallery
+      if (mainImages[currentIndex]) {
+        modalImage.src = mainImages[currentIndex].src;
+        modalImage.classList.remove('zoomed'); // Reset zoom on change
+        modalImage.style.transformOrigin = 'center center';
+      }
+    }
+
+    if (modalPrev) {
+      modalPrev.addEventListener('click', (e) => {
+        e.stopPropagation();
+        let newIndex = currentIndex - 1;
+        if (newIndex < 0) newIndex = mainImages.length - 1;
+        updateModalImage(newIndex);
+      });
+    }
+
+    if (modalNext) {
+      modalNext.addEventListener('click', (e) => {
+        e.stopPropagation();
+        let newIndex = currentIndex + 1;
+        if (newIndex >= mainImages.length) newIndex = 0;
+        updateModalImage(newIndex);
+      });
+    }
+
+    // Zoom Toggle
+    if (modalImage) {
+      modalImage.addEventListener('click', (e) => {
+        e.stopPropagation();
+        modalImage.classList.toggle('zoomed');
+        
+        if (modalImage.classList.contains('zoomed')) {
+          const rect = modalImage.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          modalImage.style.transformOrigin = `${x}px ${y}px`;
+        } else {
+          modalImage.style.transformOrigin = 'center center';
+        }
+      });
+    }
+
+  });
+</script>

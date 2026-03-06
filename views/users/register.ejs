@@ -1,0 +1,67 @@
+<section class="auth-page">
+  <div class="auth-card auth-card-enhanced">
+    <!-- Logo/Icon -->
+    <div class="auth-icon-wrapper">
+      <div class="auth-icon auth-icon-register">
+        <i class="bi bi-person-plus"></i>
+      </div>
+    </div>
+
+    <!-- Title -->
+    <h2 class="auth-title">Create Your Account</h2>
+    <p class="auth-subtitle">Join Ridehub and find your perfect car 🚗</p>
+
+    <!-- REGISTER FORM -->
+    <form action="/register" method="POST" class="auth-form-enhanced">
+      <div class="auth-group">
+        <label>
+          <i class="bi bi-person"></i> Username
+        </label>
+        <input
+          type="text"
+          name="username"
+          placeholder="Choose a username"
+          required
+          autocomplete="username"
+        />
+      </div>
+
+      <div class="auth-group">
+        <label>
+          <i class="bi bi-envelope"></i> Email Address
+        </label>
+        <input
+          type="email"
+          name="email"
+          placeholder="Enter your email address"
+          required
+          autocomplete="email"
+        />
+      </div>
+
+      <div class="auth-group">
+        <label>
+          <i class="bi bi-lock"></i> Password
+        </label>
+        <input
+          type="password"
+          name="password"
+          placeholder="Create a strong password"
+          required
+          autocomplete="new-password"
+        />
+        <small class="form-hint">Use at least 6 characters</small>
+      </div>
+
+      <button type="submit" class="auth-btn auth-btn-enhanced">
+        <i class="bi bi-person-plus-fill"></i> Create Account
+      </button>
+    </form>
+
+    <!-- FOOTER -->
+    <p class="auth-footer">
+      Already have an account?
+      <a href="/login">Login Here</a>
+    </p>
+  </div>
+</section>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ridehub</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Icons (ONLY ONE) -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+
+    <!-- Google Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+
+  <body>
+    <!-- ================= NAVBAR ================= -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+      <div class="container-fluid d-flex align-items-center">
+        <!-- LOGO -->
+        <a class="navbar-brand ridehub-logo" href="/cars">
+          <span class="ride">Ride</span><span class="hub">hub</span>
+        </a>
+
+        <!-- SEARCH BAR -->
+        <form class="search-wrapper mx-auto" method="GET" action="/cars">
+          <input
+            type="text"
+            name="search"
+            id="searchInput"
+            placeholder="Search cars..."
+          />
+          <button type="submit" class="search-submit-btn">
+            <i class="bi bi-search"></i>
+            <span>Search</span>
+          </button>
+        </form>
+
+        <!-- RIGHT NAV -->
+        <ul class="navbar-nav align-items-center gap-4">
+          <li class="nav-item">
+            <a class="nav-link fw-medium" href="/cars/new">Sell Car</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link fw-medium" href="/cars">All Cars</a>
+          </li>
+
+          <% if (!currentUser) { %>
+          <li class="nav-item">
+            <a class="nav-link login-register" href="/login">
+              <i class="bi bi-person"></i>
+              <span>Login</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link login-register" href="/register">
+              <i class="bi bi-person"></i>
+              <span>Register</span>
+            </a>
+          </li>
+          <% } else { %>
+          <li class="nav-item d-flex align-items-center gap-2">
+            <img
+              src="https://ui-avatars.com/api/?name=<%= currentUser.username %>&background=0D6EFD&color=fff"
+              class="user-avatar"
+              alt="user"
+            />
+            <a class="nav-link logout-link" href="/logout">Logout</a>
+          </li>
+          <% } %>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- FLASH -->
+    <div class="container mt-3"><%- include("../partials/flash") %></div>
+
+    <!-- MAIN CONTENT -->
+    <div class="container mt-4"><%- body %></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- AUTO SEARCH -->
+    <!-- AUTO SEARCH & MAIN SCRIPT -->
+    <script src="/js/main.js"></script>
+
+    <!-- ================= IMAGE LIGHTBOX MODAL ================= -->
+    <div class="image-modal" id="imageModal">
+      <button class="image-modal-close">&times;</button>
+      <img class="image-modal-content" id="modalImage" src="" alt="Zoomed Car Image" />
+    </div>
+
+    <!-- ================= SERVICE MODAL ================= -->
+    <div class="service-modal" id="serviceModal">
+      <div class="service-modal-box">
+        <button class="modal-close">&times;</button>
+        <h3 id="modalTitle"></h3>
+        <p id="modalContent"></p>
+      </div>
+    </div>
+
+    <!-- ================= FILTER OVERLAY (MOBILE) ================= -->
+    <div class="filter-overlay" id="filterOverlay"></div>
+
+    <%- include("../partials/footer") %>
+  </body>
+</html>
