@@ -1,67 +1,184 @@
-<section class="auth-page">
-  <div class="auth-card auth-card-enhanced">
-    <!-- Logo/Icon -->
-    <div class="auth-icon-wrapper">
-      <div class="auth-icon auth-icon-register">
-        <i class="bi bi-person-plus"></i>
-      </div>
-    </div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Title -->
-    <h2 class="auth-title">Create Your Account</h2>
+<style>
+  .auth-page-wrap {
+    font-family: 'Inter', sans-serif;
+    background: #eef2f7;
+    min-height: calc(100vh - 70px);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px 48px;
+  }
+
+  .auth-card {
+    background: #fff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 460px;
+    padding: 40px 40px 32px;
+    box-shadow: 0 4px 24px rgba(15,30,70,0.10), 0 1px 4px rgba(15,30,70,0.06);
+  }
+
+  .auth-icon {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 2px solid #dde3ee;
+    display: flex; align-items: center; justify-content: center;
+    color: #2563eb; font-size: 1.2rem;
+    margin-bottom: 18px;
+  }
+
+  .auth-title {
+    font-size: 1.65rem; font-weight: 800;
+    color: #0f1c3f; margin-bottom: 6px; line-height: 1.2;
+  }
+  .auth-subtitle {
+    font-size: 0.88rem; color: #6b7fa8;
+    margin-bottom: 28px; line-height: 1.5;
+  }
+
+  .auth-field { margin-bottom: 20px; }
+
+  .auth-label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.85rem; font-weight: 600;
+    color: #0f1c3f; margin-bottom: 8px;
+  }
+  .auth-label i { font-size: 0.88rem; }
+
+  .auth-input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid #dde3ee;
+    border-radius: 10px;
+    font-size: 0.9rem; font-family: 'Inter', sans-serif;
+    color: #0f1c3f; background: #fff; outline: none;
+    transition: border-color 0.18s, box-shadow 0.18s;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .auth-input::placeholder { color: #b0bcce; }
+  .auth-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
+  }
+  .auth-input:hover:not(:focus) { border-color: #c4cfe8; }
+
+  .pw-wrap { position: relative; }
+  .pw-toggle {
+    position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer;
+    color: #b0bcce; font-size: 0.95rem; padding: 0;
+    line-height: 1; transition: color 0.18s;
+  }
+  .pw-toggle:hover { color: #2563eb; }
+  .pw-input { padding-right: 42px; }
+
+  .auth-hint {
+    font-size: 0.78rem; color: #9aaac4;
+    margin-top: 6px; display: block;
+  }
+
+  .auth-btn {
+    width: 100%; padding: 14px;
+    background: #2563eb; color: #fff;
+    border: none; border-radius: 10px;
+    font-size: 0.92rem; font-weight: 700; font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background 0.18s, transform 0.15s;
+    margin-top: 6px;
+  }
+  .auth-btn:hover { background: #1d4fd7; transform: translateY(-1px); }
+  .auth-btn:active { transform: translateY(0); }
+
+  .auth-footer {
+    text-align: center; margin-top: 20px;
+    font-size: 0.82rem; color: #6b7fa8;
+  }
+  .auth-footer a {
+    color: #2563eb; font-weight: 600; text-decoration: none;
+  }
+  .auth-footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 520px) {
+    .auth-card { padding: 28px 20px 24px; }
+    .auth-title { font-size: 1.35rem; }
+  }
+</style>
+
+<div class="auth-page-wrap">
+  <div class="auth-card">
+
+    <div class="auth-icon"><i class="bi bi-person-plus"></i></div>
+    <h2 class="auth-title">Create Account</h2>
     <p class="auth-subtitle">Join Ridehub and find your perfect car 🚗</p>
 
-    <!-- REGISTER FORM -->
-    <form action="/register" method="POST" class="auth-form-enhanced">
-      <div class="auth-group">
-        <label>
-          <i class="bi bi-person"></i> Username
-        </label>
+    <form action="/register" method="POST">
+
+      <div class="auth-field">
+        <label class="auth-label"><i class="bi bi-person"></i> Username</label>
         <input
           type="text"
           name="username"
+          class="auth-input"
           placeholder="Choose a username"
           required
           autocomplete="username"
         />
       </div>
 
-      <div class="auth-group">
-        <label>
-          <i class="bi bi-envelope"></i> Email Address
-        </label>
+      <div class="auth-field">
+        <label class="auth-label"><i class="bi bi-envelope"></i> Email Address</label>
         <input
           type="email"
           name="email"
+          class="auth-input"
           placeholder="Enter your email address"
           required
           autocomplete="email"
         />
       </div>
 
-      <div class="auth-group">
-        <label>
-          <i class="bi bi-lock"></i> Password
-        </label>
-        <input
-          type="password"
-          name="password"
-          placeholder="Create a strong password"
-          required
-          autocomplete="new-password"
-        />
-        <small class="form-hint">Use at least 6 characters</small>
+      <div class="auth-field">
+        <label class="auth-label"><i class="bi bi-lock"></i> Password</label>
+        <div class="pw-wrap">
+          <input
+            type="password"
+            name="password"
+            id="rPwd"
+            class="auth-input pw-input"
+            placeholder="Create a strong password"
+            required
+            autocomplete="new-password"
+          />
+          <button
+            type="button"
+            class="pw-toggle"
+            onclick="
+              var i=document.getElementById('rPwd');
+              var t=i.type==='text';
+              i.type=t?'password':'text';
+              this.querySelector('i').className=t?'bi bi-eye':'bi bi-eye-slash';
+            "
+          ><i class="bi bi-eye"></i></button>
+        </div>
+        <span class="auth-hint">Use at least 6 characters</span>
       </div>
 
-      <button type="submit" class="auth-btn auth-btn-enhanced">
+      <button type="submit" class="auth-btn">
         <i class="bi bi-person-plus-fill"></i> Create Account
       </button>
+
     </form>
 
-    <!-- FOOTER -->
     <p class="auth-footer">
-      Already have an account?
-      <a href="/login">Login Here</a>
+      Already have an account? <a href="/login">Login Here</a>
     </p>
+
   </div>
-</section>
+</div>

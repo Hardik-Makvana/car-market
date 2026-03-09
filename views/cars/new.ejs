@@ -1,227 +1,385 @@
-<section class="auth-page sell-car-page">
-  <div class="auth-card auth-wide auth-card-enhanced">
-    <!-- Icon -->
-    <div class="auth-icon-wrapper">
-      <div class="auth-icon auth-icon-sell">
-        <i class="bi bi-car-front-fill"></i>
-      </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sell Car — Ridehub</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ── Same base as login/register ── */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #eef2f7;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sc-page {
+    min-height: calc(100vh - 70px);
+    padding: 40px 24px 60px;
+    background: #eef2f7;
+    display: flex;
+    justify-content: center;
+  }
+
+  .sc-container {
+    width: 100%;
+    max-width: 860px;
+  }
+
+  /* ── Header (same style as auth-icon + auth-title) ── */
+  .sc-header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .sc-header-icon {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 2px solid #dde3ee;
+    display: flex; align-items: center; justify-content: center;
+    color: #2563eb; font-size: 1.2rem;
+    margin: 0 auto 14px;
+  }
+  .sc-header h1 {
+    font-size: 1.65rem; font-weight: 800;
+    color: #0f1c3f; line-height: 1.2; margin-bottom: 6px;
+  }
+  .sc-header p {
+    font-size: 0.88rem; color: #6b7fa8; line-height: 1.5;
+  }
+
+  /* ── Card (same as auth-card) ── */
+  .sc-card {
+    background: #fff;
+    border-radius: 16px;
+    width: 100%;
+    padding: 32px 36px 28px;
+    box-shadow: 0 4px 24px rgba(15,30,70,0.10), 0 1px 4px rgba(15,30,70,0.06);
+    margin-bottom: 16px;
+  }
+
+  .sc-section-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #2563eb;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .sc-section-title i { font-size: 0.82rem; }
+
+  /* ── Grid ── */
+  .sc-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+  .sc-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .sc-grid-full { grid-column: 1 / -1; }
+
+  /* ── Fields (same as auth-field) ── */
+  .sc-field { display: flex; flex-direction: column; gap: 6px; }
+
+  .sc-label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.85rem; font-weight: 600;
+    color: #0f1c3f;
+  }
+  .sc-label i { font-size: 0.85rem; color: #2563eb; }
+  .sc-req { color: #dc2626; margin-left: 1px; font-size: 0.7rem; }
+
+  /* ── Inputs (same as auth-input) ── */
+  .sc-input, .sc-select, .sc-textarea {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid #dde3ee;
+    border-radius: 10px;
+    font-size: 0.9rem; font-family: 'Inter', sans-serif;
+    color: #0f1c3f; background: #fff; outline: none;
+    transition: border-color 0.18s, box-shadow 0.18s;
+    -webkit-appearance: none; appearance: none;
+  }
+  .sc-input::placeholder, .sc-textarea::placeholder { color: #b0bcce; }
+  .sc-input:focus, .sc-select:focus, .sc-textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
+  }
+  .sc-input:hover:not(:focus),
+  .sc-select:hover:not(:focus),
+  .sc-textarea:hover:not(:focus) { border-color: #c4cfe8; }
+
+  .sc-select-wrap { position: relative; }
+  .sc-select-wrap::after {
+    content: '\F282'; font-family: 'bootstrap-icons';
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    color: #b0bcce; font-size: 0.8rem; pointer-events: none;
+  }
+  .sc-select { padding-right: 38px; cursor: pointer; }
+
+  .sc-textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+
+  .sc-hint {
+    font-size: 0.75rem; color: #6b7fa8;
+    display: flex; align-items: flex-start; gap: 5px; line-height: 1.4;
+  }
+  .sc-hint i { color: #2563eb; flex-shrink: 0; margin-top: 1px; font-size: 0.75rem; }
+
+  .sc-char-row {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .sc-char-count { font-size: 0.72rem; color: #b0bcce; }
+
+  /* ── Upload ── */
+  .sc-upload-area {
+    border: 1.5px dashed #c4cfe8;
+    border-radius: 10px;
+    padding: 22px 16px;
+    text-align: center;
+    cursor: pointer;
+    background: #f8faff;
+    transition: border-color 0.18s, background 0.18s;
+    position: relative;
+  }
+  .sc-upload-area:hover { border-color: #2563eb; background: #eff6ff; }
+  .sc-upload-area.has-files { border-color: #2563eb; background: #eff6ff; border-style: solid; }
+  .sc-upload-input {
+    position: absolute; inset: 0; opacity: 0;
+    cursor: pointer; width: 100%; height: 100%;
+  }
+  .sc-upload-icon { color: #2563eb; font-size: 1.4rem; margin-bottom: 6px; }
+  .sc-upload-title { font-size: 0.88rem; font-weight: 600; color: #0f1c3f; margin-bottom: 2px; }
+  .sc-upload-title span { color: #2563eb; }
+  .sc-upload-sub { font-size: 0.75rem; color: #6b7fa8; }
+  .sc-upload-preview { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; justify-content: center; }
+  .sc-preview-thumb {
+    width: 64px; height: 48px; border-radius: 6px;
+    object-fit: cover; border: 1.5px solid #dde3ee; display: none;
+  }
+  .sc-upload-count {
+    display: none; font-size: 0.76rem; font-weight: 600;
+    color: #16a34a; margin-top: 6px;
+    align-items: center; justify-content: center; gap: 5px;
+  }
+
+  /* ── Divider between sections ── */
+  .sc-divider {
+    height: 1px; background: #f0f4fb; margin: 20px 0;
+  }
+
+  /* ── Submit button (same as auth-btn) ── */
+  .sc-submit-btn {
+    width: 100%; padding: 14px;
+    background: #2563eb; color: #fff;
+    border: none; border-radius: 10px;
+    font-size: 0.92rem; font-weight: 700; font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background 0.18s, transform 0.15s;
+    margin-top: 4px;
+  }
+  .sc-submit-btn:hover { background: #1d4fd7; transform: translateY(-1px); }
+  .sc-submit-btn:active { transform: translateY(0); }
+
+  .sc-submit-note {
+    text-align: center; margin-top: 12px;
+    font-size: 0.78rem; color: #6b7fa8;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+  }
+
+  @media (max-width: 700px) {
+    .sc-card { padding: 24px 20px 20px; }
+    .sc-grid { grid-template-columns: 1fr 1fr; }
+    .sc-grid-2 { grid-template-columns: 1fr; }
+    .sc-header h1 { font-size: 1.35rem; }
+    [style*="grid-template-columns:1fr 1fr 1fr 1fr"] {
+      grid-template-columns: 1fr 1fr !important;
+    }
+  }
+  @media (max-width: 480px) {
+    .sc-grid { grid-template-columns: 1fr; }
+    .sc-grid-2 { grid-template-columns: 1fr; }
+    [style*="grid-template-columns:1fr 1fr 1fr 1fr"] {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="sc-page">
+  <div class="sc-container">
+
+    <!-- Header -->
+    <div class="sc-header">
+      <!-- <div class="sc-header-icon"><i class="bi bi-car-front-fill"></i></div> -->
+      <h1>Sell Your Car</h1>
+      <p>Fill in the details below to list your car and reach thousands of buyers 🚗</p>
     </div>
 
-    <!-- TITLE -->
-    <h2 class="auth-title" style="font-size: 1.5rem;">Sell Your Car 🚗</h2>
-    <p class="auth-subtitle" style="font-size: 0.9rem;">
-      Fill the details below to list your car on Ridehub and reach thousands of buyers
-    </p>
+    <form action="/cars" method="POST" enctype="multipart/form-data">
 
-    <!-- ADD CAR FORM -->
-    <form action="/cars" method="POST" class="auth-form-enhanced" enctype="multipart/form-data">
-      <!-- CAR BASIC INFO SECTION -->
-      <div class="form-section">
-        <h3 class="form-section-title" style="font-size: 1.1rem;">
-          <i class="bi bi-info-circle"></i> Basic Information
-        </h3>
-        <div class="auth-grid">
-          <!-- CAR NAME -->
-          <div class="auth-group">
-            <label>
-              <i class="bi bi-tag"></i> Car Name
-            </label>
-            <input
-              type="text"
-              name="car[carName]"
-              placeholder="e.g. Toyota Fortuner"
-              required
-            />
+      <!-- BASIC INFO + SPECS card -->
+      <div class="sc-card">
+
+        <div class="sc-section-title"><i class="bi bi-tag-fill"></i> Basic Information</div>
+        <div class="sc-grid-2">
+          <div class="sc-field">
+            <label class="sc-label"><i class="bi bi-car-front"></i> Car Name <span class="sc-req">*</span></label>
+            <input type="text" name="car[carName]" class="sc-input" placeholder="e.g. Toyota Fortuner 2022" required />
           </div>
+          <div class="sc-field">
+            <label class="sc-label"><i class="bi bi-currency-rupee"></i> Asking Price (₹) <span class="sc-req">*</span></label>
+            <input type="number" name="car[price]" class="sc-input" placeholder="e.g. 1800000" required min="0" />
+          </div>
+        </div>
 
-          <!-- PRICE -->
-          <div class="auth-group">
-            <label>
-              <i class="bi bi-currency-rupee"></i> Price (₹)
-            </label>
-            <input
-              type="number"
-              name="car[price]"
-              placeholder="e.g. 1800000"
-              required
-              min="0"
-            />
+        <div class="sc-divider"></div>
+
+        <div class="sc-section-title"><i class="bi bi-sliders"></i> Specifications</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:18px; margin-bottom:0;">
+          <div class="sc-field">
+            <label class="sc-label"><i class="bi bi-calendar-check"></i> Model Year <span class="sc-req">*</span></label>
+            <input type="number" name="car[year]" class="sc-input" placeholder="e.g. 2021" min="1990" max="2026" required />
+          </div>
+          <div class="sc-field">
+            <label class="sc-label"><i class="bi bi-speedometer2"></i> Mileage (km) <span class="sc-req">*</span></label>
+            <input type="number" name="car[mileage]" class="sc-input" placeholder="e.g. 45000" required min="0" />
+          </div>
+          <div class="sc-field">
+            <label class="sc-label"><i class="bi bi-fuel-pump"></i> Fuel Type <span class="sc-req">*</span></label>
+            <div class="sc-select-wrap">
+              <select name="car[fuel]" class="sc-select" required>
+                <option value="">Select fuel type</option>
+                <option>Petrol</option><option>Diesel</option><option>CNG</option><option>Electric</option><option>Hybrid</option>
+              </select>
+            </div>
+          </div>
+          <div class="sc-field">
+            <label class="sc-label"><i class="bi bi-gear-wide-connected"></i> Transmission <span class="sc-req">*</span></label>
+            <div class="sc-select-wrap">
+              <select name="car[transmission]" class="sc-select" required>
+                <option value="">Select transmission</option>
+                <option>Manual</option><option>Automatic</option><option>CVT</option><option>AMT</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:18px;">
+          <div class="sc-field">
+            <label class="sc-label"><i class="bi bi-images"></i> Car Photos <span class="sc-req">*</span></label>
+            <div class="sc-upload-area" id="scUploadArea">
+              <input type="file" name="images" id="scImages" class="sc-upload-input" multiple accept="image/*" required />
+              <div class="sc-upload-icon"><i class="bi bi-cloud-upload"></i></div>
+              <div class="sc-upload-title">Drop photos here or <span>browse</span></div>
+              <div class="sc-upload-sub">2–6 photos recommended · Max 10MB each</div>
+              <div class="sc-upload-preview" id="scPreview"></div>
+              <div class="sc-upload-count" id="scUploadCount">
+                <i class="bi bi-check-circle-fill"></i>
+                <span id="scUploadCountText"></span>
+              </div>
+            </div>
+            <p class="sc-hint"><i class="bi bi-info-circle"></i> Clear photos of front, rear, side & interior get more inquiries.</p>
           </div>
         </div>
       </div>
 
-      <!-- CAR SPECIFICATIONS SECTION -->
-      <div class="form-section">
-        <h3 class="form-section-title" style="font-size: 1.1rem;">
-          <i class="bi bi-gear"></i> Car Specifications
-        </h3>
-        <div class="auth-grid">
-          <!-- MILEAGE -->
-          <div class="auth-group">
-            <label>
-              <i class="bi bi-speedometer2"></i> Mileage (km)
-            </label>
-            <input
-              type="number"
-              name="car[mileage]"
-              placeholder="e.g. 45000"
-              required
-              min="0"
-            />
-          </div>
-          <!-- YEAR -->
-          <div class="auth-group">
-            <label>
-              <i class="bi bi-calendar"></i> Model Year
-            </label>
-            <input 
-              type="number" 
-              name="car[year]" 
-              placeholder="e.g. 2021"
-              min="1990"
-              max="<%= new Date().getFullYear() + 1 %>"
-              required
-            />
-          </div>
+      <!-- LOCATION + CONTACT card -->
+      <div class="sc-card">
 
-          <!-- FUEL -->
-          <div class="auth-group">
-            <label>
-              <i class="bi bi-fuel-pump"></i> Fuel Type
-            </label>
-            <select name="car[fuel]" required>
-              <option value="">Select fuel type</option>
-              <option>Petrol</option>
-              <option>Diesel</option>
-              <option>CNG</option>
-              <option>Electric</option>
-              <option>Hybrid</option>
-            </select>
+        <div class="sc-section-title"><i class="bi bi-geo-alt-fill"></i> Location & Contact</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:18px;">
+          <div class="sc-field">
+            <label class="sc-label"><i class="bi bi-building"></i> City <span class="sc-req">*</span></label>
+            <input type="text" name="car[city]" class="sc-input" placeholder="e.g. Rajkot" required />
           </div>
+          <div class="sc-field">
+            <label class="sc-label"><i class="bi bi-map"></i> State <span class="sc-req">*</span></label>
+            <input type="text" name="car[state]" class="sc-input" placeholder="e.g. Gujarat" required />
+          </div>
+          <div class="sc-field">
+            <label class="sc-label"><i class="bi bi-person-badge"></i> Owner Name <span class="sc-req">*</span></label>
+            <input type="text" name="car[dealerName]" class="sc-input" placeholder="Your full name" required />
+          </div>
+          <div class="sc-field">
+            <label class="sc-label"><i class="bi bi-telephone-fill"></i> Phone Number <span class="sc-req">*</span></label>
+            <input type="tel" name="car[dealerPhone]" class="sc-input" placeholder="+91 98765 43210" required pattern="[0-9+\s-]+" />
+          </div>
+        </div>
+        <p class="sc-hint" style="margin-top:12px;"><i class="bi bi-shield-check"></i> Phone is only shared with genuine buyers.</p>
+      </div>
 
-          <!-- TRANSMISSION -->
-          <div class="auth-group">
-            <label>
-              <i class="bi bi-gear"></i> Transmission
-            </label>
-            <select name="car[transmission]" required>
-              <option value="">Select transmission</option>
-              <option>Manual</option>
-              <option>Automatic</option>
-              <option>CVT</option>
-              <option>AMT</option>
-            </select>
+      <!-- DESCRIPTION card -->
+      <div class="sc-card">
+        <div class="sc-section-title"><i class="bi bi-pencil-square"></i> Description</div>
+        <div class="sc-field">
+          <div class="sc-char-row">
+            <label class="sc-label"><i class="bi bi-file-text"></i> About Your Car</label>
+            <span class="sc-char-count" id="scCharCount">0 / 1000</span>
           </div>
+          <textarea name="car[description]" class="sc-textarea" id="scDesc" maxlength="1000"
+            placeholder="Describe condition, service history, features, reason for selling…"></textarea>
+          <p class="sc-hint"><i class="bi bi-lightbulb"></i> Listings with good descriptions get 3× more inquiries.</p>
+        </div>
 
-          <!-- IMAGES (FILE UPLOAD) -->
-          <div class="auth-group">
-            <label>
-              <i class="bi bi-images"></i> Car Photos
-            </label>
-            <input
-              type="file"
-              name="images"
-              id="images"
-              class="form-control"
-              multiple
-              accept="image/*"
-              required
-            />
-            <small class="form-hint">Upload 2–6 clear photos (front, side, interior, etc.).</small>
-          </div>
+        <div style="margin-top:20px;">
+          <button type="submit" class="sc-submit-btn">
+            <i class="bi bi-rocket-takeoff-fill"></i> Publish Listing
+          </button>
+          <p class="sc-submit-note"><i class="bi bi-check-circle"></i> Your listing goes live instantly after submission</p>
         </div>
       </div>
 
-      <!-- LOCATION SECTION -->
-      <div class="form-section">
-        <h3 class="form-section-title" style="font-size: 1.1rem;">
-          <i class="bi bi-geo-alt"></i> Location
-        </h3>
-        <div class="auth-grid">
-          <!-- CITY -->
-          <div class="auth-group">
-            <label>
-              <i class="bi bi-building"></i> City
-            </label>
-            <input 
-              type="text" 
-              name="car[city]" 
-              placeholder="e.g. Rajkot"
-              required
-            />
-          </div>
-
-          <!-- STATE -->
-          <div class="auth-group">
-            <label>
-              <i class="bi bi-map"></i> State
-            </label>
-            <input 
-              type="text" 
-              name="car[state]" 
-              placeholder="e.g. Gujarat"
-              required
-            />
-          </div>
-        </div>
-      </div>
-
-      <!-- CONTACT INFORMATION SECTION -->
-      <div class="form-section">
-        <h3 class="form-section-title" style="font-size: 1.1rem;">
-          <i class="bi bi-person-circle"></i> Contact Information
-        </h3>
-        <div class="auth-grid">
-          <div class="auth-group">
-            <label>
-              <i class="bi bi-person"></i> Owner Name
-            </label>
-            <input
-              type="text"
-              name="car[dealerName]"
-              placeholder="Your full name"
-              required
-            />
-          </div>
-
-          <div class="auth-group">
-            <label>
-              <i class="bi bi-telephone"></i> Phone Number
-            </label>
-            <input
-              type="tel"
-              name="car[dealerPhone]"
-              placeholder="e.g. +91 9876543210"
-              required
-              pattern="[0-9+\s-]+"
-            />
-            <small class="form-hint">Buyers will contact you on this number</small>
-          </div>
-        </div>
-      </div>
-
-      <!-- DESCRIPTION SECTION -->
-      <div class="form-section">
-        <h3 class="form-section-title" style="font-size: 1.1rem;">
-          <i class="bi bi-file-text"></i> Description
-        </h3>
-        <div class="auth-group">
-          <label>
-            <i class="bi bi-pencil"></i> Car Description
-          </label>
-          <textarea
-            name="car[description]"
-            rows="5"
-            placeholder="Describe your car in detail: condition, mileage, features, reason for selling, etc..."
-          ></textarea>
-          <small class="form-hint">A detailed description helps attract more buyers</small>
-        </div>
-      </div>
-
-      <!-- SUBMIT -->
-      <button type="submit" class="auth-btn auth-btn-enhanced auth-btn-sell">
-        <i class="bi bi-check-circle"></i> Publish Car Listing
-      </button>
     </form>
   </div>
-</section>
+</div>
+
+<script>
+(function(){
+  const input = document.getElementById('scImages'),
+        area  = document.getElementById('scUploadArea'),
+        preview = document.getElementById('scPreview'),
+        countWrap = document.getElementById('scUploadCount'),
+        countTxt  = document.getElementById('scUploadCountText');
+
+  if (input) {
+    input.addEventListener('change', function () {
+      preview.innerHTML = '';
+      const files = [...this.files];
+      if (!files.length) { area.classList.remove('has-files'); countWrap.style.display = 'none'; return; }
+      files.slice(0, 6).forEach(function (file) {
+        const r = new FileReader();
+        r.onload = function (e) {
+          const img = document.createElement('img');
+          img.src = e.target.result; img.className = 'sc-preview-thumb'; img.style.display = 'block';
+          preview.appendChild(img);
+        };
+        r.readAsDataURL(file);
+      });
+      area.classList.add('has-files');
+      countWrap.style.display = 'flex';
+      countTxt.textContent = files.length + ' photo' + (files.length > 1 ? 's' : '') + ' selected';
+    });
+  }
+
+  if (area) {
+    area.addEventListener('dragover', function (e) { e.preventDefault(); area.style.borderColor = '#2563eb'; });
+    area.addEventListener('dragleave', function () { area.style.borderColor = ''; });
+    area.addEventListener('drop', function (e) {
+      e.preventDefault(); area.style.borderColor = '';
+      if (input && e.dataTransfer.files.length) { input.files = e.dataTransfer.files; input.dispatchEvent(new Event('change')); }
+    });
+  }
+
+  const desc = document.getElementById('scDesc'), cnt = document.getElementById('scCharCount');
+  if (desc && cnt) {
+    desc.addEventListener('input', function () {
+      const l = this.value.length; cnt.textContent = l + ' / 1000';
+      cnt.style.color = l > 900 ? '#dc2626' : l > 700 ? '#f59e0b' : '#b0bcce';
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,400 +1,707 @@
-<div class="container car-show-page py-3">
-  <!-- ROW 1: GALLERY & KEY INFO (SPECS) -->
-  <div class="row g-3">
-    <!-- TOP LEFT: GALLERY (Col-lg-7) -->
-    <div class="col-lg-7">
-      <div class="car-image-box-centered border rounded overflow-hidden shadow-sm h-100" style="background: #f8f9fa; min-height: 400px;">
-        <% 
-          const galleryImages = (car.images && car.images.length
-            ? car.images
-            : (car.image && car.image !== '' ? [car.image] : []));
-        %>
-        <div class="car-gallery h-100 d-flex flex-column" data-gallery>
-          <div class="car-gallery-main flex-grow-1 position-relative" style="height: 400px;">
-            <% if (galleryImages.length === 0) { %>
-              <img
-                src="https://via.placeholder.com/800x450?text=No+Image"
-                alt="No Image"
-                class="car-gallery-img active w-100 h-100"
-                style="object-fit: contain;"
-              />
-            <% } else { %>
-              <% galleryImages.forEach((img, index) => { %>
-                <img
-                  src="<%= img %>"
-                  alt="Car photo <%= index + 1 %>"
-                  class="car-gallery-img <%= index === 0 ? 'active' : '' %> w-100 h-100"
-                  style="object-fit: contain;"
-                  data-index="<%= index %>"
-                />
-              <% }); %>
-            <% } %>
+<%
+  const galleryImages = (car.images && car.images.length)
+    ? car.images
+    : (car.image && car.image !== '' ? [car.image] : []);
+%>
 
-            <% if (galleryImages.length > 1) { %>
-            <button type="button" class="gallery-nav gallery-nav-prev" data-gallery-prev>
-              <i class="bi bi-chevron-left"></i>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --blue:     #2563eb;
+    --blue-dk:  #1d4fd7;
+    --blue-900: #0f2a5e;
+    --blue-700: #1a4fa0;
+    --blue-600: #1e5cbf;
+    --blue-100: #dbeafe;
+    --blue-50:  #eff6ff;
+    --white:    #ffffff;
+    --surface:  #eef2f7;
+    --border:   #dde3ee;
+    --muted:    #6b7fa8;
+    --ink:      #0f1c3f;
+    --green:    #16a34a;
+    --danger:   #dc2626;
+    --radius:   10px;
+    --radius-lg: 16px;
+    --shadow-sm: 0 2px 12px rgba(15,30,70,0.08);
+    --shadow:    0 4px 24px rgba(15,30,70,0.11);
+    --shadow-md: 0 8px 36px rgba(15,30,70,0.15);
+    --font-body: 'DM Sans', sans-serif;
+    --font-head: 'DM Serif Display', serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-body); background: var(--surface); color: var(--ink); -webkit-font-smoothing: antialiased; }
+
+  /* ── WRAPPER ── */
+  .csp-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 24px 72px;
+    animation: fadeUp 0.45s ease both;
+  }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ── BREADCRUMB ── */
+  .csp-breadcrumb {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.76rem; color: var(--muted); margin-bottom: 22px;
+  }
+  .csp-breadcrumb a { color: var(--muted); text-decoration: none; transition: color 0.18s; }
+  .csp-breadcrumb a:hover { color: var(--blue); }
+  .csp-breadcrumb-sep { opacity: 0.4; }
+
+  /* ── MAIN GRID ── */
+  .csp-grid {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* ════════════════════════════
+     GALLERY
+  ════════════════════════════ */
+  .gallery-card {
+    background: var(--blue-900);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Main image viewport */
+  .gallery-main {
+    position: relative;
+    aspect-ratio: 16/10;
+    overflow: hidden;
+    background: var(--blue-900);
+    cursor: zoom-in;
+  }
+  .gallery-main-img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+  }
+  .gallery-main-img.active { opacity: 1; pointer-events: auto; }
+
+  .gallery-no-img {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.22); gap: 10px; font-size: 0.82rem;
+  }
+  .gallery-no-img i { font-size: 3rem; }
+
+  /* For Sale badge */
+  .gallery-badge {
+    position: absolute; top: 14px; left: 14px; z-index: 4;
+    background: var(--blue); color: #fff;
+    font-size: 0.67rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 4px 12px; border-radius: 20px;
+  }
+
+  /* Photo counter */
+  .gallery-counter {
+    position: absolute; bottom: 16px; right: 16px; z-index: 4;
+    background: rgba(10,20,50,0.6); color: #fff;
+    font-size: 0.7rem; font-weight: 600;
+    padding: 4px 12px; border-radius: 20px;
+    backdrop-filter: blur(8px);
+  }
+
+  /* ── NAV ARROWS on gallery ── */
+  .gallery-nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    z-index: 5;
+    width: 42px; height: 42px;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px);
+    border: 1.5px solid rgba(255,255,255,0.28);
+    color: #fff; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 0.9rem;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  .gallery-nav:hover {
+    background: rgba(37,99,235,0.65);
+    border-color: rgba(37,99,235,0.8);
+    transform: translateY(-50%) scale(1.08);
+  }
+  .gallery-nav:active { transform: translateY(-50%) scale(0.96); }
+  .gallery-nav-prev { left: 16px; }
+  .gallery-nav-next { right: 16px; }
+
+  /* ── THUMBNAILS STRIP ── */
+  .gallery-thumbs {
+    display: flex; gap: 7px;
+    padding: 10px 14px;
+    background: rgba(10,20,50,0.85);
+    overflow-x: auto; scrollbar-width: none;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    align-items: center;
+  }
+  .gallery-thumbs::-webkit-scrollbar { display: none; }
+
+  .gallery-thumb {
+    flex-shrink: 0; width: 70px; height: 50px;
+    border-radius: 6px; overflow: hidden;
+    border: 2px solid transparent;
+    cursor: pointer; opacity: 0.55;
+    padding: 0; background: none;
+    transition: opacity 0.2s, border-color 0.2s, transform 0.18s;
+  }
+  .gallery-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .gallery-thumb:hover { opacity: 0.85; transform: scale(1.04); }
+  .gallery-thumb.active { border-color: var(--blue); opacity: 1; }
+
+  /* ════════════════════════════
+     INFO PANEL
+  ════════════════════════════ */
+  .info-panel { display: flex; flex-direction: column; gap: 16px; }
+
+  /* Price card */
+  .price-card {
+    background: linear-gradient(135deg, var(--blue-700) 0%, var(--blue-900) 100%);
+    border-radius: var(--radius-lg); padding: 22px 24px 24px;
+    color: #fff; position: relative; overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+  .price-card::before {
+    content: ''; position: absolute; top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(59,130,246,0.22), transparent 65%);
+    pointer-events: none;
+  }
+  .price-card-label {
+    font-size: 0.67rem; letter-spacing: 0.13em; text-transform: uppercase;
+    color: rgba(255,255,255,0.55); font-weight: 700; margin-bottom: 5px;
+  }
+  .price-card-name {
+    font-family: var(--font-head);
+    font-size: 1.4rem; color: #fff; line-height: 1.2; margin-bottom: 4px;
+  }
+  .price-card-location {
+    font-size: 0.76rem; color: rgba(255,255,255,0.45);
+    display: flex; align-items: center; gap: 4px; margin-bottom: 18px;
+  }
+  .price-divider { height: 1px; background: rgba(255,255,255,0.12); margin-bottom: 14px; }
+  .price-card-price {
+    font-family: var(--font-body);
+    font-size: 2rem; font-weight: 800; color: #fff; letter-spacing: -0.03em;
+  }
+  .price-card-price sup { font-size: 1rem; vertical-align: super; margin-right: 2px; opacity: 0.8; }
+  .price-card-sub { font-size: 0.72rem; color: rgba(255,255,255,0.4); margin-top: 4px; }
+
+  /* Card base */
+  .card-base {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .card-heading {
+    font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); font-weight: 700; margin-bottom: 14px;
+  }
+
+  /* Specs grid */
+  .specs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .spec-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 12px;
+    background: var(--blue-50); border: 1px solid var(--blue-100);
+    border-radius: var(--radius);
+    transition: border-color 0.18s, background 0.18s;
+  }
+  .spec-item:hover { border-color: #93c5fd; background: #e8f0fe; }
+  .spec-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--white); flex-shrink: 0; font-size: 0.9rem;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 1px 4px rgba(15,30,70,0.10);
+  }
+  .spec-label { font-size: 0.63rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .spec-value { font-size: 0.86rem; font-weight: 700; color: var(--ink); margin-top: 1px; }
+
+  /* Seller */
+  .seller-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px; background: var(--blue-50);
+    border: 1px solid var(--blue-100); border-radius: var(--radius); margin-bottom: 14px;
+  }
+  .seller-avatar {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--blue-600), var(--blue-900));
+    border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 1rem;
+  }
+  .seller-name { font-size: 0.92rem; font-weight: 700; color: var(--ink); }
+  .seller-badge {
+    font-size: 0.68rem; color: var(--green); font-weight: 600;
+    display: flex; align-items: center; gap: 3px; margin-top: 2px;
+  }
+  .cta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .btn-cta {
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    padding: 11px 14px; border-radius: var(--radius);
+    font-size: 0.84rem; font-weight: 700; text-decoration: none;
+    cursor: pointer; border: none; font-family: var(--font-body);
+    transition: all 0.2s;
+  }
+  .btn-call { background: var(--blue); color: #fff; }
+  .btn-call:hover { background: var(--blue-dk); color: #fff; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(37,99,235,0.35); }
+  .btn-whatsapp { background: #16a34a; color: #fff; }
+  .btn-whatsapp:hover { background: #15803d; color: #fff; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(22,163,74,0.28); }
+
+  .owner-actions {
+    margin-top: 12px; padding-top: 12px;
+    border-top: 1px solid var(--border);
+    display: flex; gap: 8px;
+  }
+  .btn-owner {
+    flex: 1; padding: 9px 12px; border-radius: var(--radius);
+    font-size: 0.8rem; font-weight: 600; cursor: pointer;
+    text-align: center; text-decoration: none; display: block;
+    border: 1px solid var(--border); color: var(--ink); background: transparent;
+    transition: all 0.18s; font-family: var(--font-body);
+  }
+  .btn-owner:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-50); }
+  .btn-owner-del { border-color: #fee2e2; color: var(--danger); }
+  .btn-owner-del:hover { background: #fef2f2; border-color: var(--danger); }
+
+  /* ════════════════════════════
+     BOTTOM ROW
+  ════════════════════════════ */
+  .bottom-row {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 24px;
+    margin-top: 24px;
+    align-items: start;
+  }
+
+  /* Description */
+  .desc-card { height: 100%; }
+  .desc-text {
+    font-size: 0.9rem; line-height: 1.8; color: #4a5a7a;
+    white-space: pre-line;
+  }
+
+  /* Reviews */
+  .reviews-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .reviews-header {
+    padding: 16px 20px 12px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .reviews-header-left { display: flex; align-items: center; gap: 8px; }
+  .reviews-count {
+    font-size: 0.7rem; background: var(--blue-50);
+    border: 1px solid var(--blue-100); color: var(--blue);
+    padding: 2px 9px; border-radius: 20px; font-weight: 600;
+  }
+  .reviews-list {
+    padding: 12px 16px; max-height: 240px; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 9px;
+    scrollbar-width: thin; scrollbar-color: var(--blue-100) transparent;
+  }
+  .review-item {
+    padding: 11px 14px; background: var(--blue-50);
+    border: 1px solid var(--blue-100); border-radius: var(--radius);
+    transition: border-color 0.18s;
+  }
+  .review-item:hover { border-color: #93c5fd; }
+  .review-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
+  .review-author { font-size: 0.82rem; font-weight: 700; color: var(--ink); }
+  .review-stars { color: #f59e0b; font-size: 0.72rem; letter-spacing: 1px; margin-top: 2px; }
+  .review-comment { font-size: 0.81rem; color: var(--muted); font-style: italic; line-height: 1.5; }
+  .review-del-btn { background: none; border: none; color: #c3cfe8; cursor: pointer; font-size: 0.75rem; padding: 0; transition: color 0.18s; }
+  .review-del-btn:hover { color: var(--danger); }
+  .no-reviews { text-align: center; padding: 28px 0; color: var(--muted); font-size: 0.82rem; }
+  .reviews-form { padding: 12px 16px; border-top: 1px solid var(--border); background: var(--blue-50); }
+  .reviews-input-row { display: flex; gap: 8px; }
+  .review-select, .review-input {
+    padding: 9px 10px; border: 1.5px solid var(--border); border-radius: var(--radius);
+    font-size: 0.82rem; background: var(--white); color: var(--ink);
+    font-family: var(--font-body); outline: none; transition: border-color 0.18s;
+    -webkit-appearance: none; appearance: none;
+  }
+  .review-select { width: 68px; cursor: pointer; }
+  .review-input { flex: 1; }
+  .review-select:focus, .review-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.10); }
+  .review-submit {
+    width: 38px; height: 38px; background: var(--blue);
+    border: none; border-radius: var(--radius); color: #fff;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 0.82rem; transition: background 0.2s;
+  }
+  .review-submit:hover { background: var(--blue-dk); }
+
+  /* ── LIGHTBOX ── */
+  .csp-lightbox {
+    position: fixed; inset: 0;
+    background: rgba(10,20,50,0.94);
+    z-index: 9999; display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.28s;
+  }
+  .csp-lightbox.active { opacity: 1; pointer-events: all; }
+  .csp-lb-img {
+    max-width: 90vw; max-height: 88vh;
+    object-fit: contain; border-radius: var(--radius);
+    cursor: zoom-in; transition: transform 0.25s;
+  }
+  .csp-lb-img.zoomed { transform: scale(1.85); cursor: zoom-out; }
+  .csp-lb-close {
+    position: fixed; top: 18px; right: 22px;
+    font-size: 1.6rem; color: rgba(255,255,255,0.5);
+    cursor: pointer; background: none; border: none; line-height: 1; transition: color 0.2s;
+  }
+  .csp-lb-close:hover { color: #fff; }
+  .csp-lb-nav {
+    position: fixed; top: 50%; transform: translateY(-50%);
+    width: 46px; height: 46px;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(8px); color: #fff; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background 0.2s; font-size: 0.9rem;
+  }
+  .csp-lb-nav:hover { background: rgba(37,99,235,0.5); }
+  .csp-lb-prev { left: 22px; }
+  .csp-lb-next { right: 22px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 960px) {
+    .csp-grid, .bottom-row { grid-template-columns: 1fr; }
+    .bottom-row { gap: 16px; }
+  }
+  @media (max-width: 480px) {
+    .specs-grid { grid-template-columns: 1fr 1fr; }
+    .price-card-price { font-size: 1.7rem; }
+    .csp-wrap { padding: 16px 14px 48px; }
+  }
+</style>
+
+<!-- ════════════════════════════════════════
+     PAGE
+════════════════════════════════════════ -->
+<div class="csp-wrap">
+
+  <!-- BREADCRUMB -->
+  <nav class="csp-breadcrumb">
+    <a href="/"><i class="bi bi-house"></i> Home</a>
+    <span class="csp-breadcrumb-sep">›</span>
+    <a href="/cars">All Cars</a>
+    <span class="csp-breadcrumb-sep">›</span>
+    <span><%= car.carName %></span>
+  </nav>
+
+  <!-- ═══ ROW 1: GALLERY + INFO ═══ -->
+  <div class="csp-grid">
+
+    <!-- GALLERY -->
+    <div class="gallery-card">
+      <div class="gallery-main" id="cspGalleryMain">
+
+        <% if (galleryImages.length === 0) { %>
+          <div class="gallery-no-img">
+            <i class="bi bi-image"></i>
+            <span>No images uploaded</span>
+          </div>
+        <% } else { %>
+          <% galleryImages.forEach(function(img, i) { %>
+            <img
+              src="<%= img %>"
+              alt="<%= car.carName %> photo <%= i + 1 %>"
+              class="gallery-main-img <%= i === 0 ? 'active' : '' %>"
+              data-index="<%= i %>"
+            />
+          <% }); %>
+        <% } %>
+
+        <span class="gallery-badge">For Sale</span>
+
+        <% if (galleryImages.length > 1) { %>
+          <span class="gallery-counter" id="cspGalCounter">1 / <%= galleryImages.length %></span>
+          <button class="gallery-nav gallery-nav-prev" id="cspGalPrev" type="button" aria-label="Previous photo">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          <button class="gallery-nav gallery-nav-next" id="cspGalNext" type="button" aria-label="Next photo">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        <% } %>
+      </div>
+
+      <% if (galleryImages.length > 1) { %>
+      <div class="gallery-thumbs" id="thumbsStrip">
+        <% galleryImages.forEach(function(img, i) { %>
+          <button class="gallery-thumb <%= i === 0 ? 'active' : '' %>" data-thumb="<%= i %>" type="button" aria-label="Photo <%= i + 1 %>">
+            <img src="<%= img %>" alt="Thumbnail <%= i + 1 %>" loading="lazy" />
+          </button>
+        <% }); %>
+      </div>
+      <% } %>
+    </div>
+    <!-- /GALLERY -->
+
+    <!-- INFO PANEL -->
+    <div class="info-panel">
+
+      <!-- Price Card -->
+      <div class="price-card">
+        <div class="price-card-label">Listed Vehicle</div>
+        <div class="price-card-name"><%= car.carName %></div>
+        <div class="price-card-location">
+          <i class="bi bi-geo-alt-fill"></i>
+          <%= car.city %><% if (car.state) { %>, <%= car.state %><% } %>
+        </div>
+        <div class="price-divider"></div>
+        <div class="price-card-price">
+          <sup>₹</sup><%= car.price.toLocaleString('en-IN') %>
+        </div>
+        <div class="price-card-sub">Negotiable · Direct Owner</div>
+      </div>
+
+      <!-- Specifications -->
+      <div class="card-base">
+        <div class="card-heading">Specifications</div>
+        <div class="specs-grid">
+          <div class="spec-item">
+            <div class="spec-icon" style="color:#2563eb;"><i class="bi bi-calendar-check"></i></div>
+            <div><div class="spec-label">Year</div><div class="spec-value"><%= car.year || '—' %></div></div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-icon" style="color:#e85d04;"><i class="bi bi-fuel-pump"></i></div>
+            <div><div class="spec-label">Fuel</div><div class="spec-value"><%= car.fuel || '—' %></div></div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-icon" style="color:#7c3aed;"><i class="bi bi-gear-wide-connected"></i></div>
+            <div><div class="spec-label">Transmission</div><div class="spec-value"><%= car.transmission || '—' %></div></div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-icon" style="color:#059669;"><i class="bi bi-speedometer2"></i></div>
+            <div><div class="spec-label">Mileage</div><div class="spec-value"><%= car.mileage ? car.mileage.toLocaleString('en-IN') + ' km' : 'N/A' %></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seller Information -->
+      <div class="card-base">
+        <div class="card-heading">Seller Information</div>
+        <div class="seller-row">
+          <div class="seller-avatar"><i class="bi bi-person-fill"></i></div>
+          <div>
+            <div class="seller-name"><%= car.dealerName %></div>
+            <div class="seller-badge"><i class="bi bi-patch-check-fill"></i> Verified Seller</div>
+          </div>
+        </div>
+        <div class="cta-row">
+          <a href="tel:<%= car.dealerPhone %>" class="btn-cta btn-call">
+            <i class="bi bi-telephone-fill"></i> Call
+          </a>
+          <a href="https://wa.me/<%= car.dealerPhone.replace(/[^0-9]/g, '') %>" target="_blank" class="btn-cta btn-whatsapp">
+            <i class="bi bi-whatsapp"></i> WhatsApp
+          </a>
+        </div>
+
+        <% if (currentUser && car.owner && car.owner.toString() === currentUser._id.toString()) { %>
+        <div class="owner-actions">
+          <a href="/cars/<%= car._id %>/edit" class="btn-owner">
+            <i class="bi bi-pencil"></i> Edit
+          </a>
+          <form action="/cars/<%= car._id %>?_method=DELETE" method="POST" style="flex:1;" onsubmit="return confirm('Delete this listing?')">
+            <button type="submit" class="btn-owner btn-owner-del" style="width:100%;">
+              <i class="bi bi-trash3"></i> Delete
             </button>
-            <button type="button" class="gallery-nav gallery-nav-next" data-gallery-next>
-              <i class="bi bi-chevron-right"></i>
-            </button>
-            <% } %>
-          </div>
-
-          <% if (galleryImages.length > 1) { %>
-          <div class="car-gallery-thumbs p-2 bg-white border-top d-flex gap-2 start-0 end-0 overflow-auto" style="height: 80px;">
-            <% galleryImages.forEach((img, index) => { %>
-              <button
-                type="button"
-                style="width: 80px; flex-shrink: 0; padding: 0; border: 2px solid transparent;"
-                class="car-gallery-thumb <%= index === 0 ? 'active' : '' %> rounded overflow-hidden"
-                data-thumb-index="<%= index %>"
-              >
-                <img src="<%= img %>" alt="Thumbnail" class="w-100 h-100" style="object-fit: cover;" />
-              </button>
-            <% }); %>
-          </div>
-          <% } %>
+          </form>
         </div>
+        <% } %>
       </div>
+
+    </div><!-- /info-panel -->
+  </div><!-- /csp-grid -->
+
+
+  <!-- ═══ ROW 2: DESCRIPTION + REVIEWS ═══ -->
+  <div class="bottom-row">
+
+    <!-- Description -->
+    <div class="card-base desc-card">
+      <div class="card-heading">About This Vehicle</div>
+      <p class="desc-text"><%= car.description || 'No description has been provided for this vehicle.' %></p>
     </div>
 
-    <!-- TOP RIGHT: SPECS & ACTIONS (Col-lg-5) -->
-    <div class="col-lg-5">
-      <div class="card shadow-sm h-100 border-0" style="background: #fff;">
-        <div class="card-body p-3 d-flex flex-column">
-          <!-- PRICE & TITLE HEADER -->
-          <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-            <div>
-              <h1 class="h5 fw-bolder mb-0 text-dark" style="letter-spacing: -0.5px;"><%= car.carName %></h1>
-              <div class="small text-muted mt-1"><i class="bi bi-geo-alt-fill text-danger me-1"></i><%= car.city || 'N/A' %></div>
-            </div>
-            <div class="text-end">
-              <h2 class="h3 fw-bold text-success mb-0" style="font-family: 'Poppins', sans-serif;">₹ <%= car.price.toLocaleString("en-IN") %></h2>
-            </div>
-          </div>
-
-          <!-- MODERN SPECS GRID -->
-          <div class="mb-3">
-            <h6 class="fw-bold text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">Specifications</h6>
-            <div class="row g-2">
-              <div class="col-6">
-                <div class="p-2 border rounded d-flex align-items-center bg-light">
-                  <div class="rounded-circle bg-white p-2 text-primary shadow-sm me-2">
-                    <i class="bi bi-calendar-check"></i>
-                  </div>
-                  <div style="line-height: 1;">
-                    <div class="text-muted" style="font-size: 0.7rem;">Model Year</div>
-                    <div class="fw-bold text-dark"><%= car.year || '-' %></div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="p-2 border rounded d-flex align-items-center bg-light">
-                  <div class="rounded-circle bg-white p-2 text-danger shadow-sm me-2">
-                    <i class="bi bi-fuel-pump"></i>
-                  </div>
-                  <div style="line-height: 1;">
-                    <div class="text-muted" style="font-size: 0.7rem;">Fuel Type</div>
-                    <div class="fw-bold text-dark"><%= car.fuel || '-' %></div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="p-2 border rounded d-flex align-items-center bg-light">
-                  <div class="rounded-circle bg-white p-2 text-warning shadow-sm me-2">
-                    <i class="bi bi-gear-wide-connected"></i>
-                  </div>
-                  <div style="line-height: 1;">
-                    <div class="text-muted" style="font-size: 0.7rem;">Transmission</div>
-                    <div class="fw-bold text-dark"><%= car.transmission || '-' %></div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="p-2 border rounded d-flex align-items-center bg-light">
-                  <div class="rounded-circle bg-white p-2 text-info shadow-sm me-2">
-                    <i class="bi bi-speedometer2"></i>
-                  </div>
-                  <div style="line-height: 1;">
-                    <div class="text-muted" style="font-size: 0.7rem;">Mileage</div>
-                    <div class="fw-bold text-dark"><%= car.mileage ? car.mileage + ' km' : 'N/A' %></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- SELLER BADGE & CONTACT -->
-          <div class="mt-auto">
-            <h6 class="fw-bold text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">Seller Information</h6>
-            <div class="border rounded p-2 d-flex justify-content-between align-items-center mb-2" style="background: linear-gradient(to right, #ffffff, #f8f9fa);">
-              <div class="d-flex align-items-center">
-                 <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 38px; height: 38px;">
-                   <i class="bi bi-person-fill fs-5"></i>
-                 </div>
-                 <div>
-                   <div class="fw-bold text-dark" style="font-size: 0.9rem;"><%= car.dealerName %></div>
-                   <div class="text-success small" style="font-size: 0.7rem;"><i class="bi bi-patch-check-fill me-1"></i>Verified Seller</div>
-                 </div>
-              </div>
-            </div>
-
-            <div class="row g-2">
-              <div class="col-6">
-                <a href="tel:<%= car.dealerPhone %>" class="btn btn-dark w-100 d-flex justify-content-center align-items-center py-2">
-                  <i class="bi bi-telephone-fill me-2"></i> Call
-                </a>
-              </div>
-              <div class="col-6">
-                <a href="https://wa.me/<%= car.dealerPhone.replace(/[^0-9]/g, '') %>" target="_blank" class="btn btn-success w-100 d-flex justify-content-center align-items-center py-2">
-                  <i class="bi bi-whatsapp me-2"></i> Chat
-                </a>
-              </div>
-            </div>
-            
-            <!-- OWNER EDIT/DELETE -->
-            <% if (currentUser && car.owner && car.owner.toString() === currentUser._id.toString()) { %>
-              <div class="mt-2 pt-2 border-top d-flex gap-2">
-                <a href="/cars/<%= car._id %>/edit" class="btn btn-sm btn-outline-secondary flex-fill">Edit Listing</a>
-                <form action="/cars/<%= car._id %>?_method=DELETE" method="POST" class="flex-fill" onsubmit="return confirm('Delete?');">
-                  <button class="btn btn-sm btn-outline-danger w-100">Delete</button>
-                </form>
-              </div>
-            <% } %>
-          </div>
+    <!-- Reviews -->
+    <div class="reviews-card">
+      <div class="reviews-header">
+        <div class="reviews-header-left">
+          <div class="card-heading" style="margin:0;">Reviews</div>
+          <span class="reviews-count"><%= car.reviews.length %> total</span>
         </div>
+        <% if (!currentUser) { %>
+          <a href="/login" style="font-size:0.76rem;color:var(--blue);text-decoration:none;font-weight:600;">Login to review</a>
+        <% } %>
       </div>
-    </div>
-  </div>
 
-  <!-- ROW 2: DESCRIPTION & REVIEWS -->
-  <div class="row g-3 mt-1">
-    <!-- DESCRIPTION (Col-lg-7) -->
-    <div class="col-lg-7">
-      <div class="card shadow-sm h-100 border-0">
-        <div class="card-header bg-white py-2 border-bottom-0">
-          <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-card-text me-2 text-primary"></i>Description</h6>
-        </div>
-        <div class="card-body pt-0">
-          <p class="text-secondary small mb-0" style="white-space: pre-line; line-height: 1.6;">
-            <%= car.description || 'No description available for this vehicle.' %>
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- REVIEWS (Col-lg-5) -->
-    <div class="col-lg-5">
-      <div class="card shadow-sm h-100 border-0">
-        <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center border-bottom-0">
-          <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-star-fill me-2 text-warning"></i>Reviews (<%= car.reviews.length %>)</h6>
-          <% if (!currentUser) { %>
-            <small><a href="/login" class="text-decoration-none">Login</a> to review</small>
-          <% } %>
-        </div>
-        
-        <div class="card-body p-0 d-flex flex-column">
-          <!-- REVIEW LIST (SCROLLABLE) -->
-          <div class="review-list flex-grow-1 overflow-auto px-3" style="max-height: 200px;">
-            <% if (car.reviews.length > 0) { %>
-              <% for (let review of car.reviews) { %>
-                <div class="mb-2 p-2 rounded bg-light border-0">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                      <div class="fw-bold small me-2"><%= review.author ? review.author.username : 'User' %></div>
-                      <div class="text-warning" style="font-size: 0.7rem;">
-                        <% for(let i=1; i<=5; i++) { %><span><%= i<=review.rating ? '★' : '☆' %></span><% } %>
-                      </div>
-                    </div>
-                    <% if (currentUser && review.author && review.author.toString() === currentUser._id.toString()) { %>
-                    <form action="/cars/<%= car._id %>/reviews/<%= review._id %>?_method=DELETE" method="POST">
-                       <button class="btn btn-link text-muted p-0" style="font-size: 0.8rem;"><i class="bi bi-x-circle"></i></button>
-                    </form>
-                    <% } %>
-                  </div>
-                  <p class="small text-muted mb-0 mt-1 fst-italic">"<%= review.comment %>"</p>
+      <div class="reviews-list">
+        <% if (car.reviews.length > 0) { %>
+          <% for (let review of car.reviews) { %>
+          <div class="review-item">
+            <div class="review-top">
+              <div>
+                <div class="review-author"><%= review.author ? review.author.username : 'User' %></div>
+                <div class="review-stars">
+                  <% for (let i = 1; i <= 5; i++) { %><%= i <= review.rating ? '★' : '☆' %><% } %>
                 </div>
+              </div>
+              <% if (currentUser && review.author && review.author.toString() === currentUser._id.toString()) { %>
+              <form action="/cars/<%= car._id %>/reviews/<%= review._id %>?_method=DELETE" method="POST">
+                <button class="review-del-btn" type="submit"><i class="bi bi-x-circle"></i></button>
+              </form>
               <% } %>
-            <% } else { %>
-              <div class="text-center text-muted small my-3 py-3 border rounded border-dashed">No reviews yet.</div>
-            <% } %>
-          </div>
-
-          <!-- ADD REVIEW -->
-          <% if (currentUser) { %>
-          <div class="p-2 border-top">
-            <form action="/cars/<%= car._id %>/reviews" method="POST">
-              <div class="input-group input-group-sm">
-                <select name="review[rating]" class="form-select bg-light border-0" style="max-width: 60px;" required>
-                  <option value="5">5★</option>
-                  <option value="4">4★</option>
-                  <option value="3">3★</option>
-                  <option value="2">2★</option>
-                  <option value="1">1★</option>
-                </select>
-                <input type="text" name="review[comment]" class="form-control bg-light border-0" placeholder="Type a review..." required>
-                <button class="btn btn-primary"><i class="bi bi-send-fill"></i></button>
-              </div>
-            </form>
+            </div>
+            <p class="review-comment">"<%= review.comment %>"</p>
           </div>
           <% } %>
-        </div>
+        <% } else { %>
+          <div class="no-reviews">
+            <i class="bi bi-chat-square-text" style="font-size:1.6rem;display:block;margin-bottom:8px;color:var(--blue-100);"></i>
+            No reviews yet. Be the first!
+          </div>
+        <% } %>
       </div>
+
+      <% if (currentUser) { %>
+      <div class="reviews-form">
+        <form action="/cars/<%= car._id %>/reviews" method="POST">
+          <div class="reviews-input-row">
+            <select name="review[rating]" class="review-select" required>
+              <option value="5">5★</option>
+              <option value="4">4★</option>
+              <option value="3">3★</option>
+              <option value="2">2★</option>
+              <option value="1">1★</option>
+            </select>
+            <input type="text" name="review[comment]" class="review-input" placeholder="Share your experience…" required />
+            <button type="submit" class="review-submit"><i class="bi bi-send-fill"></i></button>
+          </div>
+        </form>
+      </div>
+      <% } %>
     </div>
-  </div>
+
+  </div><!-- /bottom-row -->
+</div><!-- /csp-wrap -->
+
+
+<!-- LIGHTBOX -->
+<div class="csp-lightbox" id="cspLightbox">
+  <button class="csp-lb-close" id="cspLbClose">&times;</button>
+  <button class="csp-lb-nav csp-lb-prev" id="cspLbPrev"><i class="bi bi-chevron-left"></i></button>
+  <img src="" alt="Full view" class="csp-lb-img" id="cspLbImg" />
+  <button class="csp-lb-nav csp-lb-next" id="cspLbNext"><i class="bi bi-chevron-right"></i></button>
 </div>
 
-<!-- Lightbox Modal -->
-<div class="image-modal" id="imageModal">
-  <button class="image-modal-close">&times;</button>
-  <button class="image-modal-nav image-modal-prev"><i class="bi bi-chevron-left"></i></button>
-  <img src="" alt="Full Screen View" class="image-modal-content" id="modalImage">
-  <button class="image-modal-nav image-modal-next"><i class="bi bi-chevron-right"></i></button>
-</div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Gallery Elements
-    const mainContainer = document.querySelector('.car-gallery-main');
-    const mainImages = document.querySelectorAll('.car-gallery-img');
-    const thumbs = document.querySelectorAll('.car-gallery-thumb');
-    const prevBtn = document.querySelector('[data-gallery-prev]');
-    const nextBtn = document.querySelector('[data-gallery-next]');
-    
-    // Modal Elements
-    const modal = document.getElementById('imageModal');
-    const modalImage = document.getElementById('modalImage');
-    const modalClose = document.querySelector('.image-modal-close');
-    const modalPrev = document.querySelector('.image-modal-prev');
-    const modalNext = document.querySelector('.image-modal-next');
+(function () {
+  const mainImgs  = [...document.querySelectorAll('.gallery-main-img')];
+  const thumbBtns = [...document.querySelectorAll('.gallery-thumb')];
+  const counter   = document.getElementById('cspGalCounter');
+  const gallMain  = document.getElementById('cspGalleryMain');
+  const lightbox  = document.getElementById('cspLightbox');
+  const lbImg     = document.getElementById('cspLbImg');
+  const lbClose   = document.getElementById('cspLbClose');
+  const lbPrev    = document.getElementById('cspLbPrev');
+  const lbNext    = document.getElementById('cspLbNext');
+  const prevBtn   = document.getElementById('cspGalPrev');
+  const nextBtn   = document.getElementById('cspGalNext');
+  let current = 0;
 
-    let currentIndex = 0;
-
-    // --- Inline Gallery Logic ---
-    function updateGallery(index) {
-      // Remove active class from all
-      mainImages.forEach(img => img.classList.remove('active'));
-      thumbs.forEach(thumb => thumb.classList.remove('active'));
-      
-      // Add active to current
-      if(mainImages[index]) mainImages[index].classList.add('active');
-      if(thumbs[index]) {
-        thumbs[index].classList.add('active');
-        thumbs[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-      }
-      
-      currentIndex = index;
+  function goTo(idx) {
+    mainImgs.forEach(i => i.classList.remove('active'));
+    thumbBtns.forEach(t => t.classList.remove('active'));
+    current = (idx + mainImgs.length) % mainImgs.length;
+    if (mainImgs[current])  mainImgs[current].classList.add('active');
+    if (thumbBtns[current]) {
+      thumbBtns[current].classList.add('active');
+      thumbBtns[current].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     }
+    if (counter) counter.textContent = (current + 1) + ' / ' + mainImgs.length;
+  }
 
-    if (prevBtn) {
-      prevBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent modal open
-        let newIndex = currentIndex - 1;
-        if (newIndex < 0) newIndex = mainImages.length - 1;
-        updateGallery(newIndex);
-      });
-    }
+  if (prevBtn) prevBtn.addEventListener('click', e => { e.stopPropagation(); goTo(current - 1); });
+  if (nextBtn) nextBtn.addEventListener('click', e => { e.stopPropagation(); goTo(current + 1); });
+  thumbBtns.forEach((t, i) => t.addEventListener('click', () => goTo(i)));
 
-    if (nextBtn) {
-      nextBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent modal open
-        let newIndex = currentIndex + 1;
-        if (newIndex >= mainImages.length) newIndex = 0;
-        updateGallery(newIndex);
-      });
-    }
-
-    thumbs.forEach((thumb, idx) => {
-      thumb.addEventListener('click', () => updateGallery(idx));
-    });
-
-    // --- Lightbox / Zoom Logic ---
-    
-    // Open Modal
-    if (mainContainer) {
-      mainContainer.addEventListener('click', (e) => {
-        // Only open if clicking the image itself, not the nav buttons
-        if (e.target.closest('.car-gallery-img')) {
-          const currentImg = mainImages[currentIndex];
-          if (currentImg) {
-            modalImage.src = currentImg.src;
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Disable scroll
-          }
-        }
-      });
-    }
-
-    // Close Modal
-    function closeModal() {
-      modal.classList.remove('active');
-      modalImage.classList.remove('zoomed'); // Reset zoom
-      document.body.style.overflow = '';
-      modalImage.style.transformOrigin = 'center center';
-    }
-
-    if (modalClose) modalClose.addEventListener('click', closeModal);
-    
-    // Close on background click
-    if (modal) {
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-      });
-    }
-    
-    // Escape key to close
-    document.addEventListener('keydown', (e) => {
-      if (modal && modal.classList.contains('active')) {
-        if (e.key === 'Escape') closeModal();
-        if (e.key === 'ArrowLeft') modalPrev.click();
-        if (e.key === 'ArrowRight') modalNext.click();
+  /* Open lightbox */
+  if (gallMain) {
+    gallMain.addEventListener('click', e => {
+      if (e.target.classList.contains('gallery-main-img') && mainImgs.length > 0) {
+        lbImg.src = mainImgs[current].src;
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
       }
     });
+  }
 
-    // Modal Navigation
-    function updateModalImage(index) {
-      updateGallery(index); // Sync main gallery
-      if (mainImages[currentIndex]) {
-        modalImage.src = mainImages[currentIndex].src;
-        modalImage.classList.remove('zoomed'); // Reset zoom on change
-        modalImage.style.transformOrigin = 'center center';
-      }
-    }
+  function closeLB() {
+    lightbox.classList.remove('active');
+    lbImg.classList.remove('zoomed');
+    lbImg.style.transformOrigin = 'center center';
+    document.body.style.overflow = '';
+  }
+  if (lbClose)  lbClose.addEventListener('click', closeLB);
+  if (lightbox) lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLB(); });
 
-    if (modalPrev) {
-      modalPrev.addEventListener('click', (e) => {
-        e.stopPropagation();
-        let newIndex = currentIndex - 1;
-        if (newIndex < 0) newIndex = mainImages.length - 1;
-        updateModalImage(newIndex);
-      });
-    }
-
-    if (modalNext) {
-      modalNext.addEventListener('click', (e) => {
-        e.stopPropagation();
-        let newIndex = currentIndex + 1;
-        if (newIndex >= mainImages.length) newIndex = 0;
-        updateModalImage(newIndex);
-      });
-    }
-
-    // Zoom Toggle
-    if (modalImage) {
-      modalImage.addEventListener('click', (e) => {
-        e.stopPropagation();
-        modalImage.classList.toggle('zoomed');
-        
-        if (modalImage.classList.contains('zoomed')) {
-          const rect = modalImage.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
-          modalImage.style.transformOrigin = `${x}px ${y}px`;
-        } else {
-          modalImage.style.transformOrigin = 'center center';
-        }
-      });
-    }
-
+  if (lbPrev) lbPrev.addEventListener('click', e => {
+    e.stopPropagation(); goTo(current - 1);
+    lbImg.src = mainImgs[current].src; lbImg.classList.remove('zoomed');
   });
+  if (lbNext) lbNext.addEventListener('click', e => {
+    e.stopPropagation(); goTo(current + 1);
+    lbImg.src = mainImgs[current].src; lbImg.classList.remove('zoomed');
+  });
+
+  if (lbImg) {
+    lbImg.addEventListener('click', e => {
+      e.stopPropagation();
+      lbImg.classList.toggle('zoomed');
+      if (lbImg.classList.contains('zoomed')) {
+        const r = lbImg.getBoundingClientRect();
+        lbImg.style.transformOrigin = (e.clientX - r.left) + 'px ' + (e.clientY - r.top) + 'px';
+      } else {
+        lbImg.style.transformOrigin = 'center center';
+      }
+    });
+  }
+
+  /* Keyboard nav */
+  document.addEventListener('keydown', e => {
+    if (!lightbox || !lightbox.classList.contains('active')) return;
+    if (e.key === 'Escape')     closeLB();
+    if (e.key === 'ArrowLeft'  && lbPrev) lbPrev.click();
+    if (e.key === 'ArrowRight' && lbNext) lbNext.click();
+  });
+
+  /* Touch swipe on gallery */
+  if (gallMain && mainImgs.length > 1) {
+    let startX = 0;
+    gallMain.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+    gallMain.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 40) goTo(dx < 0 ? current + 1 : current - 1);
+    });
+  }
+})();
 </script>
