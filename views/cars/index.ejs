@@ -31,13 +31,13 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
 /* ─── HERO ──────────────────────────────────────────── */
 .hero {
   position: relative;
-  background: linear-gradient(120deg, #0b1a3e 0%, #1a3a7a 55%, #1e4fa8 100%);
+  background: linear-gradient(125deg, #0a1628 0%, #0e2354 40%, #1a4096 75%, #1e52b8 100%);
   display: flex;
   flex-direction: column;
-  /* exactly fill the viewport below the navbar */
   height: calc(100vh - var(--navbar-h));
-  min-height: 520px;
-  padding: 0 5%;
+  min-height: 480px;
+  max-height: 680px;
+  padding: 0 6%;
   overflow: hidden;
 }
 
@@ -49,66 +49,68 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
   z-index: 2;
 }
 
-/* subtle grid overlay */
+/* grid overlay */
 .hero::before {
   content: '';
   position: absolute; inset: 0;
   background-image:
-    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-  background-size: 48px 48px;
-  pointer-events: none;
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 52px 52px;
+  pointer-events: none; z-index: 0;
 }
 
-/* glowing blob */
+/* right glow */
 .hero::after {
   content: '';
   position: absolute;
-  width: 600px; height: 600px;
+  width: 700px; height: 700px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(37,99,235,0.22) 0%, transparent 70%);
-  top: -100px; right: 5%;
-  pointer-events: none;
+  background: radial-gradient(circle, rgba(30,80,180,0.35) 0%, transparent 65%);
+  top: -150px; right: -50px;
+  pointer-events: none; z-index: 0;
 }
 
 .hero-content {
   position: relative; z-index: 2;
-  flex: 0 0 46%;
-  max-width: 46%;
-  animation: fadeUp 0.7s ease both;
+  flex: 0 0 44%;
+  max-width: 44%;
+  padding-top: 8px;
+  animation: fadeUp 0.65s ease both;
 }
 
-@keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
 
 .hero-eyebrow {
   display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.18);
-  color: #93c5fd;
-  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em;
+  background: rgba(15,30,70,0.55);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: rgba(255,255,255,0.75);
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em;
   text-transform: uppercase;
-  padding: 6px 14px; border-radius: 20px;
-  margin-bottom: 18px;
+  padding: 7px 15px; border-radius: 30px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(6px);
 }
-.hero-eyebrow i { font-size: 0.78rem; }
+.hero-eyebrow i { font-size: 0.76rem; opacity: 0.9; }
 
 .hero-title {
   font-family: var(--font-head);
-  font-size: clamp(2.6rem, 4.5vw, 4rem);
+  font-size: clamp(2.8rem, 4.8vw, 4.4rem);
   font-weight: 400;
   color: #ffffff;
-  line-height: 1.15;
-  margin-bottom: 16px;
+  line-height: 1.12;
+  margin-bottom: 14px;
   letter-spacing: -0.01em;
 }
-.hero-title span { color: #60a5fa; font-style: italic; }
+.hero-title span { color: #5aaeff; font-style: italic; }
 
 .hero-subtitle {
-  font-size: 0.95rem;
-  color: rgba(255,255,255,0.6);
-  line-height: 1.75;
-  max-width: 400px;
-  margin-bottom: 32px;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.7;
+  max-width: 360px;
+  margin-bottom: 28px;
   font-weight: 400;
 }
 
@@ -123,56 +125,63 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
   font-size: 0.88rem; font-weight: 700;
   text-decoration: none;
   transition: background 0.18s, transform 0.15s, box-shadow 0.18s;
-  box-shadow: 0 4px 18px rgba(37,99,235,0.4);
+  box-shadow: 0 4px 20px rgba(37,99,235,0.45);
   font-family: var(--font-body);
+  letter-spacing: 0.01em;
 }
-.hero-btn-primary:hover { background: var(--blue-dk); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37,99,235,0.48); color: #fff; }
+.hero-btn-primary:hover { background: var(--blue-dk); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(37,99,235,0.5); color: #fff; }
 
 .hero-btn-ghost {
   display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(255,255,255,0.07);
-  border: 1.5px solid rgba(255,255,255,0.2);
-  color: rgba(255,255,255,0.82);
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.22);
+  color: rgba(255,255,255,0.8);
   padding: 12px 22px;
   border-radius: 10px;
   font-size: 0.88rem; font-weight: 600;
   text-decoration: none;
-  transition: background 0.18s, border-color 0.18s;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
   font-family: var(--font-body);
 }
-.hero-btn-ghost:hover { background: rgba(255,255,255,0.13); border-color: rgba(255,255,255,0.38); color: #fff; }
+.hero-btn-ghost:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.4); color: #fff; }
 
 .hero-image-wrap {
   position: absolute;
-  right: -1%;
-  bottom: 0;
-  width: 56%;
+  right: -2%;
+  top: 68%;
+  transform: translateY(-50%);
+  width: 60%;
   z-index: 1;
-  animation: carSlide 0.9s cubic-bezier(0.22,1,0.36,1) both;
-  animation-delay: 0.2s;
+  animation: carSlide 0.95s cubic-bezier(0.22,1,0.36,1) both;
+  animation-delay: 0.15s;
+  pointer-events: none;
 }
-@keyframes carSlide { from { opacity:0; transform:translateX(60px); } to { opacity:1; transform:translateX(0); } }
+
+@keyframes carSlide {
+  from { opacity: 0; transform: translateY(-50%) translateX(50px); }
+  to   { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
 
 .hero-image-wrap img {
   width: 100%;
   display: block;
-  filter: drop-shadow(0 20px 60px rgba(0,0,0,0.45));
+  filter: drop-shadow(0 24px 64px rgba(0,0,0,0.5));
 }
 
-/* scroll hint at bottom of hero */
+/* scroll hint */
 .hero-scroll-hint {
-  position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
   z-index: 5;
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
-  color: rgba(255,255,255,0.35); font-size: 0.68rem; letter-spacing: 0.1em;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  color: rgba(255,255,255,0.28); font-size: 0.66rem; letter-spacing: 0.1em;
   text-transform: uppercase; font-weight: 600;
-  animation: bounce 2s ease infinite;
+  animation: bounce 2.2s ease infinite;
 }
 @keyframes bounce {
   0%,100% { transform: translateX(-50%) translateY(0); }
-  50%      { transform: translateX(-50%) translateY(5px); }
+  50%      { transform: translateX(-50%) translateY(6px); }
 }
-.hero-scroll-hint i { font-size: 1rem; }
+.hero-scroll-hint i { font-size: 0.95rem; }
 
 /* ─── STATS ─────────────────────────────────────────── */
 .stats-section {
@@ -457,14 +466,14 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
 
 /* ─── RESPONSIVE ─────────────────────────────────────── */
 @media (max-width: 1024px) {
-  .hero-image-wrap { width: 52%; }
+  .hero-image-wrap { width: 56%; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .cars-grid { grid-template-columns: repeat(2, 1fr); }
   .services-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 768px) {
-  .hero { height: auto; min-height: calc(100vh - var(--navbar-h)); padding: 40px 5% 32px; }
-  .hero-main { flex-direction: column; align-items: flex-start; gap: 24px; }
+  .hero { height: auto; min-height: calc(100vh - var(--navbar-h)); max-height: none; padding: 36px 6% 28px; }
+  .hero-main { flex-direction: column; align-items: flex-start; gap: 20px; }
   .hero-content { max-width: 100%; flex: none; }
   .hero-image-wrap { position: relative; width: 100%; right: auto; bottom: auto; }
   .listing-layout { flex-direction: column; }
@@ -711,37 +720,37 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
       <div class="service-icon"><i class="bi bi-car-front-fill"></i></div>
       <h4>Car Selling</h4>
       <p>The largest used car selling platform in India. List your car in minutes.</p>
-      <a href="javascript:void(0)" class="service-link" data-service="car-selling"> </a>
+      <a href="javascript:void(0)" class="service-link" data-service="car-selling">Read More <i class="bi bi-arrow-right"></i></a>
     </div>
     <div class="service-card">
       <div class="service-icon"><i class="bi bi-tools"></i></div>
       <h4>Parts Repair</h4>
       <p>More than 200+ service stations across India ready to help.</p>
-      <a href="javascript:void(0)" class="service-link" data-service="parts-repair"> </a>
+      <a href="javascript:void(0)" class="service-link" data-service="parts-repair">Read More <i class="bi bi-arrow-right"></i></a>
     </div>
     <div class="service-card">
       <div class="service-icon"><i class="bi bi-shield-check"></i></div>
       <h4>Car Insurance</h4>
       <p>Lowest premiums with comprehensive car insurance coverage.</p>
-      <a href="javascript:void(0)" class="service-link" data-service="insurance"></a>
+      <a href="javascript:void(0)" class="service-link" data-service="insurance">Read More <i class="bi bi-arrow-right"></i></a>
     </div>
     <div class="service-card">
       <div class="service-icon"><i class="bi bi-battery-charging"></i></div>
       <h4>Battery Replacement</h4>
       <p>Fast battery replacement service for every make and model.</p>
-      <a href="javascript:void(0)" class="service-link" data-service="battery"></a>
+      <a href="javascript:void(0)" class="service-link" data-service="battery">Read More <i class="bi bi-arrow-right"></i></a>
     </div>
     <div class="service-card">
       <div class="service-icon"><i class="bi bi-droplet-fill"></i></div>
       <h4>Oil Change</h4>
       <p>Quick oil change service with our own trusted brand products.</p>
-      <a href="javascript:void(0)" class="service-link" data-service="oil"></a>
+      <a href="javascript:void(0)" class="service-link" data-service="oil">Read More <i class="bi bi-arrow-right"></i></a>
     </div>
     <div class="service-card">
       <div class="service-icon"><i class="bi bi-headset"></i></div>
       <h4>24/7 Support</h4>
       <p>Round-the-clock customer support. Call us anytime you need help.</p>
-      <a href="javascript:void(0)" class="service-link" data-service="support"></a>
+      <a href="javascript:void(0)" class="service-link" data-service="support">Read More <i class="bi bi-arrow-right"></i></a>
     </div>
   </div>
 </section>
