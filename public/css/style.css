@@ -1185,7 +1185,9 @@ button {
 
 /* ================= FILTER SIDEBAR ================= */
 .filter-sidebar {
+
   width: 285px;
+  height: 500px;
   background: var(--bg-primary);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-md);
