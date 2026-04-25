@@ -2,706 +2,571 @@
   const galleryImages = (car.images && car.images.length)
     ? car.images
     : (car.image && car.image !== '' ? [car.image] : []);
+  const isOwner = currentUser && car.owner && car.owner.toString() === currentUser._id.toString();
+  const avgRating = car.reviews && car.reviews.length
+    ? (car.reviews.reduce((s,r)=>s+r.rating,0)/car.reviews.length).toFixed(1)
+    : null;
 %>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 
-<style>
-  :root {
-    --blue:     #2563eb;
-    --blue-dk:  #1d4fd7;
-    --blue-900: #0f2a5e;
-    --blue-700: #1a4fa0;
-    --blue-600: #1e5cbf;
-    --blue-100: #dbeafe;
-    --blue-50:  #eff6ff;
-    --white:    #ffffff;
-    --surface:  #eef2f7;
-    --border:   #dde3ee;
-    --muted:    #6b7fa8;
-    --ink:      #0f1c3f;
-    --green:    #16a34a;
-    --danger:   #dc2626;
-    --radius:   10px;
-    --radius-lg: 16px;
-    --shadow-sm: 0 2px 12px rgba(15,30,70,0.08);
-    --shadow:    0 4px 24px rgba(15,30,70,0.11);
-    --shadow-md: 0 8px 36px rgba(15,30,70,0.15);
-    --font-body: 'DM Sans', sans-serif;
-    --font-head: 'DM Serif Display', serif;
-  }
+<!-- Flash Messages -->
+<% if (typeof success !== 'undefined' && success && success.length) { %>
+<div class="sp-flash sp-flash-ok"><i class="bi bi-check-circle-fill"></i> <%= success %><button onclick="this.parentElement.remove()" class="sp-flash-x">&times;</button></div>
+<% } %>
+<% if (typeof error !== 'undefined' && error && error.length) { %>
+<div class="sp-flash sp-flash-err"><i class="bi bi-exclamation-triangle-fill"></i> <%= error %><button onclick="this.parentElement.remove()" class="sp-flash-x">&times;</button></div>
+<% } %>
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: var(--font-body); background: var(--surface); color: var(--ink); -webkit-font-smoothing: antialiased; }
-
-  /* ── WRAPPER ── */
-  .csp-wrap {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 28px 24px 72px;
-    animation: fadeUp 0.45s ease both;
-  }
-  @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
-
-  /* ── BREADCRUMB ── */
-  .csp-breadcrumb {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 0.76rem; color: var(--muted); margin-bottom: 22px;
-  }
-  .csp-breadcrumb a { color: var(--muted); text-decoration: none; transition: color 0.18s; }
-  .csp-breadcrumb a:hover { color: var(--blue); }
-  .csp-breadcrumb-sep { opacity: 0.4; }
-
-  /* ── MAIN GRID ── */
-  .csp-grid {
-    display: grid;
-    grid-template-columns: 1fr 360px;
-    gap: 24px;
-    align-items: start;
-  }
-
-  /* ════════════════════════════
-     GALLERY
-  ════════════════════════════ */
-  .gallery-card {
-    background: var(--blue-900);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    box-shadow: var(--shadow-md);
-  }
-
-  /* Main image viewport */
-  .gallery-main {
-    position: relative;
-    aspect-ratio: 16/10;
-    overflow: hidden;
-    background: var(--blue-900);
-    cursor: zoom-in;
-  }
-  .gallery-main-img {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%;
-    object-fit: cover;
-    opacity: 0;
-    transition: opacity 0.35s ease;
-    pointer-events: none;
-  }
-  .gallery-main-img.active { opacity: 1; pointer-events: auto; }
-
-  .gallery-no-img {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    color: rgba(255,255,255,0.22); gap: 10px; font-size: 0.82rem;
-  }
-  .gallery-no-img i { font-size: 3rem; }
-
-  /* For Sale badge */
-  .gallery-badge {
-    position: absolute; top: 14px; left: 14px; z-index: 4;
-    background: var(--blue); color: #fff;
-    font-size: 0.67rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-    padding: 4px 12px; border-radius: 20px;
-  }
-
-  /* Photo counter */
-  .gallery-counter {
-    position: absolute; bottom: 16px; right: 16px; z-index: 4;
-    background: rgba(10,20,50,0.6); color: #fff;
-    font-size: 0.7rem; font-weight: 600;
-    padding: 4px 12px; border-radius: 20px;
-    backdrop-filter: blur(8px);
-  }
-
-  /* ── NAV ARROWS on gallery ── */
-  .gallery-nav {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    z-index: 5;
-    width: 42px; height: 42px;
-    background: rgba(255,255,255,0.18);
-    backdrop-filter: blur(8px);
-    border: 1.5px solid rgba(255,255,255,0.28);
-    color: #fff; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-size: 0.9rem;
-    transition: background 0.2s, border-color 0.2s, transform 0.15s;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
-  }
-  .gallery-nav:hover {
-    background: rgba(37,99,235,0.65);
-    border-color: rgba(37,99,235,0.8);
-    transform: translateY(-50%) scale(1.08);
-  }
-  .gallery-nav:active { transform: translateY(-50%) scale(0.96); }
-  .gallery-nav-prev { left: 16px; }
-  .gallery-nav-next { right: 16px; }
-
-  /* ── THUMBNAILS STRIP ── */
-  .gallery-thumbs {
-    display: flex; gap: 7px;
-    padding: 10px 14px;
-    background: rgba(10,20,50,0.85);
-    overflow-x: auto; scrollbar-width: none;
-    border-top: 1px solid rgba(255,255,255,0.07);
-    align-items: center;
-  }
-  .gallery-thumbs::-webkit-scrollbar { display: none; }
-
-  .gallery-thumb {
-    flex-shrink: 0; width: 70px; height: 50px;
-    border-radius: 6px; overflow: hidden;
-    border: 2px solid transparent;
-    cursor: pointer; opacity: 0.55;
-    padding: 0; background: none;
-    transition: opacity 0.2s, border-color 0.2s, transform 0.18s;
-  }
-  .gallery-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .gallery-thumb:hover { opacity: 0.85; transform: scale(1.04); }
-  .gallery-thumb.active { border-color: var(--blue); opacity: 1; }
-
-  /* ════════════════════════════
-     INFO PANEL
-  ════════════════════════════ */
-  .info-panel { display: flex; flex-direction: column; gap: 16px; }
-
-  /* Price card */
-  .price-card {
-    background: linear-gradient(135deg, var(--blue-700) 0%, var(--blue-900) 100%);
-    border-radius: var(--radius-lg); padding: 22px 24px 24px;
-    color: #fff; position: relative; overflow: hidden;
-    box-shadow: var(--shadow-md);
-  }
-  .price-card::before {
-    content: ''; position: absolute; top: -60px; right: -60px;
-    width: 200px; height: 200px;
-    background: radial-gradient(circle, rgba(59,130,246,0.22), transparent 65%);
-    pointer-events: none;
-  }
-  .price-card-label {
-    font-size: 0.67rem; letter-spacing: 0.13em; text-transform: uppercase;
-    color: rgba(255,255,255,0.55); font-weight: 700; margin-bottom: 5px;
-  }
-  .price-card-name {
-    font-family: var(--font-head);
-    font-size: 1.4rem; color: #fff; line-height: 1.2; margin-bottom: 4px;
-  }
-  .price-card-location {
-    font-size: 0.76rem; color: rgba(255,255,255,0.45);
-    display: flex; align-items: center; gap: 4px; margin-bottom: 18px;
-  }
-  .price-divider { height: 1px; background: rgba(255,255,255,0.12); margin-bottom: 14px; }
-  .price-card-price {
-    font-family: var(--font-body);
-    font-size: 2rem; font-weight: 800; color: #fff; letter-spacing: -0.03em;
-  }
-  .price-card-price sup { font-size: 1rem; vertical-align: super; margin-right: 2px; opacity: 0.8; }
-  .price-card-sub { font-size: 0.72rem; color: rgba(255,255,255,0.4); margin-top: 4px; }
-
-  /* Card base */
-  .card-base {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 20px;
-    box-shadow: var(--shadow-sm);
-  }
-  .card-heading {
-    font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--muted); font-weight: 700; margin-bottom: 14px;
-  }
-
-  /* Specs grid */
-  .specs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .spec-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 11px 12px;
-    background: var(--blue-50); border: 1px solid var(--blue-100);
-    border-radius: var(--radius);
-    transition: border-color 0.18s, background 0.18s;
-  }
-  .spec-item:hover { border-color: #93c5fd; background: #e8f0fe; }
-  .spec-icon {
-    width: 32px; height: 32px; border-radius: 8px;
-    background: var(--white); flex-shrink: 0; font-size: 0.9rem;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 1px 4px rgba(15,30,70,0.10);
-  }
-  .spec-label { font-size: 0.63rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
-  .spec-value { font-size: 0.86rem; font-weight: 700; color: var(--ink); margin-top: 1px; }
-
-  /* Seller */
-  .seller-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px; background: var(--blue-50);
-    border: 1px solid var(--blue-100); border-radius: var(--radius); margin-bottom: 14px;
-  }
-  .seller-avatar {
-    width: 42px; height: 42px;
-    background: linear-gradient(135deg, var(--blue-600), var(--blue-900));
-    border-radius: 50%; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 1rem;
-  }
-  .seller-name { font-size: 0.92rem; font-weight: 700; color: var(--ink); }
-  .seller-badge {
-    font-size: 0.68rem; color: var(--green); font-weight: 600;
-    display: flex; align-items: center; gap: 3px; margin-top: 2px;
-  }
-  .cta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .btn-cta {
-    display: flex; align-items: center; justify-content: center; gap: 7px;
-    padding: 11px 14px; border-radius: var(--radius);
-    font-size: 0.84rem; font-weight: 700; text-decoration: none;
-    cursor: pointer; border: none; font-family: var(--font-body);
-    transition: all 0.2s;
-  }
-  .btn-call { background: var(--blue); color: #fff; }
-  .btn-call:hover { background: var(--blue-dk); color: #fff; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(37,99,235,0.35); }
-  .btn-whatsapp { background: #16a34a; color: #fff; }
-  .btn-whatsapp:hover { background: #15803d; color: #fff; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(22,163,74,0.28); }
-
-  .owner-actions {
-    margin-top: 12px; padding-top: 12px;
-    border-top: 1px solid var(--border);
-    display: flex; gap: 8px;
-  }
-  .btn-owner {
-    flex: 1; padding: 9px 12px; border-radius: var(--radius);
-    font-size: 0.8rem; font-weight: 600; cursor: pointer;
-    text-align: center; text-decoration: none; display: block;
-    border: 1px solid var(--border); color: var(--ink); background: transparent;
-    transition: all 0.18s; font-family: var(--font-body);
-  }
-  .btn-owner:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-50); }
-  .btn-owner-del { border-color: #fee2e2; color: var(--danger); }
-  .btn-owner-del:hover { background: #fef2f2; border-color: var(--danger); }
-
-  /* ════════════════════════════
-     BOTTOM ROW
-  ════════════════════════════ */
-  .bottom-row {
-    display: grid;
-    grid-template-columns: 1fr 360px;
-    gap: 24px;
-    margin-top: 24px;
-    align-items: start;
-  }
-
-  /* Description */
-  .desc-card { height: 100%; }
-  .desc-text {
-    font-size: 0.9rem; line-height: 1.8; color: #4a5a7a;
-    white-space: pre-line;
-  }
-
-  /* Reviews */
-  .reviews-card {
-    background: var(--white); border: 1px solid var(--border);
-    border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);
-    display: flex; flex-direction: column; overflow: hidden;
-  }
-  .reviews-header {
-    padding: 16px 20px 12px; border-bottom: 1px solid var(--border);
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .reviews-header-left { display: flex; align-items: center; gap: 8px; }
-  .reviews-count {
-    font-size: 0.7rem; background: var(--blue-50);
-    border: 1px solid var(--blue-100); color: var(--blue);
-    padding: 2px 9px; border-radius: 20px; font-weight: 600;
-  }
-  .reviews-list {
-    padding: 12px 16px; max-height: 240px; overflow-y: auto;
-    display: flex; flex-direction: column; gap: 9px;
-    scrollbar-width: thin; scrollbar-color: var(--blue-100) transparent;
-  }
-  .review-item {
-    padding: 11px 14px; background: var(--blue-50);
-    border: 1px solid var(--blue-100); border-radius: var(--radius);
-    transition: border-color 0.18s;
-  }
-  .review-item:hover { border-color: #93c5fd; }
-  .review-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
-  .review-author { font-size: 0.82rem; font-weight: 700; color: var(--ink); }
-  .review-stars { color: #f59e0b; font-size: 0.72rem; letter-spacing: 1px; margin-top: 2px; }
-  .review-comment { font-size: 0.81rem; color: var(--muted); font-style: italic; line-height: 1.5; }
-  .review-del-btn { background: none; border: none; color: #c3cfe8; cursor: pointer; font-size: 0.75rem; padding: 0; transition: color 0.18s; }
-  .review-del-btn:hover { color: var(--danger); }
-  .no-reviews { text-align: center; padding: 28px 0; color: var(--muted); font-size: 0.82rem; }
-  .reviews-form { padding: 12px 16px; border-top: 1px solid var(--border); background: var(--blue-50); }
-  .reviews-input-row { display: flex; gap: 8px; }
-  .review-select, .review-input {
-    padding: 9px 10px; border: 1.5px solid var(--border); border-radius: var(--radius);
-    font-size: 0.82rem; background: var(--white); color: var(--ink);
-    font-family: var(--font-body); outline: none; transition: border-color 0.18s;
-    -webkit-appearance: none; appearance: none;
-  }
-  .review-select { width: 68px; cursor: pointer; }
-  .review-input { flex: 1; }
-  .review-select:focus, .review-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.10); }
-  .review-submit {
-    width: 38px; height: 38px; background: var(--blue);
-    border: none; border-radius: var(--radius); color: #fff;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; font-size: 0.82rem; transition: background 0.2s;
-  }
-  .review-submit:hover { background: var(--blue-dk); }
-
-  /* ── LIGHTBOX ── */
-  .csp-lightbox {
-    position: fixed; inset: 0;
-    background: rgba(10,20,50,0.94);
-    z-index: 9999; display: flex; align-items: center; justify-content: center;
-    opacity: 0; pointer-events: none; transition: opacity 0.28s;
-  }
-  .csp-lightbox.active { opacity: 1; pointer-events: all; }
-  .csp-lb-img {
-    max-width: 90vw; max-height: 88vh;
-    object-fit: contain; border-radius: var(--radius);
-    cursor: zoom-in; transition: transform 0.25s;
-  }
-  .csp-lb-img.zoomed { transform: scale(1.85); cursor: zoom-out; }
-  .csp-lb-close {
-    position: fixed; top: 18px; right: 22px;
-    font-size: 1.6rem; color: rgba(255,255,255,0.5);
-    cursor: pointer; background: none; border: none; line-height: 1; transition: color 0.2s;
-  }
-  .csp-lb-close:hover { color: #fff; }
-  .csp-lb-nav {
-    position: fixed; top: 50%; transform: translateY(-50%);
-    width: 46px; height: 46px;
-    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-    backdrop-filter: blur(8px); color: #fff; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: background 0.2s; font-size: 0.9rem;
-  }
-  .csp-lb-nav:hover { background: rgba(37,99,235,0.5); }
-  .csp-lb-prev { left: 22px; }
-  .csp-lb-next { right: 22px; }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 960px) {
-    .csp-grid, .bottom-row { grid-template-columns: 1fr; }
-    .bottom-row { gap: 16px; }
-  }
-  @media (max-width: 480px) {
-    .specs-grid { grid-template-columns: 1fr 1fr; }
-    .price-card-price { font-size: 1.7rem; }
-    .csp-wrap { padding: 16px 14px 48px; }
-  }
-</style>
-
-<!-- ════════════════════════════════════════
-     PAGE
-════════════════════════════════════════ -->
-<div class="csp-wrap">
-
-  <!-- BREADCRUMB -->
-  <nav class="csp-breadcrumb">
-    <a href="/"><i class="bi bi-house"></i> Home</a>
-    <span class="csp-breadcrumb-sep">›</span>
+<div class="sp-wrap">
+  <!-- Breadcrumb -->
+  <nav class="sp-crumbs">
+    <a href="/"><i class="bi bi-house"></i></a>
+    <span>›</span>
     <a href="/cars">All Cars</a>
-    <span class="csp-breadcrumb-sep">›</span>
-    <span><%= car.carName %></span>
+    <span>›</span>
+    <span class="sp-crumb-cur"><%= car.carName %></span>
   </nav>
 
-  <!-- ═══ ROW 1: GALLERY + INFO ═══ -->
-  <div class="csp-grid">
+  <!-- ══ TOP GRID: Gallery + Panel ══ -->
+  <div class="sp-top">
 
     <!-- GALLERY -->
-    <div class="gallery-card">
-      <div class="gallery-main" id="cspGalleryMain">
-
-        <% if (galleryImages.length === 0) { %>
-          <div class="gallery-no-img">
-            <i class="bi bi-image"></i>
-            <span>No images uploaded</span>
-          </div>
+    <div class="sp-gallery">
+      <div class="sp-gallery-main" id="spGalleryMain">
+        <% if(galleryImages.length === 0){ %>
+          <div class="sp-no-img"><i class="bi bi-image"></i><span>No photos yet</span></div>
         <% } else { %>
-          <% galleryImages.forEach(function(img, i) { %>
-            <img
-              src="<%= img %>"
-              alt="<%= car.carName %> photo <%= i + 1 %>"
-              class="gallery-main-img <%= i === 0 ? 'active' : '' %>"
-              data-index="<%= i %>"
-            />
+          <% galleryImages.forEach(function(img,i){ %>
+            <img src="<%= img %>" alt="<%= car.carName %> photo <%= i+1 %>"
+              class="sp-img<%= i===0?' sp-img-active':'' %>" data-idx="<%= i %>" />
           <% }); %>
         <% } %>
 
-        <span class="gallery-badge">For Sale</span>
+        <div class="sp-gallery-badges">
+          <span class="sp-badge sp-badge-sale">For Sale</span>
+          <% if(car.urgentSale){ %><span class="sp-badge sp-badge-urgent"><i class="bi bi-lightning-charge-fill"></i> Urgent</span><% } %>
+          <% if(car.year){ %><span class="sp-badge sp-badge-year"><%= car.year %></span><% } %>
+        </div>
 
-        <% if (galleryImages.length > 1) { %>
-          <span class="gallery-counter" id="cspGalCounter">1 / <%= galleryImages.length %></span>
-          <button class="gallery-nav gallery-nav-prev" id="cspGalPrev" type="button" aria-label="Previous photo">
-            <i class="bi bi-chevron-left"></i>
-          </button>
-          <button class="gallery-nav gallery-nav-next" id="cspGalNext" type="button" aria-label="Next photo">
-            <i class="bi bi-chevron-right"></i>
-          </button>
+        <% if(galleryImages.length > 1){ %>
+          <span class="sp-counter" id="spCounter">1 / <%= galleryImages.length %></span>
+          <button class="sp-nav sp-nav-l" id="spPrev"><i class="bi bi-chevron-left"></i></button>
+          <button class="sp-nav sp-nav-r" id="spNext"><i class="bi bi-chevron-right"></i></button>
         <% } %>
       </div>
 
-      <% if (galleryImages.length > 1) { %>
-      <div class="gallery-thumbs" id="thumbsStrip">
-        <% galleryImages.forEach(function(img, i) { %>
-          <button class="gallery-thumb <%= i === 0 ? 'active' : '' %>" data-thumb="<%= i %>" type="button" aria-label="Photo <%= i + 1 %>">
-            <img src="<%= img %>" alt="Thumbnail <%= i + 1 %>" loading="lazy" />
+      <% if(galleryImages.length > 1){ %>
+      <div class="sp-thumbs" id="spThumbs">
+        <% galleryImages.forEach(function(img,i){ %>
+          <button class="sp-thumb<%= i===0?' sp-thumb-active':'' %>" data-thumb="<%= i %>">
+            <img src="<%= img %>" alt="Thumb <%= i+1 %>" loading="lazy" />
           </button>
         <% }); %>
       </div>
       <% } %>
     </div>
-    <!-- /GALLERY -->
 
     <!-- INFO PANEL -->
-    <div class="info-panel">
+    <div class="sp-panel">
 
-      <!-- Price Card -->
-      <div class="price-card">
-        <div class="price-card-label">Listed Vehicle</div>
-        <div class="price-card-name"><%= car.carName %></div>
-        <div class="price-card-location">
-          <i class="bi bi-geo-alt-fill"></i>
-          <%= car.city %><% if (car.state) { %>, <%= car.state %><% } %>
-        </div>
-        <div class="price-divider"></div>
-        <div class="price-card-price">
-          <sup>₹</sup><%= car.price.toLocaleString('en-IN') %>
-        </div>
-        <div class="price-card-sub">Negotiable · Direct Owner</div>
-      </div>
-
-      <!-- Specifications -->
-      <div class="card-base">
-        <div class="card-heading">Specifications</div>
-        <div class="specs-grid">
-          <div class="spec-item">
-            <div class="spec-icon" style="color:#2563eb;"><i class="bi bi-calendar-check"></i></div>
-            <div><div class="spec-label">Year</div><div class="spec-value"><%= car.year || '—' %></div></div>
-          </div>
-          <div class="spec-item">
-            <div class="spec-icon" style="color:#e85d04;"><i class="bi bi-fuel-pump"></i></div>
-            <div><div class="spec-label">Fuel</div><div class="spec-value"><%= car.fuel || '—' %></div></div>
-          </div>
-          <div class="spec-item">
-            <div class="spec-icon" style="color:#7c3aed;"><i class="bi bi-gear-wide-connected"></i></div>
-            <div><div class="spec-label">Transmission</div><div class="spec-value"><%= car.transmission || '—' %></div></div>
-          </div>
-          <div class="spec-item">
-            <div class="spec-icon" style="color:#059669;"><i class="bi bi-speedometer2"></i></div>
-            <div><div class="spec-label">Mileage</div><div class="spec-value"><%= car.mileage ? car.mileage.toLocaleString('en-IN') + ' km' : 'N/A' %></div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Seller Information -->
-      <div class="card-base">
-        <div class="card-heading">Seller Information</div>
-        <div class="seller-row">
-          <div class="seller-avatar"><i class="bi bi-person-fill"></i></div>
+      <!-- Price card -->
+      <div class="sp-price-card">
+        <div class="sp-price-header">
           <div>
-            <div class="seller-name"><%= car.dealerName %></div>
-            <div class="seller-badge"><i class="bi bi-patch-check-fill"></i> Verified Seller</div>
+            <div class="sp-listed-tag">Used Vehicle</div>
+            <h1 class="sp-car-name"><%= car.carName %></h1>
+            <div class="sp-location"><i class="bi bi-geo-alt-fill"></i> <%= car.city %><% if(car.state){ %>, <%= car.state %><% } %></div>
+          </div>
+          <div class="sp-status">Active</div>
+        </div>
+        <div class="sp-divider"></div>
+        <div class="sp-price-row">
+          <div class="sp-price">
+            <span class="sp-price-cur">₹</span><%= car.price ? car.price.toLocaleString('en-IN') : 'N/A' %>
+          </div>
+          <div class="sp-price-tags">
+            <% if(car.negotiable){ %><span class="sp-ptag sp-ptag-green"><i class="bi bi-check2-circle"></i> Negotiable</span><% } %>
+            <% if(car.sellerType){ %><span class="sp-ptag"><i class="bi bi-person-check"></i> <%= car.sellerType %></span><% } %>
           </div>
         </div>
-        <div class="cta-row">
-          <a href="tel:<%= car.dealerPhone %>" class="btn-cta btn-call">
-            <i class="bi bi-telephone-fill"></i> Call
-          </a>
-          <a href="https://wa.me/<%= car.dealerPhone.replace(/[^0-9]/g, '') %>" target="_blank" class="btn-cta btn-whatsapp">
-            <i class="bi bi-whatsapp"></i> WhatsApp
-          </a>
-        </div>
+      </div>
 
-        <% if (currentUser && car.owner && car.owner.toString() === currentUser._id.toString()) { %>
-        <div class="owner-actions">
-          <a href="/cars/<%= car._id %>/edit" class="btn-owner">
-            <i class="bi bi-pencil"></i> Edit
-          </a>
-          <form action="/cars/<%= car._id %>?_method=DELETE" method="POST" style="flex:1;" onsubmit="return confirm('Delete this listing?')">
-            <button type="submit" class="btn-owner btn-owner-del" style="width:100%;">
-              <i class="bi bi-trash3"></i> Delete
-            </button>
-          </form>
+      <!-- Quick specs -->
+      <div class="sp-card">
+        <div class="sp-card-label"><i class="bi bi-sliders"></i> Specifications</div>
+        <div class="sp-specs">
+          <div class="sp-spec">
+            <div class="sp-spec-ico" style="background:#eff6ff;color:#2563eb"><i class="bi bi-calendar-check"></i></div>
+            <div><div class="sp-spec-lbl">Year</div><div class="sp-spec-val"><%= car.year||'—' %></div></div>
+          </div>
+          <div class="sp-spec">
+            <div class="sp-spec-ico" style="background:#fff7ed;color:#ea580c"><i class="bi bi-fuel-pump"></i></div>
+            <div><div class="sp-spec-lbl">Fuel</div><div class="sp-spec-val"><%= car.fuel||'—' %></div></div>
+          </div>
+          <div class="sp-spec">
+            <div class="sp-spec-ico" style="background:#f5f3ff;color:#7c3aed"><i class="bi bi-gear-wide-connected"></i></div>
+            <div><div class="sp-spec-lbl">Transmission</div><div class="sp-spec-val"><%= car.transmission||'—' %></div></div>
+          </div>
+          <div class="sp-spec">
+            <div class="sp-spec-ico" style="background:#f0fdf4;color:#16a34a"><i class="bi bi-speedometer2"></i></div>
+            <div><div class="sp-spec-lbl">KM Driven</div><div class="sp-spec-val"><%= car.mileage ? car.mileage.toLocaleString('en-IN')+' km' : '—' %></div></div>
+          </div>
+          <% if(car.ownership){ %>
+          <div class="sp-spec">
+            <div class="sp-spec-ico" style="background:#fefce8;color:#ca8a04"><i class="bi bi-person-badge"></i></div>
+            <div><div class="sp-spec-lbl">Ownership</div><div class="sp-spec-val"><%= car.ownership %></div></div>
+          </div>
+          <% } %>
+          <% if(car.color){ %>
+          <div class="sp-spec">
+            <div class="sp-spec-ico" style="background:#fdf2f8;color:#9d174d"><i class="bi bi-palette"></i></div>
+            <div><div class="sp-spec-lbl">Color</div><div class="sp-spec-val"><%= car.color %></div></div>
+          </div>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Seller -->
+      <div class="sp-card">
+        <div class="sp-card-label"><i class="bi bi-person-badge"></i> Seller</div>
+        <div class="sp-seller">
+          <div class="sp-seller-av"><%= car.dealerName ? car.dealerName.charAt(0).toUpperCase() : 'S' %></div>
+          <div>
+            <div class="sp-seller-name"><%= car.dealerName %></div>
+            <div class="sp-seller-tag"><i class="bi bi-patch-check-fill"></i> Verified Seller</div>
+          </div>
+        </div>
+        <div class="sp-cta">
+          <a href="tel:<%= car.dealerPhone %>" class="sp-btn sp-btn-call"><i class="bi bi-telephone-fill"></i> Call Seller</a>
+          <a href="https://wa.me/<%= car.dealerPhone.replace(/[^0-9]/g,'') %>?text=Hi%2C+I'm+interested+in+your+<%= encodeURIComponent(car.carName) %>+listed+on+RideHub." target="_blank" rel="noopener" class="sp-btn sp-btn-wa"><i class="bi bi-whatsapp"></i> WhatsApp</a>
+        </div>
+        <% if(isOwner){ %>
+        <div class="sp-owner-strip">
+          <div class="sp-owner-lbl"><i class="bi bi-shield-lock-fill"></i> You own this listing</div>
+          <div class="sp-owner-actions">
+            <a href="/cars/<%= car._id %>/edit" class="sp-owner-btn sp-owner-edit"><i class="bi bi-pencil-square"></i> Edit</a>
+            <form action="/cars/<%= car._id %>?_method=DELETE" method="POST" style="flex:1" onsubmit="return spConfirmDelete()">
+              <button type="submit" class="sp-owner-btn sp-owner-del" style="width:100%"><i class="bi bi-trash3"></i> Delete</button>
+            </form>
+          </div>
         </div>
         <% } %>
       </div>
+    </div>
+  </div>
 
-    </div><!-- /info-panel -->
-  </div><!-- /csp-grid -->
+  <!-- ══ BOTTOM: Full Details + Reviews ══ -->
+  <div class="sp-bottom">
 
+    <!-- Full Details -->
+    <div class="sp-details-card" style="margin-top: -72px;">
+      <div class="sp-section-hd"><i class="bi bi-list-check"></i> Full Details</div>
 
-  <!-- ═══ ROW 2: DESCRIPTION + REVIEWS ═══ -->
-  <div class="bottom-row">
+      <!-- Description -->
+      <% if(car.description){ %>
+      <p class="sp-desc"><%= car.description %></p>
+      <% } %>
 
-    <!-- Description -->
-    <div class="card-base desc-card">
-      <div class="card-heading">About This Vehicle</div>
-      <p class="desc-text"><%= car.description || 'No description has been provided for this vehicle.' %></p>
+      <!-- All specs table -->
+      <div class="sp-detail-grid">
+        <% const detailRows = [
+          {label:'Model Year', val:car.year, icon:'bi-calendar-check'},
+          {label:'Fuel Type', val:car.fuel, icon:'bi-fuel-pump'},
+          {label:'Transmission', val:car.transmission, icon:'bi-gear-wide-connected'},
+          {label:'KM Driven', val:car.mileage ? car.mileage.toLocaleString('en-IN')+' km' : null, icon:'bi-speedometer2'},
+          {label:'Ownership', val:car.ownership, icon:'bi-person-badge'},
+          {label:'Color', val:car.color, icon:'bi-palette'},
+          {label:'Seats', val:car.seats ? car.seats+' Seater' : null, icon:'bi-people'},
+          {label:'Engine', val:car.engineCC ? car.engineCC+' cc' : null, icon:'bi-cpu'},
+          {label:'Power', val:car.powerBHP ? car.powerBHP+' bhp' : null, icon:'bi-lightning'},
+          {label:'Registration City', val:car.registrationCity, icon:'bi-building'},
+          {label:'Registration Year', val:car.registrationYear, icon:'bi-calendar3'},
+          {label:'Insurance', val:car.insuranceStatus, icon:'bi-shield-check'},
+          {label:'Insurance Valid Till', val:car.insuranceValidTill, icon:'bi-calendar-event'},
+          {label:'Condition', val:car.condition, icon:'bi-stars'},
+          {label:'Accident History', val:car.accidentHistory==='true'||car.accidentHistory===true ? 'Yes (Declared)' : (car.accidentHistory!==undefined?'No Accident':null), icon:'bi-car-front'},
+          {label:'Service History', val:car.serviceHistory, icon:'bi-journal-check'},
+          {label:'Availability', val:car.availability, icon:'bi-calendar-range'},
+          {label:'City', val:car.city, icon:'bi-geo-alt'},
+          {label:'State', val:car.state, icon:'bi-map'},
+        ]; %>
+        <% detailRows.forEach(row=>{ if(!row.val) return; %>
+        <div class="sp-drow">
+          <span class="sp-drow-lbl"><i class="bi <%= row.icon %>"></i> <%= row.label %></span>
+          <span class="sp-drow-val"><%= row.val %></span>
+        </div>
+        <% }); %>
+      </div>
+
+      <!-- Features -->
+      <% const FEATURE_MAP = {
+        ac:'Air Conditioning',powerSteering:'Power Steering',powerWindows:'Power Windows',
+        abs:'ABS Brakes',airbags:'Airbags',sunroof:'Sunroof',touchscreen:'Touchscreen',
+        reverseCamera:'Reverse Camera',alloyWheels:'Alloy Wheels',bluetooth:'Bluetooth',
+        cruiseControl:'Cruise Control',keylessEntry:'Keyless Entry'
+      }; %>
+      <% const ICON_MAP = {
+        ac:'bi-wind',powerSteering:'bi-arrows-move',powerWindows:'bi-window',
+        abs:'bi-shield-fill',airbags:'bi-balloon-fill',sunroof:'bi-brightness-high',
+        touchscreen:'bi-tablet',reverseCamera:'bi-camera-video',alloyWheels:'bi-circle',
+        bluetooth:'bi-bluetooth',cruiseControl:'bi-speedometer',keylessEntry:'bi-key'
+      }; %>
+      <% if(car.features && typeof car.features === 'object'){ %>
+        <% const activeFeatures = Object.keys(FEATURE_MAP).filter(k=>car.features[k]==='true'||car.features[k]===true); %>
+        <% if(activeFeatures.length > 0){ %>
+        <div class="sp-features-hd"><i class="bi bi-grid-3x3-gap"></i> Features</div>
+        <div class="sp-features">
+          <% activeFeatures.forEach(k=>{ %>
+          <span class="sp-feature"><i class="bi <%= ICON_MAP[k]||'bi-check' %>"></i> <%= FEATURE_MAP[k] %></span>
+          <% }); %>
+        </div>
+        <% } %>
+      <% } %>
     </div>
 
     <!-- Reviews -->
-    <div class="reviews-card">
-      <div class="reviews-header">
-        <div class="reviews-header-left">
-          <div class="card-heading" style="margin:0;">Reviews</div>
-          <span class="reviews-count"><%= car.reviews.length %> total</span>
+    <div class="sp-reviews-card">
+      <div class="sp-reviews-hd">
+        <div class="sp-reviews-hd-l">
+          <span class="sp-rev-title">Reviews</span>
+          <span class="sp-rev-count"><%= car.reviews.length %></span>
+          <% if(avgRating){ %><span class="sp-avg"><i class="bi bi-star-fill"></i> <%= avgRating %></span><% } %>
         </div>
-        <% if (!currentUser) { %>
-          <a href="/login" style="font-size:0.76rem;color:var(--blue);text-decoration:none;font-weight:600;">Login to review</a>
-        <% } %>
+        <% if(!currentUser){ %><a href="/login" class="sp-login-link"><i class="bi bi-box-arrow-in-right"></i> Login to review</a><% } %>
       </div>
 
-      <div class="reviews-list">
-        <% if (car.reviews.length > 0) { %>
-          <% for (let review of car.reviews) { %>
-          <div class="review-item">
-            <div class="review-top">
-              <div>
-                <div class="review-author"><%= review.author ? review.author.username : 'User' %></div>
-                <div class="review-stars">
-                  <% for (let i = 1; i <= 5; i++) { %><%= i <= review.rating ? '★' : '☆' %><% } %>
-                </div>
+      <div class="sp-reviews-list">
+        <% if(car.reviews.length === 0){ %>
+          <div class="sp-no-reviews">
+            <i class="bi bi-chat-square-dots"></i>
+            <p>No reviews yet — be first!</p>
+          </div>
+        <% } else { %>
+          <% for(let review of car.reviews){ %>
+          <div class="sp-review">
+            <div class="sp-review-top">
+              <div class="sp-rev-av"><%= review.author ? review.author.username.charAt(0).toUpperCase() : 'U' %></div>
+              <div class="sp-rev-meta">
+                <span class="sp-rev-author"><%= review.author ? review.author.username : 'User' %></span>
+                <span class="sp-rev-stars">
+                  <% for(let i=1;i<=5;i++){ %><i class="bi bi-star<%= i<=review.rating?'-fill':'' %>"></i><% } %>
+                </span>
               </div>
-              <% if (currentUser && review.author && review.author.toString() === currentUser._id.toString()) { %>
-              <form action="/cars/<%= car._id %>/reviews/<%= review._id %>?_method=DELETE" method="POST">
-                <button class="review-del-btn" type="submit"><i class="bi bi-x-circle"></i></button>
+              <% if(currentUser && review.author && review.author._id && review.author._id.toString()===currentUser._id.toString()){ %>
+              <form action="/cars/<%= car._id %>/reviews/<%= review._id %>?_method=DELETE" method="POST" style="margin-left:auto">
+                <button class="sp-rev-del" title="Delete"><i class="bi bi-trash3"></i></button>
               </form>
               <% } %>
             </div>
-            <p class="review-comment">"<%= review.comment %>"</p>
+            <p class="sp-rev-comment"><%= review.comment %></p>
           </div>
           <% } %>
-        <% } else { %>
-          <div class="no-reviews">
-            <i class="bi bi-chat-square-text" style="font-size:1.6rem;display:block;margin-bottom:8px;color:var(--blue-100);"></i>
-            No reviews yet. Be the first!
-          </div>
         <% } %>
       </div>
 
-      <% if (currentUser) { %>
-      <div class="reviews-form">
+      <% if(currentUser){ %>
+      <div class="sp-review-form" style="margin-top: 183px;">
         <form action="/cars/<%= car._id %>/reviews" method="POST">
-          <div class="reviews-input-row">
-            <select name="review[rating]" class="review-select" required>
-              <option value="5">5★</option>
-              <option value="4">4★</option>
-              <option value="3">3★</option>
-              <option value="2">2★</option>
-              <option value="1">1★</option>
-            </select>
-            <input type="text" name="review[comment]" class="review-input" placeholder="Share your experience…" required />
-            <button type="submit" class="review-submit"><i class="bi bi-send-fill"></i></button>
+          <div class="sp-review-row">
+            <div class="sp-sel-wrap">
+              <select name="review[rating]" class="sp-sel" required>
+                <option value="5">5 ★</option>
+                <option value="4">4 ★</option>
+                <option value="3">3 ★</option>
+                <option value="2">2 ★</option>
+                <option value="1">1 ★</option>
+              </select>
+              <i class="bi bi-chevron-down sp-sel-icon"></i>
+            </div>
+            <input type="text" name="review[comment]" class="sp-rev-input" placeholder="Share your experience…" required maxlength="300" />
+            <button type="submit" class="sp-rev-submit"><i class="bi bi-send-fill"></i></button>
           </div>
         </form>
       </div>
       <% } %>
     </div>
-
-  </div><!-- /bottom-row -->
-</div><!-- /csp-wrap -->
-
-
-<!-- LIGHTBOX -->
-<div class="csp-lightbox" id="cspLightbox">
-  <button class="csp-lb-close" id="cspLbClose">&times;</button>
-  <button class="csp-lb-nav csp-lb-prev" id="cspLbPrev"><i class="bi bi-chevron-left"></i></button>
-  <img src="" alt="Full view" class="csp-lb-img" id="cspLbImg" />
-  <button class="csp-lb-nav csp-lb-next" id="cspLbNext"><i class="bi bi-chevron-right"></i></button>
+  </div>
 </div>
 
+<!-- ══ LIGHTBOX ══ -->
+<div class="sp-lightbox" id="spLightbox">
+  <button class="sp-lb-close" id="spLbClose">&times;</button>
+  <button class="sp-lb-nav sp-lb-l" id="spLbPrev"><i class="bi bi-chevron-left"></i></button>
+  <img src="" alt="Full image" class="sp-lb-img" id="spLbImg" />
+  <button class="sp-lb-nav sp-lb-r" id="spLbNext"><i class="bi bi-chevron-right"></i></button>
+</div>
+
+<!-- ══ DELETE MODAL ══ -->
+<div class="sp-modal-bg" id="spDeleteModal">
+  <div class="sp-modal">
+    <div class="sp-modal-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+    <h3>Delete this listing?</h3>
+    <p>This action is permanent and cannot be undone.</p>
+    <div class="sp-modal-btns">
+      <button class="sp-modal-cancel" id="spDeleteCancel">Cancel</button>
+      <button class="sp-modal-confirm" id="spDeleteConfirm"><i class="bi bi-trash3"></i> Delete</button>
+    </div>
+  </div>
+</div>
 
 <script>
-(function () {
-  const mainImgs  = [...document.querySelectorAll('.gallery-main-img')];
-  const thumbBtns = [...document.querySelectorAll('.gallery-thumb')];
-  const counter   = document.getElementById('cspGalCounter');
-  const gallMain  = document.getElementById('cspGalleryMain');
-  const lightbox  = document.getElementById('cspLightbox');
-  const lbImg     = document.getElementById('cspLbImg');
-  const lbClose   = document.getElementById('cspLbClose');
-  const lbPrev    = document.getElementById('cspLbPrev');
-  const lbNext    = document.getElementById('cspLbNext');
-  const prevBtn   = document.getElementById('cspGalPrev');
-  const nextBtn   = document.getElementById('cspGalNext');
-  let current = 0;
+(function(){
+  /* ── Gallery ── */
+  const imgs = [...document.querySelectorAll('.sp-img')];
+  const thumbs = [...document.querySelectorAll('.sp-thumb')];
+  const counter = document.getElementById('spCounter');
+  const gallMain = document.getElementById('spGalleryMain');
+  let cur = 0;
 
-  function goTo(idx) {
-    mainImgs.forEach(i => i.classList.remove('active'));
-    thumbBtns.forEach(t => t.classList.remove('active'));
-    current = (idx + mainImgs.length) % mainImgs.length;
-    if (mainImgs[current])  mainImgs[current].classList.add('active');
-    if (thumbBtns[current]) {
-      thumbBtns[current].classList.add('active');
-      thumbBtns[current].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-    }
-    if (counter) counter.textContent = (current + 1) + ' / ' + mainImgs.length;
+  function goTo(i){
+    imgs.forEach(x=>x.classList.remove('sp-img-active'));
+    thumbs.forEach(x=>x.classList.remove('sp-thumb-active'));
+    cur = ((i%imgs.length)+imgs.length)%imgs.length;
+    if(imgs[cur]) imgs[cur].classList.add('sp-img-active');
+    if(thumbs[cur]){ thumbs[cur].classList.add('sp-thumb-active'); thumbs[cur].scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'}); }
+    if(counter) counter.textContent = (cur+1)+' / '+imgs.length;
+    if(lbOpen && document.getElementById('spLbImg')) document.getElementById('spLbImg').src = imgs[cur].src;
   }
+  document.getElementById('spPrev')?.addEventListener('click',e=>{e.stopPropagation();goTo(cur-1)});
+  document.getElementById('spNext')?.addEventListener('click',e=>{e.stopPropagation();goTo(cur+1)});
+  thumbs.forEach((t,i)=>t.addEventListener('click',()=>goTo(i)));
 
-  if (prevBtn) prevBtn.addEventListener('click', e => { e.stopPropagation(); goTo(current - 1); });
-  if (nextBtn) nextBtn.addEventListener('click', e => { e.stopPropagation(); goTo(current + 1); });
-  thumbBtns.forEach((t, i) => t.addEventListener('click', () => goTo(i)));
+  /* Lightbox */
+  let lbOpen = false;
+  const lb = document.getElementById('spLightbox');
+  const lbImg = document.getElementById('spLbImg');
+  const openLB = () => { if(!imgs.length)return; lbImg.src=imgs[cur].src; lb.classList.add('active'); lbOpen=true; document.body.style.overflow='hidden'; };
+  const closeLB = () => { lb.classList.remove('active'); lbOpen=false; lbImg.classList.remove('zoomed'); document.body.style.overflow=''; };
+  if(gallMain) gallMain.addEventListener('click',e=>{ if(e.target.classList.contains('sp-img')) openLB(); });
+  document.getElementById('spLbClose')?.addEventListener('click',closeLB);
+  lb?.addEventListener('click',e=>{ if(e.target===lb) closeLB(); });
+  document.getElementById('spLbPrev')?.addEventListener('click',e=>{e.stopPropagation();goTo(cur-1)});
+  document.getElementById('spLbNext')?.addEventListener('click',e=>{e.stopPropagation();goTo(cur+1)});
+  lbImg?.addEventListener('click',e=>{ e.stopPropagation(); lbImg.classList.toggle('zoomed'); });
+  document.addEventListener('keydown',e=>{ if(!lbOpen) return; if(e.key==='Escape') closeLB(); if(e.key==='ArrowLeft') goTo(cur-1); if(e.key==='ArrowRight') goTo(cur+1); });
 
-  /* Open lightbox */
-  if (gallMain) {
-    gallMain.addEventListener('click', e => {
-      if (e.target.classList.contains('gallery-main-img') && mainImgs.length > 0) {
-        lbImg.src = mainImgs[current].src;
-        lightbox.classList.add('active');
-        document.body.style.overflow = 'hidden';
-      }
-    });
-  }
+  /* Swipe */
+  if(gallMain && imgs.length>1){ let sx=0; gallMain.addEventListener('touchstart',e=>{sx=e.touches[0].clientX},{passive:true}); gallMain.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx; if(Math.abs(dx)>40) goTo(dx<0?cur+1:cur-1);}); }
 
-  function closeLB() {
-    lightbox.classList.remove('active');
-    lbImg.classList.remove('zoomed');
-    lbImg.style.transformOrigin = 'center center';
-    document.body.style.overflow = '';
-  }
-  if (lbClose)  lbClose.addEventListener('click', closeLB);
-  if (lightbox) lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLB(); });
+  /* Delete modal */
+  const modal = document.getElementById('spDeleteModal');
+  let pendingForm = null;
+  window.spConfirmDelete = function(){ modal.classList.add('active'); return false; };
+  document.getElementById('spDeleteConfirm')?.addEventListener('click',()=>{ modal.classList.remove('active'); document.querySelector('[onsubmit]')?.submit(); });
+  document.getElementById('spDeleteCancel')?.addEventListener('click',()=>modal.classList.remove('active'));
+  modal?.addEventListener('click',e=>{ if(e.target===modal) modal.classList.remove('active'); });
 
-  if (lbPrev) lbPrev.addEventListener('click', e => {
-    e.stopPropagation(); goTo(current - 1);
-    lbImg.src = mainImgs[current].src; lbImg.classList.remove('zoomed');
-  });
-  if (lbNext) lbNext.addEventListener('click', e => {
-    e.stopPropagation(); goTo(current + 1);
-    lbImg.src = mainImgs[current].src; lbImg.classList.remove('zoomed');
-  });
-
-  if (lbImg) {
-    lbImg.addEventListener('click', e => {
-      e.stopPropagation();
-      lbImg.classList.toggle('zoomed');
-      if (lbImg.classList.contains('zoomed')) {
-        const r = lbImg.getBoundingClientRect();
-        lbImg.style.transformOrigin = (e.clientX - r.left) + 'px ' + (e.clientY - r.top) + 'px';
-      } else {
-        lbImg.style.transformOrigin = 'center center';
-      }
-    });
-  }
-
-  /* Keyboard nav */
-  document.addEventListener('keydown', e => {
-    if (!lightbox || !lightbox.classList.contains('active')) return;
-    if (e.key === 'Escape')     closeLB();
-    if (e.key === 'ArrowLeft'  && lbPrev) lbPrev.click();
-    if (e.key === 'ArrowRight' && lbNext) lbNext.click();
-  });
-
-  /* Touch swipe on gallery */
-  if (gallMain && mainImgs.length > 1) {
-    let startX = 0;
-    gallMain.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
-    gallMain.addEventListener('touchend', e => {
-      const dx = e.changedTouches[0].clientX - startX;
-      if (Math.abs(dx) > 40) goTo(dx < 0 ? current + 1 : current - 1);
-    });
-  }
+  /* Auto-dismiss flash */
+  document.querySelectorAll('.sp-flash').forEach(el=>setTimeout(()=>el?.remove(),5000));
 })();
 </script>
+
+<style>
+:root{
+  --blue:#2563eb;--blue-dk:#1d4ed8;--blue-lt:#eff6ff;--blue-100:#dbeafe;
+  --ink:#0a1628;--muted:#64748b;--border:#e2e8f0;--surface:#f1f5fb;
+  --white:#ffffff;--green:#16a34a;--red:#dc2626;--amber:#f59e0b;
+  --font:'DM Sans',sans-serif;--font-hd:'Syne',sans-serif;
+  --r:10px;--r-lg:16px;
+  --shadow:0 2px 12px rgba(10,22,40,.08);
+  --shadow-lg:0 8px 32px rgba(10,22,40,.14);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+.sp-wrap{max-width:1160px;margin:0 auto;padding:24px 20px 64px;font-family:var(--font);animation:spFadeUp .4s ease both}
+@keyframes spFadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* Flash */
+.sp-flash{display:flex;align-items:center;gap:9px;max-width:1160px;margin:0 auto 16px;padding:11px 16px;border-radius:var(--r);font-size:.84rem;font-weight:500;font-family:var(--font)}
+.sp-flash-ok{background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d}
+.sp-flash-err{background:#fef2f2;border:1px solid #fecaca;color:var(--red)}
+.sp-flash-x{margin-left:auto;background:none;border:none;font-size:1.1rem;cursor:pointer;color:inherit;opacity:.6;line-height:1}
+.sp-flash-x:hover{opacity:1}
+
+/* Breadcrumb */
+.sp-crumbs{display:flex;align-items:center;gap:6px;font-size:.74rem;color:var(--muted);margin-bottom:18px;flex-wrap:wrap}
+.sp-crumbs a{color:var(--muted);text-decoration:none;transition:color .15s}
+.sp-crumbs a:hover{color:var(--blue)}
+.sp-crumb-cur{color:var(--ink);font-weight:600}
+
+/* ── TOP GRID ── */
+.sp-top{display:grid;grid-template-columns:1fr 350px;gap:22px;align-items:start}
+
+/* Gallery */
+.sp-gallery{border-radius:var(--r-lg);overflow:hidden;background:#071022;box-shadow:var(--shadow-lg)}
+.sp-gallery-main{position:relative;aspect-ratio:16/10;overflow:hidden;background:#040d1c;cursor:zoom-in}
+.sp-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s;pointer-events:none}
+.sp-img-active{opacity:1;pointer-events:auto}
+.sp-no-img{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:rgba(255,255,255,.18);font-size:.8rem}
+.sp-no-img i{font-size:3rem}
+
+.sp-gallery-badges{position:absolute;top:12px;left:12px;display:flex;gap:6px;z-index:3}
+.sp-badge{font-size:.64rem;font-weight:700;padding:4px 11px;border-radius:20px;letter-spacing:.07em;text-transform:uppercase}
+.sp-badge-sale{background:var(--blue);color:#fff}
+.sp-badge-urgent{background:var(--red);color:#fff}
+.sp-badge-year{background:rgba(0,0,0,.55);color:rgba(255,255,255,.8);backdrop-filter:blur(6px)}
+.sp-counter{position:absolute;bottom:12px;right:12px;z-index:3;background:rgba(0,0,0,.5);color:#fff;font-size:.68rem;font-weight:600;padding:3px 10px;border-radius:20px;backdrop-filter:blur(4px)}
+
+.sp-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:4;width:36px;height:36px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.22);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.84rem;transition:all .18s}
+.sp-nav:hover{background:rgba(37,99,235,.6);border-color:rgba(37,99,235,.7);transform:translateY(-50%) scale(1.08)}
+.sp-nav-l{left:12px}.sp-nav-r{right:12px}
+
+.sp-thumbs{display:flex;gap:6px;padding:8px 10px;background:rgba(4,13,28,.9);border-top:1px solid rgba(255,255,255,.07);overflow-x:auto;scrollbar-width:none}
+.sp-thumbs::-webkit-scrollbar{display:none}
+.sp-thumb{flex-shrink:0;width:62px;height:46px;border-radius:6px;overflow:hidden;border:1.5px solid transparent;cursor:pointer;opacity:.5;padding:0;background:none;transition:all .2s}
+.sp-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.sp-thumb:hover{opacity:.85;transform:scale(1.05)}
+.sp-thumb-active{border-color:var(--blue);opacity:1}
+
+/* Info panel */
+.sp-panel{display:flex;flex-direction:column;gap:14px}
+
+/* Price card */
+.sp-price-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 22px;box-shadow:var(--shadow-lg)}
+.sp-price-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.sp-listed-tag{font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:3px}
+.sp-car-name{font-family:var(--font-hd);font-size:1.35rem;font-weight:800;color:var(--ink);line-height:1.2;margin-bottom:5px}
+.sp-location{font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:4px}
+.sp-location i{color:var(--red)}
+.sp-status{font-size:.64rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;background:#f0fdf4;color:var(--green);border:1px solid #bbf7d0;padding:4px 10px;border-radius:20px;flex-shrink:0}
+.sp-divider{height:1px;background:var(--border);margin-bottom:14px}
+.sp-price-row{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.sp-price{font-size:2rem;font-weight:800;color:var(--ink);letter-spacing:-.03em;line-height:1}
+.sp-price-cur{font-size:.9rem;vertical-align:super;margin-right:1px;color:var(--muted);font-weight:600}
+.sp-price-tags{display:flex;gap:6px;flex-wrap:wrap}
+.sp-ptag{display:inline-flex;align-items:center;gap:4px;background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:.68rem;font-weight:600;padding:3px 9px;border-radius:20px}
+.sp-ptag-green{background:#f0fdf4;border-color:#bbf7d0;color:var(--green)}
+.sp-ptag i{font-size:.64rem}
+
+/* Card */
+.sp-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 20px;box-shadow:var(--shadow)}
+.sp-card-label{display:flex;align-items:center;gap:6px;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:13px}
+.sp-card-label i{color:var(--blue)}
+
+/* Specs */
+.sp-specs{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.sp-spec{display:flex;align-items:center;gap:9px;padding:10px 11px;background:var(--surface);border:1px solid var(--border);border-radius:8px;transition:all .18s}
+.sp-spec:hover{border-color:var(--blue-100);background:var(--blue-lt)}
+.sp-spec-ico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.84rem;flex-shrink:0}
+.sp-spec-lbl{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.sp-spec-val{font-size:.84rem;font-weight:700;color:var(--ink);margin-top:1px}
+
+/* Seller */
+.sp-seller{display:flex;align-items:center;gap:11px;padding:11px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:11px}
+.sp-seller-av{width:40px;height:40px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--blue),#1e3a7c);color:#fff;font-size:.9rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.sp-seller-name{font-size:.88rem;font-weight:700;color:var(--ink)}
+.sp-seller-tag{font-size:.68rem;color:var(--green);font-weight:600;display:flex;align-items:center;gap:3px;margin-top:2px}
+.sp-cta{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sp-btn{display:flex;align-items:center;justify-content:center;gap:7px;padding:11px 12px;border-radius:8px;font-size:.82rem;font-weight:700;font-family:var(--font);text-decoration:none;cursor:pointer;border:none;transition:all .18s}
+.sp-btn-call{background:var(--blue);color:#fff}.sp-btn-call:hover{background:var(--blue-dk);color:#fff;transform:translateY(-1px);box-shadow:0 4px 14px rgba(37,99,235,.3)}
+.sp-btn-wa{background:var(--green);color:#fff}.sp-btn-wa:hover{background:#15803d;color:#fff;transform:translateY(-1px);box-shadow:0 4px 14px rgba(22,163,74,.25)}
+
+/* Owner strip */
+.sp-owner-strip{margin-top:11px;padding:13px;border-radius:8px;background:#fffbeb;border:1px solid #fde68a}
+.sp-owner-lbl{font-size:.68rem;font-weight:700;color:#92400e;display:flex;align-items:center;gap:5px;margin-bottom:9px;text-transform:uppercase;letter-spacing:.05em}
+.sp-owner-actions{display:flex;gap:7px}
+.sp-owner-btn{flex:1;padding:9px 10px;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:5px;border:1px solid var(--border);color:var(--ink);background:var(--white);font-family:var(--font);transition:all .18s}
+.sp-owner-edit:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-lt)}
+.sp-owner-del{border-color:#fecaca;color:var(--red)}.sp-owner-del:hover{background:#fef2f2;border-color:var(--red)}
+
+/* ── BOTTOM GRID ── */
+.sp-bottom{display:grid;grid-template-columns:1fr 350px;gap:22px;margin-top:22px;align-items:start}
+
+/* Details */
+.sp-details-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px 24px;box-shadow:var(--shadow)}
+.sp-section-hd{display:flex;align-items:center;gap:7px;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.sp-section-hd i{color:var(--blue)}
+.sp-desc{font-size:.88rem;line-height:1.85;color:#475569;margin-bottom:18px;white-space:pre-line}
+
+.sp-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:20px}
+.sp-drow{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);gap:12px}
+.sp-drow:last-child,.sp-drow:nth-last-child(2):nth-child(odd){border-bottom:none}
+.sp-drow:nth-child(odd){border-right:1px solid var(--border)}
+.sp-drow-lbl{font-size:.74rem;color:var(--muted);display:flex;align-items:center;gap:5px;flex-shrink:0;white-space:nowrap}
+.sp-drow-lbl i{color:var(--blue);font-size:.7rem}
+.sp-drow-val{font-size:.78rem;font-weight:700;color:var(--ink);text-align:right}
+
+.sp-features-hd{display:flex;align-items:center;gap:6px;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin-bottom:10px}
+.sp-features-hd i{color:var(--blue)}
+.sp-features{display:flex;flex-wrap:wrap;gap:7px}
+.sp-feature{display:inline-flex;align-items:center;gap:5px;background:var(--blue-lt);border:1px solid var(--blue-100);color:var(--blue);font-size:.74rem;font-weight:600;padding:5px 11px;border-radius:20px}
+.sp-feature i{font-size:.72rem}
+
+/* Reviews */
+.sp-reviews-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow);overflow:hidden}
+.sp-reviews-hd{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.sp-reviews-hd-l{display:flex;align-items:center;gap:8px}
+.sp-rev-title{font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink)}
+.sp-rev-count{background:var(--blue-lt);color:var(--blue);border:1px solid var(--blue-100);font-size:.66rem;font-weight:700;padding:2px 8px;border-radius:20px}
+.sp-avg{display:inline-flex;align-items:center;gap:3px;font-size:.7rem;font-weight:700;color:#92400e;background:#fffbeb;border:1px solid #fde68a;padding:2px 8px;border-radius:20px}
+.sp-avg i{color:var(--amber);font-size:.64rem}
+.sp-login-link{font-size:.74rem;color:var(--blue);text-decoration:none;font-weight:600;display:flex;align-items:center;gap:4px}
+.sp-login-link:hover{text-decoration:underline}
+
+.sp-reviews-list{padding:10px 14px;max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;scrollbar-width:thin;scrollbar-color:var(--blue-100) transparent}
+.sp-review{padding:11px 13px;background:var(--surface);border:1px solid var(--border);border-radius:8px;transition:border-color .18s}
+.sp-review:hover{border-color:var(--blue-100)}
+.sp-review-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.sp-rev-av{width:28px;height:28px;border-radius:50%;flex-shrink:0;background:var(--blue-100);color:var(--blue);font-size:.74rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.sp-rev-meta{flex:1}
+.sp-rev-author{font-size:.8rem;font-weight:700;color:var(--ink);display:block}
+.sp-rev-stars{font-size:.66rem;color:var(--amber);margin-top:1px}
+.sp-rev-stars .bi-star{color:#cbd5e1}
+.sp-rev-comment{font-size:.8rem;color:var(--muted);line-height:1.55}
+.sp-rev-del{background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:.78rem;padding:2px 4px;border-radius:4px;transition:all .18s}
+.sp-rev-del:hover{color:var(--red);background:#fef2f2}
+.sp-no-reviews{text-align:center;padding:28px 0;color:var(--muted)}
+.sp-no-reviews i{font-size:1.8rem;color:var(--border);display:block;margin-bottom:8px}
+.sp-no-reviews p{font-size:.84rem}
+
+.sp-review-form{padding:10px 14px;border-top:1px solid var(--border);background:var(--surface)}
+.sp-review-row{display:flex;gap:7px;align-items:center}
+.sp-sel-wrap{position:relative;flex-shrink:0}
+.sp-sel-icon{position:absolute;right:8px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.64rem;pointer-events:none}
+.sp-sel{width:70px;padding:9px 26px 9px 9px;border:1px solid var(--border);border-radius:8px;font-size:.8rem;background:var(--white);color:var(--ink);font-family:var(--font);outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;transition:border-color .18s}
+.sp-sel:focus{border-color:var(--blue)}
+.sp-rev-input{flex:1;padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:.8rem;background:var(--white);color:var(--ink);font-family:var(--font);outline:none;transition:border-color .18s}
+.sp-rev-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.sp-rev-input::placeholder{color:#94a3b8}
+.sp-rev-submit{width:36px;height:36px;flex-shrink:0;background:var(--blue);border:none;border-radius:8px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.8rem;transition:background .18s}
+.sp-rev-submit:hover{background:var(--blue-dk)}
+
+/* Lightbox */
+.sp-lightbox{position:fixed;inset:0;background:rgba(4,13,28,.96);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.sp-lightbox.active{opacity:1;pointer-events:all}
+.sp-lb-img{max-width:90vw;max-height:88vh;object-fit:contain;border-radius:var(--r);cursor:zoom-in;transition:transform .22s}
+.sp-lb-img.zoomed{transform:scale(1.9);cursor:zoom-out}
+.sp-lb-close{position:fixed;top:16px;right:20px;font-size:1.7rem;color:rgba(255,255,255,.5);cursor:pointer;background:none;border:none;line-height:1;transition:color .18s}
+.sp-lb-close:hover{color:#fff}
+.sp-lb-nav{position:fixed;top:50%;transform:translateY(-50%);width:44px;height:44px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:50%;backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.88rem;transition:background .18s}
+.sp-lb-nav:hover{background:rgba(37,99,235,.5)}
+.sp-lb-l{left:20px}.sp-lb-r{right:20px}
+
+/* Delete modal */
+.sp-modal-bg{position:fixed;inset:0;z-index:10000;background:rgba(10,22,40,.65);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s;padding:20px}
+.sp-modal-bg.active{opacity:1;pointer-events:all}
+.sp-modal{background:var(--white);border-radius:var(--r-lg);padding:32px 26px;max-width:380px;width:100%;box-shadow:var(--shadow-lg);text-align:center;animation:spModalIn .22s ease both}
+@keyframes spModalIn{from{transform:scale(.94) translateY(10px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.sp-modal-icon{font-size:2.2rem;color:var(--red);margin-bottom:12px}
+.sp-modal h3{font-family:var(--font-hd);font-size:1.05rem;font-weight:700;color:var(--ink);margin-bottom:7px}
+.sp-modal p{font-size:.82rem;color:var(--muted);line-height:1.6;margin-bottom:22px}
+.sp-modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.sp-modal-cancel,.sp-modal-confirm{padding:11px;border-radius:8px;font-size:.84rem;font-weight:700;font-family:var(--font);cursor:pointer;border:none;transition:all .18s}
+.sp-modal-cancel{background:var(--surface);color:var(--muted);border:1px solid var(--border)}.sp-modal-cancel:hover{border-color:var(--muted);color:var(--ink)}
+.sp-modal-confirm{background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;gap:5px}.sp-modal-confirm:hover{background:#b91c1c}
+
+/* Responsive */
+@media(max-width:960px){
+  .sp-top,.sp-bottom{grid-template-columns:1fr}
+  .sp-detail-grid{grid-template-columns:1fr}
+  .sp-drow:nth-child(odd){border-right:none}
+}
+@media(max-width:540px){
+  .sp-specs{grid-template-columns:1fr 1fr}
+  .sp-price{font-size:1.7rem}
+  .sp-wrap{padding:14px 14px 48px}
+  .sp-cta{grid-template-columns:1fr 1fr}
+}
+</style>

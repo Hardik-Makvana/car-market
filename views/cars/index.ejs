@@ -1,11 +1,442 @@
-
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero" style="margin-bottom:20px; margin-top: -10px; ">
+  <div class="hero-main">
+    <div class="hero-content">
+      <div class="hero-eyebrow"><i class="bi bi-car-front-fill"></i> India's Trusted Car Marketplace</div>
+      <h1 class="hero-title">Find Your <span>Perfect</span><br>Car Today</h1>
+      <p class="hero-subtitle">
+Trusted Second-Hand Cars, Verified Sellers ✅
+No scams. No stress. Just genuine cars and real buyers.
+      </p>
+      <div class="hero-actions">
+        <a href="/cars" class="hero-btn-primary"><i class="bi bi-search"></i> Browse Cars</a>
+        <a href="/cars/new" class="hero-btn-ghost"><i class="bi bi-plus-circle"></i> Sell Your Car</a>
+      </div>
+    </div>
+    <div class="hero-image-wrap">
+      <img src="/images/hero-car.png" alt="Cars" />
+    </div>
+  </div>
+  <div class="hero-scroll-hint">
+    <i class="bi bi-chevron-double-down"></i>
+    scroll
+  </div>
+</section>
+
+<!-- ═══════════════ MARQUEE STRIP ═══════════════ -->
+<div class="marquee-strip">
+  <div class="marquee-strip__fade marquee-strip__fade--left"></div>
+  <div class="marquee-strip__fade marquee-strip__fade--right"></div>
+  <div class="marquee-strip__inner">
+    <div class="marquee-strip__track" id="marqueeTrack"></div>
+  </div>
+</div>
+
+<script>
+const CAR_LOGOS = [
+  { name: "Toyota", svg: `<svg viewBox="0 0 100 60" fill="none"><ellipse cx="50" cy="30" rx="30" ry="18" stroke="currentColor" stroke-width="4"/><ellipse cx="50" cy="30" rx="14" ry="18" stroke="currentColor" stroke-width="4"/><ellipse cx="50" cy="16" rx="20" ry="7" stroke="currentColor" stroke-width="4"/></svg>` },
+  { name: "BMW", svg: `<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="46" stroke="currentColor" stroke-width="4"/><circle cx="50" cy="50" r="32" stroke="currentColor" stroke-width="2"/><path d="M50 18 L50 50 L82 50" fill="rgba(100,160,255,0.85)"/><path d="M50 50 L50 82 L18 50" fill="rgba(100,160,255,0.85)"/><path d="M50 18 L50 50 L18 50" fill="rgba(220,235,255,0.9)"/><path d="M50 50 L82 50 L50 82" fill="rgba(220,235,255,0.9)"/><circle cx="50" cy="50" r="32" stroke="currentColor" stroke-width="2"/></svg>` },
+  { name: "Mercedes", svg: `<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="46" stroke="currentColor" stroke-width="4"/><line x1="50" y1="8" x2="50" y2="50" stroke="currentColor" stroke-width="4"/><line x1="50" y1="50" x2="89" y2="73" stroke="currentColor" stroke-width="4"/><line x1="50" y1="50" x2="11" y2="73" stroke="currentColor" stroke-width="4"/></svg>` },
+  { name: "Audi", svg: `<svg viewBox="0 0 160 60" fill="none"><circle cx="22" cy="30" r="18" stroke="currentColor" stroke-width="4"/><circle cx="52" cy="30" r="18" stroke="currentColor" stroke-width="4"/><circle cx="82" cy="30" r="18" stroke="currentColor" stroke-width="4"/><circle cx="112" cy="30" r="18" stroke="currentColor" stroke-width="4"/></svg>` },
+  { name: "Volkswagen", svg: `<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="46" stroke="currentColor" stroke-width="4"/><line x1="22" y1="50" x2="78" y2="50" stroke="currentColor" stroke-width="3"/><path d="M34 25 L50 58 L66 25" stroke="currentColor" stroke-width="3.5" fill="none" stroke-linejoin="round"/><path d="M28 58 L50 84 L72 58" stroke="currentColor" stroke-width="3.5" fill="none" stroke-linejoin="round"/></svg>` },
+  { name: "Nissan", svg: `<svg viewBox="0 0 160 80" fill="none"><ellipse cx="80" cy="40" rx="74" ry="36" stroke="currentColor" stroke-width="4"/><line x1="6" y1="40" x2="154" y2="40" stroke="currentColor" stroke-width="4"/><rect x="35" y="28" width="90" height="24" fill="none" stroke="currentColor" stroke-width="3"/><text x="80" y="46" text-anchor="middle" font-size="14" font-weight="bold" fill="currentColor" font-family="sans-serif" letter-spacing="2">NISSAN</text></svg>` },
+  { name: "Ford", svg: `<svg viewBox="0 0 160 80" fill="none"><ellipse cx="80" cy="40" rx="73" ry="35" stroke="currentColor" stroke-width="4"/><text x="80" y="52" text-anchor="middle" font-size="30" font-weight="bold" fill="currentColor" font-style="italic" font-family="serif">Ford</text></svg>` },
+  { name: "Chevrolet", svg: `<svg viewBox="0 0 160 80" fill="none"><path d="M10 25 L60 25 L60 38 L10 38 Z" stroke="currentColor" stroke-width="3" fill="none"/><path d="M60 25 L60 55 L100 55 L100 25" stroke="currentColor" stroke-width="3" fill="none"/><path d="M100 38 L150 38 L150 55 L100 55 Z" stroke="currentColor" stroke-width="3" fill="none"/></svg>` },
+];
+const TRIPLED = [...CAR_LOGOS, ...CAR_LOGOS, ...CAR_LOGOS];
+const track = document.getElementById('marqueeTrack');
+TRIPLED.forEach(car => {
+  track.innerHTML += `<div class="mq-card"><div class="mq-icon">${car.svg}</div><span class="mq-dot"></span><span class="mq-name">${car.name}</span></div>`;
+});
+</script>
+
+<!-- ═══════════════ STATS ═══════════════ -->
+<section class="stats-section">
+  <div class="stats-grid">
+    <div class="stat-item">
+      <div class="stat-icon-wrap"><i class="bi bi-house-fill"></i></div>
+      <div><div class="stat-num" data-target="12">0</div><div class="stat-label">Branches Across India</div></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon-wrap"><i class="bi bi-car-front-fill"></i></div>
+      <div><div class="stat-num" data-target="4800">0</div><div class="stat-label">Cars Sold</div></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon-wrap"><i class="bi bi-people-fill"></i></div>
+      <div><div class="stat-num" data-target="9200">0</div><div class="stat-label">Happy Clients</div></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon-wrap"><i class="bi bi-stars"></i></div>
+      <div><div class="stat-num" data-target="340">0</div><div class="stat-label">New Listings</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ CARS LISTING ═══════════════ -->
+<section class="listing-section">
+  <div class="listing-section-head">
+    <div>
+      <div class="section-eyebrow"><i class="bi bi-car-front"></i> Browse Inventory</div>
+      <h2 class="section-title">Available Cars</h2>
+    </div>
+  </div>
+
+  <div class="listing-layout">
+    <!-- FILTER SIDEBAR -->
+    <aside class="filter-sidebar" id="filterSidebar" style="height: 470px;">
+      <div class="filter-sidebar-title"><i class="bi bi-funnel-fill"></i> Filters</div>
+
+      <form id="filterForm" method="GET" action="/cars">
+
+        <div class="filter-group">
+          <div class="filter-group-label"><i class="bi bi-currency-rupee"></i> Price Range (₹)</div>
+          <div class="range-inputs">
+            <input type="number" name="minPrice" placeholder="Min" value="<%= filters.minPrice || '' %>" />
+            <span class="range-separator">—</span>
+            <input type="number" name="maxPrice" placeholder="Max" value="<%= filters.maxPrice || '' %>" />
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-group-label"><i class="bi bi-calendar3"></i> Year Range</div>
+          <div class="range-inputs">
+            <input type="number" name="minYear" placeholder="From" value="<%= filters.minYear || '' %>" />
+            <span class="range-separator">—</span>
+            <input type="number" name="maxYear" placeholder="To" value="<%= filters.maxYear || '' %>" />
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-group-label"><i class="bi bi-fuel-pump"></i> Fuel Type</div>
+          <div class="filter-select-wrap">
+            <select name="fuel" class="filter-select">
+              <option value="">All Fuel Types</option>
+              <% if (typeof filterOptions !== 'undefined' && filterOptions.fuels) { %>
+                <% filterOptions.fuels.forEach(f => { %>
+                  <option value="<%= f %>" <%= filters.fuel === f ? 'selected' : '' %>><%= f %></option>
+                <% }); %>
+              <% } %>
+            </select>
+            <i class="bi bi-chevron-down filter-select-icon"></i>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-group-label"><i class="bi bi-gear"></i> Transmission</div>
+          <div class="filter-select-wrap">
+            <select name="transmission" class="filter-select">
+              <option value="">All Types</option>
+              <% if (typeof filterOptions !== 'undefined' && filterOptions.transmissions) { %>
+                <% filterOptions.transmissions.forEach(t => { %>
+                  <option value="<%= t %>" <%= filters.transmission === t ? 'selected' : '' %>><%= t %></option>
+                <% }); %>
+              <% } %>
+            </select>
+            <i class="bi bi-chevron-down filter-select-icon"></i>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-group-label"><i class="bi bi-geo-alt"></i> City</div>
+          <div class="filter-select-wrap">
+            <select name="city" class="filter-select">
+              <option value="">All Cities</option>
+              <% if (typeof filterOptions !== 'undefined' && filterOptions.cities) { %>
+                <% filterOptions.cities.forEach(c => { %>
+                  <option value="<%= c %>" <%= filters.city === c ? 'selected' : '' %>><%= c %></option>
+                <% }); %>
+              <% } %>
+            </select>
+            <i class="bi bi-chevron-down filter-select-icon"></i>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-group-label"><i class="bi bi-map"></i> State</div>
+          <div class="filter-select-wrap">
+            <select name="state" class="filter-select">
+              <option value="">All States</option>
+              <% if (typeof filterOptions !== 'undefined' && filterOptions.states) { %>
+                <% filterOptions.states.forEach(s => { %>
+                  <option value="<%= s %>" <%= filters.state === s ? 'selected' : '' %>><%= s %></option>
+                <% }); %>
+              <% } %>
+            </select>
+            <i class="bi bi-chevron-down filter-select-icon"></i>
+          </div>
+        </div>
+
+        <% if (filters.search) { %>
+          <input type="hidden" name="search" value="<%= filters.search %>" />
+        <% } %>
+
+        <div class="filter-actions">
+          <button type="submit" class="filter-btn filter-btn-primary"><i class="bi bi-search"></i> Apply Filters</button>
+          <a href="/cars" class="filter-btn filter-btn-secondary"><i class="bi bi-arrow-clockwise"></i> Reset</a>
+        </div>
+
+        <div class="filter-results-count">
+          <strong><%= cars.length %></strong> car<%= cars.length !== 1 ? 's' : '' %> found
+        </div>
+      </form>
+    </aside>
+
+    <!-- CARS GRID -->
+    <div class="cars-grid-container">
+
+      <!-- Mobile filter toggle -->
+      <button class="filter-toggle-btn" id="filterToggleBtn">
+        <i class="bi bi-funnel"></i> Filters
+        <% if (cars.length > 0) { %><span class="filter-badge"><%= cars.length %></span><% } %>
+      </button>
+
+      <!-- Sort toolbar -->
+      <div class="cars-toolbar">
+        <!-- <div class="cars-count-tag">
+          <strong><%= cars.length %></strong> car<%= cars.length !== 1 ? 's' : '' %> available
+        </div> -->
+        <form method="GET" action="/cars" class="sort-wrap" id="sortForm">
+          <!-- Carry existing filters into sort form -->
+          <% if (filters.search) { %><input type="hidden" name="search" value="<%= filters.search %>"/><% } %>
+          <% if (filters.minPrice) { %><input type="hidden" name="minPrice" value="<%= filters.minPrice %>"/><% } %>
+          <% if (filters.maxPrice) { %><input type="hidden" name="maxPrice" value="<%= filters.maxPrice %>"/><% } %>
+          <% if (filters.minYear) { %><input type="hidden" name="minYear" value="<%= filters.minYear %>"/><% } %>
+          <% if (filters.maxYear) { %><input type="hidden" name="maxYear" value="<%= filters.maxYear %>"/><% } %>
+          <% if (filters.fuel) { %><input type="hidden" name="fuel" value="<%= filters.fuel %>"/><% } %>
+          <% if (filters.transmission) { %><input type="hidden" name="transmission" value="<%= filters.transmission %>"/><% } %>
+          <% if (filters.city) { %><input type="hidden" name="city" value="<%= filters.city %>"/><% } %>
+          <% if (filters.state) { %><input type="hidden" name="state" value="<%= filters.state %>"/><% } %>
+          <!-- <span class="sort-label">Sort by</span>
+          <select name="sort" class="sort-select" onchange="document.getElementById('sortForm').submit()">
+            <option value="newest" <%= (filters.sort||'newest')==='newest' ? 'selected':'' %>>Newest First</option>
+            <option value="price-asc" <%= filters.sort==='price-asc' ? 'selected':'' %>>Price: Low → High</option>
+            <option value="price-desc" <%= filters.sort==='price-desc' ? 'selected':'' %>>Price: High → Low</option>
+            <option value="year-desc" <%= filters.sort==='year-desc' ? 'selected':'' %>>Year: Newest</option>
+            <option value="km-asc" <%= filters.sort==='km-asc' ? 'selected':'' %>>KM: Lowest</option>
+          </select> -->
+        </form>
+      </div>
+
+      <!-- Cars Grid -->
+      <div class="cars-grid">
+        <% if (cars.length === 0) { %>
+          <div class="no-cars">
+            <i class="bi bi-inbox"></i>
+            <p>No cars found matching your filters.</p>
+            <a href="/cars">Clear all filters</a>
+          </div>
+        <% } else { %>
+          <% for (let car of cars) { %>
+            <%
+              const cardImages = (car.images && car.images.length
+                ? car.images
+                : (car.image && car.image !== '' ? [car.image] : []));
+              const cardImgSrc = cardImages.length
+                ? cardImages[0]
+                : 'https://via.placeholder.com/400x250?text=No+Image';
+              const isEV = car.fuel === 'Electric';
+            %>
+            <div class="car-card">
+              <!-- Image -->
+              <div class="car-card-img-wrap">
+                <img src="<%= cardImgSrc %>" class="car-card-img" alt="<%= car.carName %>" loading="lazy"/>
+                <div class="car-card-badges">
+                  <span class="cc-badge cc-badge-sale">For Sale</span>
+                  <% if (car.urgentSale) { %>
+                    <span class="cc-badge cc-badge-urgent"><i class="bi bi-lightning-charge-fill"></i> Urgent</span>
+                  <% } %>
+                  <% if (isEV) { %>
+                    <span class="cc-badge cc-badge-ev"><i class="bi bi-lightning"></i> EV</span>
+                  <% } %>
+                </div>
+                <!-- Image count badge (if multiple images) -->
+                <% if (cardImages.length > 1) { %>
+                  <span class="car-img-count"><i class="bi bi-images"></i> <%= cardImages.length %></span>
+                <% } %>
+              </div>
+
+              <!-- Body -->
+              <div class="car-card-body">
+                <div class="car-card-title" title="<%= car.carName %>"><%= car.carName %></div>
+
+                <div class="car-card-price-row">
+                  <span class="car-card-price">
+                    <%
+                      const p = car.price;
+                      let priceStr = '';
+                      if (p >= 10000000) priceStr = '₹ ' + (p/10000000).toFixed(1) + ' Cr';
+                      else if (p >= 100000) priceStr = '₹ ' + (p/100000).toFixed(1) + ' L';
+                      else priceStr = '₹ ' + p.toLocaleString('en-IN');
+                    %>
+                    <%= priceStr %>
+                  </span>
+                  <% if (car.negotiable) { %>
+                    <span class="car-card-neg"><i class="bi bi-check2-circle"></i> Negotiable</span>
+                  <% } %>
+                </div>
+
+                <div class="car-card-location">
+                  <i class="bi bi-geo-alt-fill"></i>
+                  <span><%= car.city %><% if (car.state) { %>, <%= car.state %><% } %></span>
+                </div>
+
+                <div class="car-card-specs">
+                  <% if (car.year) { %>
+                    <span class="spec-pill"><i class="bi bi-calendar3"></i> <%= car.year %></span>
+                  <% } %>
+                  <% if (car.fuel) { %>
+                    <span class="spec-pill"><i class="bi bi-fuel-pump"></i> <%= car.fuel %></span>
+                  <% } %>
+                  <% if (car.transmission) { %>
+                    <span class="spec-pill"><i class="bi bi-gear"></i> <%= car.transmission %></span>
+                  <% } %>
+                  <% if (car.ownership) { %>
+                    <span class="spec-pill"><i class="bi bi-person-badge"></i> <%= car.ownership %></span>
+                  <% } %>
+                </div>
+
+                <div class="car-card-divider"></div>
+
+                <!-- CTA Row -->
+                <div class="car-card-cta" style="margin-top: 7px;">
+                  <a href="/cars/<%= car._id %>" class="car-card-btn-view">
+                    <i class="bi bi-eye-fill"></i> View Details
+                  </a>
+                  <% if (car.dealerPhone) { %>
+                    <a href="tel:<%= car.dealerPhone %>" class="car-card-btn-call" title="Call Seller">
+                      <i class="bi bi-telephone-fill"></i>
+                    </a>
+                    <a href="https://wa.me/<%= car.dealerPhone.replace(/[^0-9]/g,'') %>?text=Hi%2C+I'm+interested+in+your+<%= encodeURIComponent(car.carName) %>+on+RideHub."
+                       target="_blank" rel="noopener" class="car-card-btn-wa" title="WhatsApp Seller">
+                      <i class="bi bi-whatsapp"></i>
+                    </a>
+                  <% } %>
+                </div>
+              </div>
+
+              <!-- Footer strip -->
+              <div class="car-card-footer">
+                <% if (car.mileage) { %>
+                  <span><i class="bi bi-speedometer2"></i> <%= car.mileage.toLocaleString('en-IN') %> km</span>
+                <% } %>
+                <% if (car.color) { %>
+                  <span><i class="bi bi-palette"></i> <%= car.color %></span>
+                <% } %>
+                <% if (car.condition) { %>
+                  <span><i class="bi bi-stars"></i> <%= car.condition %></span>
+                <% } %>
+              </div>
+            </div>
+          <% } %>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SERVICES ═══════════════ -->
+<section class="services-section">
+  <div class="services-head">
+    <div class="section-eyebrow"><i class="bi bi-wrench-adjustable"></i> What We Offer</div>
+    <h2 class="section-title">Our Services</h2>
+    <p class="section-sub">Everything you need, all in one place.</p>
+  </div>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-icon"><i class="bi bi-car-front-fill"></i></div>
+      <h4>Car Selling</h4>
+      <p>The largest used car selling platform in India. List your car in minutes.</p>
+      <!-- <a href="/cars/new" class="service-link"><i class="bi bi-arrow-right"></i></a> -->
+    </div>
+    <div class="service-card">
+      <div class="service-icon"><i class="bi bi-tools"></i></div>
+      <h4>Parts Repair</h4>
+      <p>More than 200+ service stations across India ready to help.</p>
+      <!-- <a href="javascript:void(0)" class="service-link"><i class="bi bi-arrow-right"></i></a> -->
+    </div>
+    <div class="service-card">
+      <div class="service-icon"><i class="bi bi-shield-check"></i></div>
+      <h4>Car Insurance</h4>
+      <p>Lowest premiums with comprehensive car insurance coverage.</p>
+      <!-- <a href="javascript:void(0)" class="service-link"><i class="bi bi-arrow-right"></i></a> -->
+    </div>
+    <div class="service-card">
+      <div class="service-icon"><i class="bi bi-battery-charging"></i></div>
+      <h4>Battery Replacement</h4>
+      <p>Fast battery replacement service for every make and model.</p>
+      <!-- <a href="javascript:void(0)" class="service-link"><i class="bi bi-arrow-right"></i></a> -->
+    </div>
+    <div class="service-card">
+      <div class="service-icon"><i class="bi bi-droplet-fill"></i></div>
+      <h4>Oil Change</h4>
+      <p>Quick oil change service with our own trusted brand products.</p>
+      <!-- <a href="javascript:void(0)" class="service-link"><i class="bi bi-arrow-right"></i></a> -->
+    </div>
+    <div class="service-card">
+      <div class="service-icon"><i class="bi bi-headset"></i></div>
+      <h4>24/7 Support</h4>
+      <p>Round-the-clock customer support. Call us anytime you need help.</p>
+      <!-- <a href="javascript:void(0)" class="service-link"><i class="bi bi-arrow-right"></i></a> -->
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  /* Mobile filter toggle */
+  var toggleBtn = document.getElementById('filterToggleBtn');
+  var sidebar   = document.getElementById('filterSidebar');
+  if (toggleBtn && sidebar) {
+    toggleBtn.addEventListener('click', function () {
+      sidebar.classList.toggle('open');
+      toggleBtn.innerHTML = sidebar.classList.contains('open')
+        ? '<i class="bi bi-x-lg"></i> Close Filters'
+        : '<i class="bi bi-funnel"></i> Filters <span class="filter-badge"><%= cars.length %></span>';
+    });
+  }
+
+  /* Stat counter animation */
+  function animateCounters() {
+    document.querySelectorAll('.stat-num').forEach(function(el) {
+      var target = parseInt(el.getAttribute('data-target')) || 0;
+      var duration = 1600;
+      var start = null;
+      function step(timestamp) {
+        if (!start) start = timestamp;
+        var progress = Math.min((timestamp - start) / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.floor(eased * target).toLocaleString('en-IN');
+        if (progress < 1) requestAnimationFrame(step);
+        else el.textContent = target.toLocaleString('en-IN');
+      }
+      requestAnimationFrame(step);
+    });
+  }
+
+  /* Trigger counter when stats section is visible */
+  var statsSection = document.querySelector('.stats-section');
+  if (statsSection && 'IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting) {
+        animateCounters();
+        observer.disconnect();
+      }
+    }, { threshold: 0.3 });
+    observer.observe(statsSection);
+  } else {
+    animateCounters();
+  }
+})();
+</script>
 
 <style>
 /* ─── Reset / Base ─────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ─── CSS VARIABLES ────────────────────────────────── */
 :root {
   --blue:    #2563eb;
   --blue-dk: #1d4fd7;
@@ -28,446 +459,348 @@
 
 body { font-family: var(--font-body); background: var(--surface); color: var(--ink); -webkit-font-smoothing: antialiased; }
 
+/* ─── MARQUEE ─────────────────────────────────────── */
+@keyframes mq-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(calc(-100% / 3)); }
+}
+.marquee-strip {
+  position: relative; width: 100%; height: 90px;
+  background: linear-gradient(125deg, #0a1628 0%, #0e2354 40%, #1a4096 75%, #1e52b8 100%);
+  border-top: 1.5px solid rgba(46,91,232,0.4);
+  border-bottom: 1.5px solid rgba(46,91,232,0.4);
+  overflow: hidden; display: flex; align-items: center;
+}
+.marquee-strip::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 52px 52px; pointer-events: none; z-index: 0;
+}
+.marquee-strip__fade { position: absolute; top: 0; width: 110px; height: 100%; z-index: 10; pointer-events: none; }
+.marquee-strip__fade--left  { left: 0;  background: linear-gradient(90deg,  #0a1628 0%, transparent 100%); }
+.marquee-strip__fade--right { right: 0; background: linear-gradient(270deg, #0a1628 0%, transparent 100%); }
+.marquee-strip__inner { width: 100%; overflow: hidden; position: relative; z-index: 1; }
+.marquee-strip__track { display: flex; align-items: center; width: max-content; animation: mq-scroll 32s linear infinite; }
+.mq-card {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 5px; padding: 0 36px; height: 90px; min-width: 120px; cursor: pointer;
+  opacity: 0.7; color: #c8dcff; border-right: 1px solid rgba(255,255,255,0.06);
+  transition: opacity .22s ease, transform .22s ease;
+}
+.mq-card:hover { opacity: 1; transform: scale(1.1) translateY(-2px); color: #ffffff; }
+.mq-card:hover .mq-dot { background: #7eb8ff; box-shadow: 0 0 6px #7eb8ff; }
+.mq-icon { width: 52px; height: 34px; display: flex; align-items: center; justify-content: center; }
+.mq-icon svg { width: 100%; height: 100%; filter: drop-shadow(0 0 4px rgba(90,174,255,0.2)); }
+.mq-dot { display: block; width: 3px; height: 3px; border-radius: 50%; background: rgba(150,190,255,0.35); transition: background .22s, box-shadow .22s; }
+.mq-name { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: rgba(150,190,255,0.6); font-weight: 500; }
+
 /* ─── HERO ──────────────────────────────────────────── */
 .hero {
+  margin-top:10px;
   position: relative;
   background: linear-gradient(125deg, #0a1628 0%, #0e2354 40%, #1a4096 75%, #1e52b8 100%);
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - var(--navbar-h));
-  min-height: 480px;
-  max-height: 680px;
-  padding: 0 6%;
-  overflow: hidden;
+  display: flex; flex-direction: column;
+  height: calc(100vh - var(--navbar-h)); min-height: 480px; max-height: 680px;
+  padding: 0 6%; overflow: hidden;
 }
-
-.hero-main {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  position: relative;
-  z-index: 2;
-}
-
-/* grid overlay */
+.hero-main { display: flex; align-items: center; flex: 1; position: relative; z-index: 2; }
 .hero::before {
-  content: '';
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+  content: ''; position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-  background-size: 52px 52px;
-  pointer-events: none; z-index: 0;
+  background-size: 52px 52px; pointer-events: none; z-index: 0;
 }
-
-/* right glow */
 .hero::after {
-  content: '';
-  position: absolute;
-  width: 700px; height: 700px;
-  border-radius: 50%;
+  content: ''; position: absolute; width: 700px; height: 700px; border-radius: 50%;
   background: radial-gradient(circle, rgba(30,80,180,0.35) 0%, transparent 65%);
-  top: -150px; right: -50px;
-  pointer-events: none; z-index: 0;
+  top: -150px; right: -50px; pointer-events: none; z-index: 0;
 }
-
 .hero-content {
-  position: relative; z-index: 2;
-  flex: 0 0 44%;
-  max-width: 44%;
-  padding-top: 8px;
-  animation: fadeUp 0.65s ease both;
+  position: relative; z-index: 2; flex: 0 0 44%; max-width: 44%;
+  padding-top: 8px; animation: fadeUp 0.65s ease both;
 }
-
 @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-
 .hero-eyebrow {
   display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(15,30,70,0.55);
-  border: 1px solid rgba(255,255,255,0.14);
-  color: rgba(255,255,255,0.75);
-  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 7px 15px; border-radius: 30px;
-  margin-bottom: 20px;
+  background: rgba(15,30,70,0.55); border: 1px solid rgba(255,255,255,0.14);
+  color: rgba(255,255,255,0.75); font-size: .7rem; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; padding: 7px 15px; border-radius: 30px; margin-bottom: 20px;
   backdrop-filter: blur(6px);
 }
-.hero-eyebrow i { font-size: 0.76rem; opacity: 0.9; }
-
+.hero-eyebrow i { font-size: .76rem; opacity: .9; }
 .hero-title {
-  font-family: var(--font-head);
-  font-size: clamp(2.8rem, 4.8vw, 4.4rem);
-  font-weight: 400;
-  color: #ffffff;
-  line-height: 1.12;
-  margin-bottom: 14px;
-  letter-spacing: -0.01em;
+  font-family: var(--font-head); font-size: clamp(2.8rem, 4.8vw, 4.4rem);
+  font-weight: 400; color: #ffffff; line-height: 1.12; margin-bottom: 14px; letter-spacing: -.01em;
 }
 .hero-title span { color: #5aaeff; font-style: italic; }
-
-.hero-subtitle {
-  font-size: 0.9rem;
-  color: rgba(255,255,255,0.55);
-  line-height: 1.7;
-  max-width: 360px;
-  margin-bottom: 28px;
-  font-weight: 400;
-}
-
+.hero-subtitle { font-size: .9rem; color: rgba(255,255,255,0.55); line-height: 1.7; max-width: 360px; margin-bottom: 28px; }
 .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-
 .hero-btn-primary {
   display: inline-flex; align-items: center; gap: 8px;
-  background: var(--blue);
-  color: #fff;
-  padding: 13px 26px;
-  border-radius: 10px;
-  font-size: 0.88rem; font-weight: 700;
-  text-decoration: none;
-  transition: background 0.18s, transform 0.15s, box-shadow 0.18s;
+  background: var(--blue); color: #fff; padding: 13px 26px; border-radius: 10px;
+  font-size: .88rem; font-weight: 700; text-decoration: none;
+  transition: background .18s, transform .15s, box-shadow .18s;
   box-shadow: 0 4px 20px rgba(37,99,235,0.45);
-  font-family: var(--font-body);
-  letter-spacing: 0.01em;
 }
-.hero-btn-primary:hover { background: var(--blue-dk); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(37,99,235,0.5); color: #fff; }
-
+.hero-btn-primary:hover { background: var(--blue-dk); transform: translateY(-2px); color: #fff; }
 .hero-btn-ghost {
   display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(255,255,255,0.06);
-  border: 1.5px solid rgba(255,255,255,0.22);
-  color: rgba(255,255,255,0.8);
-  padding: 12px 22px;
-  border-radius: 10px;
-  font-size: 0.88rem; font-weight: 600;
-  text-decoration: none;
-  transition: background 0.18s, border-color 0.18s, color 0.18s;
-  font-family: var(--font-body);
+  background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.22);
+  color: rgba(255,255,255,0.8); padding: 12px 22px; border-radius: 10px;
+  font-size: .88rem; font-weight: 600; text-decoration: none;
+  transition: background .18s, border-color .18s, color .18s;
 }
 .hero-btn-ghost:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.4); color: #fff; }
-
 .hero-image-wrap {
-  position: absolute;
-  right: -2%;
-  top: 68%;
-  transform: translateY(-50%);
-  width: 60%;
-  z-index: 1;
-  animation: carSlide 0.95s cubic-bezier(0.22,1,0.36,1) both;
-  animation-delay: 0.15s;
+  position: absolute; right: -2%; top: 68%; transform: translateY(-50%);
+  width: 60%; z-index: 1;
+  animation: carSlide 0.95s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.15s;
   pointer-events: none;
 }
-
-@keyframes carSlide {
-  from { opacity: 0; transform: translateY(-50%) translateX(50px); }
-  to   { opacity: 1; transform: translateY(-50%) translateX(0); }
-}
-
-.hero-image-wrap img {
-  width: 100%;
-  display: block;
-  filter: drop-shadow(0 24px 64px rgba(0,0,0,0.5));
-}
-
-/* scroll hint */
+@keyframes carSlide { from { opacity:0; transform:translateY(-50%) translateX(50px); } to { opacity:1; transform:translateY(-50%) translateX(0); } }
+.hero-image-wrap img { width: 100%; display: block; filter: drop-shadow(0 24px 64px rgba(0,0,0,0.5)); }
 .hero-scroll-hint {
-  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
-  z-index: 5;
+  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); z-index: 5;
   display: flex; flex-direction: column; align-items: center; gap: 5px;
-  color: rgba(255,255,255,0.28); font-size: 0.66rem; letter-spacing: 0.1em;
-  text-transform: uppercase; font-weight: 600;
-  animation: bounce 2.2s ease infinite;
+  color: rgba(255,255,255,0.28); font-size: .66rem; letter-spacing: .1em;
+  text-transform: uppercase; font-weight: 600; animation: bounce 2.2s ease infinite;
 }
-@keyframes bounce {
-  0%,100% { transform: translateX(-50%) translateY(0); }
-  50%      { transform: translateX(-50%) translateY(6px); }
-}
-.hero-scroll-hint i { font-size: 0.95rem; }
+@keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
+.hero-scroll-hint i { font-size: .95rem; }
 
 /* ─── STATS ─────────────────────────────────────────── */
-.stats-section {
-  background: var(--white);
-  padding: 44px 5%;
-  border-bottom: 1px solid var(--border);
-}
+.stats-section { background: var(--white); padding: 44px 5%; border-bottom: 1px solid var(--border); }
 .stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+  background: var(--border); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;
 }
 .stat-item {
-  background: var(--white);
-  padding: 28px 24px;
-  display: flex; align-items: center; gap: 16px;
-  transition: background 0.18s;
+  background: var(--white); padding: 28px 24px;
+  display: flex; align-items: center; gap: 16px; transition: background .18s;
 }
 .stat-item:hover { background: var(--blue-lt); }
 .stat-icon-wrap {
-  width: 48px; height: 48px; flex-shrink: 0;
-  border-radius: 12px;
-  background: var(--blue-lt);
-  border: 1px solid #bfdbfe;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--blue); font-size: 1.2rem;
+  width: 48px; height: 48px; flex-shrink: 0; border-radius: 12px;
+  background: var(--blue-lt); border: 1px solid #bfdbfe;
+  display: flex; align-items: center; justify-content: center; color: var(--blue); font-size: 1.2rem;
 }
-.stat-num {
-  font-family: var(--font-body);
-  font-size: 1.8rem; font-weight: 800; color: var(--ink);
-  line-height: 1; letter-spacing: -0.02em;
-}
-.stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 4px; font-weight: 500; }
+.stat-num { font-size: 1.8rem; font-weight: 800; color: var(--ink); line-height: 1; letter-spacing: -.02em; }
+.stat-label { font-size: .8rem; color: var(--muted); margin-top: 4px; font-weight: 500; }
 
 /* ─── SECTION HEADINGS ───────────────────────────────── */
 .section-eyebrow {
   display: inline-flex; align-items: center; gap: 7px;
-  background: var(--blue-lt); color: var(--blue);
-  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-  padding: 5px 12px; border-radius: 20px;
-  margin-bottom: 10px;
-  font-family: var(--font-body);
+  background: var(--blue-lt); color: var(--blue); font-size: .7rem; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase; padding: 5px 12px; border-radius: 20px; margin-bottom: 10px;
 }
-.section-title {
-  font-family: var(--font-head);
-  font-size: clamp(1.6rem, 3vw, 2.1rem);
-  font-weight: 400; color: var(--ink);
-  margin-bottom: 6px; line-height: 1.2;
-}
-.section-sub { font-size: 0.86rem; color: var(--muted); line-height: 1.6; font-weight: 400; }
+.section-title { font-family: var(--font-head); font-size: clamp(1.6rem, 3vw, 2.1rem); font-weight: 400; color: var(--ink); margin-bottom: 6px; line-height: 1.2; }
+.section-sub { font-size: .86rem; color: var(--muted); line-height: 1.6; }
 
-/* ─── CARS LISTING AREA ──────────────────────────────── */
-.listing-section { padding: 52px 5%; }
-.listing-section-head {
-  display: flex; align-items: flex-end; justify-content: space-between;
-  margin-bottom: 26px; flex-wrap: wrap; gap: 12px;
-}
+/* ─── CARS LISTING ──────────────────────────────────── */
+.listing-section { padding: 24px 5%; }
+.listing-section-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 26px; flex-wrap: wrap; gap: 12px; }
 .listing-layout { display: flex; gap: 22px; align-items: flex-start; }
 
 /* Sidebar */
 .filter-sidebar {
-  height: 490px;
-  width: 236px; flex-shrink: 0;
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: 18px;
-  position: sticky; top: 90px;
+  width: 236px; flex-shrink: 0; background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 18px;
+  position: sticky; top: 90px; max-height: calc(100vh - 120px); overflow-y: auto;
 }
 .filter-sidebar-title {
-  font-size: 0.78rem; font-weight: 700; color: var(--ink);
-  text-transform: uppercase; letter-spacing: 0.08em;
-  margin-bottom: 16px;
-  display: flex; align-items: center; gap: 7px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border);
+  font-size: .78rem; font-weight: 700; color: var(--ink); text-transform: uppercase; letter-spacing: .08em;
+  margin-bottom: 16px; display: flex; align-items: center; gap: 7px; padding-bottom: 12px; border-bottom: 1px solid var(--border);
 }
 .filter-sidebar-title i { color: var(--blue); }
-
-/* Flat filter groups — always visible, no accordion */
 .filter-group { margin-bottom: 14px; }
-.filter-group-label {
-  font-size: 0.74rem; font-weight: 700; color: var(--ink);
-  margin-bottom: 7px;
-  display: flex; align-items: center; gap: 6px;
-}
-.filter-group-label i { color: var(--blue); font-size: 0.74rem; }
-
+.filter-group-label { font-size: .74rem; font-weight: 700; color: var(--ink); margin-bottom: 7px; display: flex; align-items: center; gap: 6px; }
+.filter-group-label i { color: var(--blue); font-size: .74rem; }
 .range-inputs { display: flex; align-items: center; gap: 6px; }
 .range-inputs input {
-  flex: 1; padding: 8px 10px;
-  border: 1.5px solid var(--border); border-radius: 8px;
-  font-size: 0.8rem; font-family: var(--font-body); color: var(--ink);
-  outline: none; transition: border-color 0.18s;
-  -webkit-appearance: none; appearance: none;
-  background: var(--white);
+  flex: 1; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 8px;
+  font-size: .8rem; font-family: var(--font-body); color: var(--ink); outline: none;
+  transition: border-color .18s; -webkit-appearance: none; appearance: none; background: var(--white);
 }
-.range-inputs input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
-.range-separator { font-size: 0.72rem; color: var(--muted); flex-shrink: 0; }
-
+.range-inputs input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+.range-separator { font-size: .72rem; color: var(--muted); flex-shrink: 0; }
 .filter-select-wrap { position: relative; }
-.filter-select-icon {
-  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-  color: var(--muted); font-size: 0.72rem; pointer-events: none;
-}
+.filter-select-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: .72rem; pointer-events: none; }
 .filter-select {
-  width: 100%; padding: 8px 30px 8px 10px;
-  border: 1.5px solid var(--border); border-radius: 8px;
-  font-size: 0.8rem; font-family: var(--font-body); color: var(--ink);
-  background: var(--white); outline: none;
-  transition: border-color 0.18s;
-  -webkit-appearance: none; appearance: none;
-  cursor: pointer;
+  width: 100%; padding: 8px 30px 8px 10px; border: 1.5px solid var(--border); border-radius: 8px;
+  font-size: .8rem; font-family: var(--font-body); color: var(--ink); background: var(--white);
+  outline: none; transition: border-color .18s; -webkit-appearance: none; appearance: none; cursor: pointer;
 }
-.filter-select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
-
+.filter-select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
 .filter-actions { display: flex; flex-direction: column; gap: 7px; margin-top: 14px; }
 .filter-btn {
   display: flex; align-items: center; justify-content: center; gap: 7px;
-  padding: 9px 14px; border-radius: 9px;
-  font-size: 0.8rem; font-weight: 700; font-family: var(--font-body);
-  cursor: pointer; text-decoration: none; transition: all 0.18s; border: none;
+  padding: 9px 14px; border-radius: 9px; font-size: .8rem; font-weight: 700;
+  font-family: var(--font-body); cursor: pointer; text-decoration: none; transition: all .18s; border: none;
 }
 .filter-btn-primary { background: var(--blue); color: #fff; }
 .filter-btn-primary:hover { background: var(--blue-dk); transform: translateY(-1px); color: #fff; }
-.filter-btn-secondary {
-  background: var(--surface); color: var(--muted);
-  border: 1.5px solid var(--border);
-}
+.filter-btn-secondary { background: var(--surface); color: var(--muted); border: 1.5px solid var(--border); }
 .filter-btn-secondary:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-lt); }
-
-.filter-results-count {
-  text-align: center; margin-top: 12px;
-  font-size: 0.74rem; color: var(--muted);
-  background: var(--surface); border-radius: 7px;
-  padding: 6px;
-  font-family: var(--font-body);
-}
+.filter-results-count { text-align: center; margin-top: 12px; font-size: .74rem; color: var(--muted); background: var(--surface); border-radius: 7px; padding: 6px; }
 .filter-results-count strong { color: var(--blue); }
 
 /* Mobile filter toggle */
 .filter-toggle-btn {
   display: none; align-items: center; gap: 8px;
-  background: var(--white); border: 1.5px solid var(--border);
-  border-radius: 9px; padding: 9px 16px;
-  font-size: 0.84rem; font-weight: 600; font-family: var(--font-body);
-  color: var(--ink); cursor: pointer; margin-bottom: 14px;
-  transition: border-color 0.18s;
+  background: var(--white); border: 1.5px solid var(--border); border-radius: 9px;
+  padding: 9px 16px; font-size: .84rem; font-weight: 600; font-family: var(--font-body);
+  color: var(--ink); cursor: pointer; margin-bottom: 14px; transition: border-color .18s;
 }
 .filter-toggle-btn:hover { border-color: var(--blue); color: var(--blue); }
-.filter-badge {
-  background: var(--blue); color: #fff;
-  font-size: 0.66rem; font-weight: 700;
-  padding: 2px 7px; border-radius: 10px;
+.filter-badge { background: var(--blue); color: #fff; font-size: .66rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; }
+
+/* Sort toolbar */
+.cars-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+.cars-count-tag { font-size: .82rem; font-weight: 600; color: var(--muted); }
+.cars-count-tag strong { color: var(--ink); }
+.sort-wrap { display: flex; align-items: center; gap: 8px; }
+.sort-label { font-size: .76rem; color: var(--muted); font-weight: 600; }
+.sort-select {
+  padding: 6px 28px 6px 10px; border: 1.5px solid var(--border); border-radius: 8px;
+  font-size: .78rem; font-family: var(--font-body); color: var(--ink); background: var(--white);
+  outline: none; cursor: pointer; -webkit-appearance: none; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b7fa8'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center;
 }
+.sort-select:focus { border-color: var(--blue); }
 
 /* Cars grid */
-.cars-grid-container { flex: 1; min-width: 0; }
-.cars-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
+.cars-grid-container { flex: 1; min-width: 0; margin-top: -16px;}
+.cars-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 
-/* Car Card */
+/* ─── CAR CARD ───────────────────────────────────────── */
 .car-card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.22s, box-shadow 0.22s;
-  display: flex; flex-direction: column;
+  height: 466px;
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  overflow: hidden; box-shadow: var(--shadow-sm); transition: transform .22s, box-shadow .22s;
+  display: flex; flex-direction: column; position: relative;
 }
 .car-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
 
-.car-card-img {
-  width: 100%; aspect-ratio: 16/10;
-  object-fit: cover; display: block;
-  background: var(--surface);
+/* Image wrap */
+.car-card-img-wrap { position: relative; overflow: hidden; aspect-ratio: 16/10; background: var(--surface); }
+.car-card-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .35s ease; }
+.car-card:hover .car-card-img { transform: scale(1.04); }
+
+/* Image badges */
+.car-card-badges { position: absolute; top: 10px; left: 10px; display: flex; gap: 5px; z-index: 2; }
+.cc-badge { font-size: .58rem; font-weight: 800; padding: 3px 9px; border-radius: 20px; letter-spacing: .06em; text-transform: uppercase; backdrop-filter: blur(6px); }
+.cc-badge-sale { background: rgba(37,99,235,.85); color: #fff; }
+.cc-badge-urgent { background: rgba(220,38,38,.85); color: #fff; }
+.cc-badge-ev { background: rgba(22,163,74,.85); color: #fff; }
+
+/* Image count */
+.car-img-count {
+  position: absolute; bottom: 8px; right: 8px; z-index: 2;
+  background: rgba(0,0,0,.5); color: #fff; font-size: .64rem; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px; backdrop-filter: blur(4px);
+  display: flex; align-items: center; gap: 4px;
 }
 
-.car-card-body { padding: 14px 16px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
-
+/* Card body */
+.car-card-body { padding: 14px 16px 14px; flex: 1; display: flex; flex-direction: column; gap: 0; margin-top: 14px; }
 .car-card-title {
-  font-size: 0.92rem; font-weight: 700; color: var(--ink);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  line-height: 1.3;
+  font-size: .92rem; font-weight: 700; color: var(--ink); line-height: 1.35;
+  overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  margin-bottom: 6px;
 }
-
-.car-card-price {
-  font-size: 1.1rem; font-weight: 800; color: var(--blue);
-  letter-spacing: -0.01em;
+.car-card-price-row { display: flex; align-items: center; gap: 6px; margin-bottom: 7px; flex-wrap: wrap; }
+.car-card-price { font-size: 1.15rem; font-weight: 800; color: var(--blue); letter-spacing: -.01em; }
+.car-card-neg {
+  font-size: .63rem; font-weight: 700; color: var(--green);
+  background: #f0fdf4; border: 1px solid #bbf7d0; padding: 2px 7px; border-radius: 10px;
+  display: flex; align-items: center; gap: 3px;
 }
-
-.car-card-location {
-  display: flex; align-items: center; gap: 5px;
-  font-size: 0.76rem; color: var(--muted);
-}
-.car-card-location i { color: var(--red); font-size: 0.76rem; }
-
-.car-card-specs { display: flex; gap: 5px; flex-wrap: wrap; }
+.car-card-location { display: flex; align-items: center; gap: 5px; font-size: .74rem; color: var(--muted); margin-bottom: 9px; }
+.car-card-location i { color: var(--red); font-size: .74rem; }
+.car-card-specs { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 11px; }
 .spec-pill {
   display: inline-flex; align-items: center; gap: 4px;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 6px; padding: 3px 8px;
-  font-size: 0.7rem; font-weight: 600; color: var(--muted);
+  background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+  padding: 3px 8px; font-size: .68rem; font-weight: 600; color: var(--muted);
 }
-.spec-pill i { font-size: 0.68rem; color: var(--blue); }
+.spec-pill i { font-size: .66rem; color: var(--blue); }
+.car-card-divider { height: 1px; background: var(--border); margin-bottom: 11px; }
 
-.car-card-btn {
-  display: flex; align-items: center; justify-content: center; gap: 7px;
-  background: var(--blue-lt); color: var(--blue);
-  border: 1.5px solid #bfdbfe;
-  border-radius: 9px; padding: 9px;
-  font-size: 0.8rem; font-weight: 700; text-decoration: none;
-  margin-top: auto;
-  transition: background 0.18s, border-color 0.18s, color 0.18s;
-  font-family: var(--font-body);
-}
-.car-card-btn:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+/* CTA row */
+.car-card-cta { display: flex; gap: 7px; margin-top: auto; }
 
-/* No cars state */
-.no-cars {
-  grid-column: 1/-1;
-  text-align: center; padding: 56px 24px;
-  background: var(--white); border-radius: var(--radius-lg);
-  border: 1px solid var(--border);
+/* VIEW DETAILS button — solid blue, the main action */
+.car-card-btn-view {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+  background: var(--blue); color: #fff; border: none; border-radius: 10px;
+  padding: 10px 14px; font-size: .82rem; font-weight: 700; font-family: var(--font-body);
+  text-decoration: none; cursor: pointer;
+  transition: background .18s, transform .15s, box-shadow .15s;
+  box-shadow: 0 2px 8px rgba(37,99,235,.25);
 }
+.car-card-btn-view:hover { background: var(--blue-dk); color: #fff; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(37,99,235,.35); }
+.car-card-btn-view i { transition: transform .18s; }
+.car-card-btn-view:hover i { transform: translateX(2px); }
+
+/* CALL button */
+.car-card-btn-call {
+  width: 38px; height: 38px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--white); color: var(--green); border: 1.5px solid #bbf7d0; border-radius: 10px;
+  text-decoration: none; cursor: pointer; font-size: .9rem;
+  transition: background .18s, border-color .18s, transform .15s;
+}
+.car-card-btn-call:hover { background: #f0fdf4; border-color: var(--green); transform: translateY(-1px); }
+
+/* WHATSAPP button */
+.car-card-btn-wa {
+  width: 38px; height: 38px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--white); color: #25d366; border: 1.5px solid #bbf7d0; border-radius: 10px;
+  text-decoration: none; cursor: pointer; font-size: .9rem;
+  transition: background .18s, border-color .18s, transform .15s;
+}
+.car-card-btn-wa:hover { background: #f0fdf4; border-color: #25d366; transform: translateY(-1px); }
+
+/* Card footer strip */
+.car-card-footer {
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
+  padding: 8px 16px; background: var(--surface); border-top: 1px solid var(--border);
+  font-size: .68rem; color: var(--muted); font-weight: 600; flex-wrap: wrap;
+}
+.car-card-footer span { display: flex; align-items: center; gap: 4px; }
+.car-card-footer i { font-size: .66rem; color: var(--blue); }
+
+/* No cars */
+.no-cars { grid-column: 1/-1; text-align: center; padding: 56px 24px; background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--border); }
 .no-cars i { font-size: 2.5rem; color: var(--border); display: block; margin-bottom: 12px; }
-.no-cars p { color: var(--muted); font-size: 0.9rem; margin-bottom: 14px; }
+.no-cars p { color: var(--muted); font-size: .9rem; margin-bottom: 14px; }
 .no-cars a { color: var(--blue); font-weight: 600; text-decoration: none; }
-.no-cars a:hover { text-decoration: underline; }
 
 /* ─── SERVICES ───────────────────────────────────────── */
-.services-section {
-  background: var(--white);
-  border-top: 1px solid var(--border);
-  padding: 60px 5%;
-}
+.services-section { background: var(--white); border-top: 1px solid var(--border); padding: 60px 5%; }
 .services-head { margin-bottom: 32px; }
-.services-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
+.services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .service-card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 26px 22px;
-  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
-  cursor: pointer;
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 26px 22px; transition: border-color .2s, box-shadow .2s, transform .2s; cursor: pointer;
 }
-.service-card:hover {
-  border-color: var(--blue);
-  box-shadow: 0 6px 28px rgba(37,99,235,0.11);
-  transform: translateY(-3px);
-}
+.service-card:hover { border-color: var(--blue); box-shadow: 0 6px 28px rgba(37,99,235,.11); transform: translateY(-3px); }
 .service-icon {
-  width: 46px; height: 46px;
-  border-radius: 12px;
-  background: var(--blue-lt);
-  border: 1px solid #bfdbfe;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--blue); font-size: 1.2rem;
-  margin-bottom: 14px;
+  width: 46px; height: 46px; border-radius: 12px; background: var(--blue-lt); border: 1px solid #bfdbfe;
+  display: flex; align-items: center; justify-content: center; color: var(--blue); font-size: 1.2rem; margin-bottom: 14px;
 }
-.service-card h4 { font-size: 0.92rem; font-weight: 700; color: var(--ink); margin-bottom: 6px; font-family: var(--font-body); }
-.service-card p { font-size: 0.8rem; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
-.service-link {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 0.78rem; font-weight: 700; color: var(--blue);
-  text-decoration: none; font-family: var(--font-body);
-}
-.service-link i { font-size: 0.72rem; transition: transform 0.18s; }
+.service-card h4 { font-size: .92rem; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+.service-card p { font-size: .8rem; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
+.service-link { display: inline-flex; align-items: center; gap: 5px; font-size: .78rem; font-weight: 700; color: var(--blue); text-decoration: none; }
+.service-link i { font-size: .72rem; transition: transform .18s; }
 .service-card:hover .service-link i { transform: translateX(3px); }
 
 /* ─── RESPONSIVE ─────────────────────────────────────── */
 @media (max-width: 1024px) {
-  .hero-image-wrap { width: 56%; }
+  .hero-image-wrap { wiFdth: 56%; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .cars-grid { grid-template-columns: repeat(2, 1fr); }
   .services-grid { grid-template-columns: repeat(2, 1fr); }
@@ -476,9 +809,9 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
   .hero { height: auto; min-height: calc(100vh - var(--navbar-h)); max-height: none; padding: 36px 6% 28px; }
   .hero-main { flex-direction: column; align-items: flex-start; gap: 20px; }
   .hero-content { max-width: 100%; flex: none; }
-  .hero-image-wrap { position: relative; width: 100%; right: auto; bottom: auto; }
+  .hero-image-wrap { position: relative; width: 100%; right: auto; bottom: auto; transform: none; top: auto; }
   .listing-layout { flex-direction: column; }
-  .filter-sidebar { width: 100%; position: static; display: none; }
+  .filter-sidebar { width: 244px; position: static; display: none; max-height: none; margin-right: 50px; height: 467px; }
   .filter-sidebar.open { display: block; }
   .filter-toggle-btn { display: flex; }
   .cars-grid { grid-template-columns: 1fr 1fr; }
@@ -489,286 +822,6 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
   .cars-grid { grid-template-columns: 1fr; }
   .services-grid { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: 1fr; }
+  .cars-toolbar { flex-direction: column; align-items: flex-start; }
 }
 </style>
-
-<!-- ═══════════════ HERO ═══════════════ -->
-<section class="hero">
-  <div class="hero-main">
-    <div class="hero-content">
-      <div class="hero-eyebrow"><i class="bi bi-car-front-fill"></i> India's Trusted Car Marketplace</div>
-      <h1 class="hero-title">Find Your <span>Perfect</span><br>Car Today</h1>
-      <p class="hero-subtitle">Browse thousands of verified used cars. Filter by price, year, fuel type and more — find the right car near you.</p>
-      <div class="hero-actions">
-        <a href="/cars" class="hero-btn-primary"><i class="bi bi-search"></i> Browse Cars</a>
-        <a href="/cars/new" class="hero-btn-ghost"><i class="bi bi-plus-circle"></i> Sell Your Car</a>
-      </div>
-    </div>
-
-    <div class="hero-image-wrap">
-      <img src="/images/hero-car.png" alt="Cars" />
-    </div>
-  </div>
-
-  <div class="hero-scroll-hint">
-    <i class="bi bi-chevron-double-down"></i>
-    scroll
-  </div>
-</section>
-
-<!-- ═══════════════ STATS ═══════════════ -->
-<section class="stats-section">
-  <div class="stats-grid">
-    <div class="stat-item">
-      <div class="stat-icon-wrap"><i class="bi bi-house-fill"></i></div>
-      <div>
-        <div class="stat-num" data-target="0">0</div>
-        <div class="stat-label">Branches Across India</div>
-      </div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-icon-wrap"><i class="bi bi-car-front-fill"></i></div>
-      <div>
-        <div class="stat-num" data-target="0">0</div>
-        <div class="stat-label">Cars Sold</div>
-      </div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-icon-wrap"><i class="bi bi-people-fill"></i></div>
-      <div>
-        <div class="stat-num" data-target="0">0</div>
-        <div class="stat-label">Happy Clients</div>
-      </div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-icon-wrap"><i class="bi bi-stars"></i></div>
-      <div>
-        <div class="stat-num" data-target="0">0</div>
-        <div class="stat-label">New Listings</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════ CARS LISTING ═══════════════ -->
-<section class="listing-section">
-  <div class="listing-section-head">
-    <div>
-      <div class="section-eyebrow"><i class="bi bi-car-front"></i> Browse Inventory</div>
-      <h2 class="section-title">Available Cars</h2>
-    </div>
-  </div>
-
-  <div class="listing-layout">
-    <!-- FILTER SIDEBAR -->
-    <aside class="filter-sidebar" id="filterSidebar">
-      <div class="filter-sidebar-title"><i class="bi bi-funnel-fill"></i> Filters</div>
-
-      <form id="filterForm" method="GET" action="/cars">
-
-        <!-- Price Range -->
-        <div class="filter-group">
-          <div class="filter-group-label"><i class="bi bi-currency-rupee"></i> Price Range (₹)</div>
-          <div class="range-inputs">
-            <input type="number" name="minPrice" placeholder="Min" value="<%= filters.minPrice || '' %>" />
-            <span class="range-separator">—</span>
-            <input type="number" name="maxPrice" placeholder="Max" value="<%= filters.maxPrice || '' %>" />
-          </div>
-        </div>
-
-        <!-- Year Range -->
-        <div class="filter-group">
-          <div class="filter-group-label"><i class="bi bi-calendar3"></i> Year Range</div>
-          <div class="range-inputs">
-            <input type="number" name="minYear" placeholder="From" value="<%= filters.minYear || '' %>" />
-            <span class="range-separator">—</span>
-            <input type="number" name="maxYear" placeholder="To" value="<%= filters.maxYear || '' %>" />
-          </div>
-        </div>
-
-        <!-- Fuel Type -->
-        <div class="filter-group">
-          <div class="filter-group-label"><i class="bi bi-fuel-pump"></i> Fuel Type</div>
-          <div class="filter-select-wrap">
-            <select name="fuel" class="filter-select">
-              <option value="">All Fuel Types</option>
-              <% if (typeof filterOptions !== 'undefined' && filterOptions.fuels) { %>
-              <% filterOptions.fuels.forEach(f => { %>
-              <option value="<%= f %>" <%= filters.fuel === f ? 'selected' : '' %>><%= f %></option>
-              <% }); %><% } %>
-            </select>
-            <i class="bi bi-chevron-down filter-select-icon"></i>
-          </div>
-        </div>
-
-        <!-- Transmission -->
-        <div class="filter-group">
-          <div class="filter-group-label"><i class="bi bi-gear"></i> Transmission</div>
-          <div class="filter-select-wrap">
-            <select name="transmission" class="filter-select">
-              <option value="">All Types</option>
-              <% if (typeof filterOptions !== 'undefined' && filterOptions.transmissions) { %>
-              <% filterOptions.transmissions.forEach(t => { %>
-              <option value="<%= t %>" <%= filters.transmission === t ? 'selected' : '' %>><%= t %></option>
-              <% }); %><% } %>
-            </select>
-            <i class="bi bi-chevron-down filter-select-icon"></i>
-          </div>
-        </div>
-
-        <!-- City -->
-        <div class="filter-group">
-          <div class="filter-group-label"><i class="bi bi-geo-alt"></i> City</div>
-          <div class="filter-select-wrap">
-            <select name="city" class="filter-select">
-              <option value="">All Cities</option>
-              <% if (typeof filterOptions !== 'undefined' && filterOptions.cities) { %>
-              <% filterOptions.cities.forEach(c => { %>
-              <option value="<%= c %>" <%= filters.city === c ? 'selected' : '' %>><%= c %></option>
-              <% }); %><% } %>
-            </select>
-            <i class="bi bi-chevron-down filter-select-icon"></i>
-          </div>
-        </div>
-
-        <!-- State -->
-        <div class="filter-group">
-          <div class="filter-group-label"><i class="bi bi-map"></i> State</div>
-          <div class="filter-select-wrap">
-            <select name="state" class="filter-select">
-              <option value="">All States</option>
-              <% if (typeof filterOptions !== 'undefined' && filterOptions.states) { %>
-              <% filterOptions.states.forEach(s => { %>
-              <option value="<%= s %>" <%= filters.state === s ? 'selected' : '' %>><%= s %></option>
-              <% }); %><% } %>
-            </select>
-            <i class="bi bi-chevron-down filter-select-icon"></i>
-          </div>
-        </div>
-
-        <% if (filters.search) { %><input type="hidden" name="search" value="<%= filters.search %>" /><% } %>
-
-        <div class="filter-actions">
-          <button type="submit" class="filter-btn filter-btn-primary"><i class="bi bi-search"></i> Apply Filters</button>
-          <a href="/cars" class="filter-btn filter-btn-secondary"><i class="bi bi-arrow-clockwise"></i> Reset</a>
-        </div>
-
-        <div class="filter-results-count"><strong><%= cars.length %></strong> car<%= cars.length !== 1 ? 's' : '' %> found</div>
-      </form>
-    </aside>
-
-    <!-- CARS GRID -->
-    <div class="cars-grid-container">
-      <button class="filter-toggle-btn" id="filterToggleBtn">
-        <i class="bi bi-funnel"></i> Filters
-        <% if (cars.length > 0) { %><span class="filter-badge"><%= cars.length %></span><% } %>
-      </button>
-
-      <div class="cars-grid">
-        <% if (cars.length === 0) { %>
-        <div class="no-cars">
-          <i class="bi bi-inbox"></i>
-          <p>No cars found matching your filters.</p>
-          <a href="/cars">Clear all filters</a>
-        </div>
-        <% } else { %>
-        <% for (let car of cars) { %>
-        <%
-          const cardImages = (car.images && car.images.length
-            ? car.images
-            : (car.image && car.image !== '' ? [car.image] : []));
-          const cardImgSrc = cardImages.length
-            ? cardImages[0]
-            : 'https://via.placeholder.com/400x250?text=No+Image';
-        %>
-        <div class="car-card">
-          <img src="<%= cardImgSrc %>" class="car-card-img" alt="<%= car.carName %>" />
-          <div class="car-card-body">
-            <div class="car-card-title" title="<%= car.carName %>"><%= car.carName %></div>
-            <div class="car-card-price">₹ <%= car.price.toLocaleString('en-IN') %></div>
-            <div class="car-card-location">
-              <i class="bi bi-geo-alt-fill"></i>
-              <span><%= car.city %>, <%= car.state %></span>
-            </div>
-            <% if (car.year) { %>
-            <div class="car-card-specs">
-              <span class="spec-pill"><i class="bi bi-calendar3"></i> <%= car.year %></span>
-              <span class="spec-pill"><i class="bi bi-fuel-pump"></i> <%= car.fuel || 'N/A' %></span>
-              <span class="spec-pill"><i class="bi bi-gear"></i> <%= car.transmission || 'N/A' %></span>
-            </div>
-            <% } %>
-            <a href="/cars/<%= car._id %>" class="car-card-btn"><i class="bi bi-eye"></i> View Details</a>
-          </div>
-        </div>
-        <% } %>
-        <% } %>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════ SERVICES ═══════════════ -->
-<section class="services-section">
-  <div class="services-head">
-    <div class="section-eyebrow"><i class="bi bi-wrench-adjustable"></i> What We Offer</div>
-    <h2 class="section-title">Our Services</h2>
-    <p class="section-sub">Everything you need, all in one place.</p>
-  </div>
-
-  <div class="services-grid">
-    <div class="service-card">
-      <div class="service-icon"><i class="bi bi-car-front-fill"></i></div>
-      <h4>Car Selling</h4>
-      <p>The largest used car selling platform in India. List your car in minutes.</p>
-      <a href="javascript:void(0)" class="service-link" data-service="car-selling"></a>
-    </div>
-    <div class="service-card">
-      <div class="service-icon"><i class="bi bi-tools"></i></div>
-      <h4>Parts Repair</h4>
-      <p>More than 200+ service stations across India ready to help.</p>
-      <a href="javascript:void(0)" class="service-link" data-service="parts-repair"></a>
-    </div>
-    <div class="service-card">
-      <div class="service-icon"><i class="bi bi-shield-check"></i></div>
-      <h4>Car Insurance</h4>
-      <p>Lowest premiums with comprehensive car insurance coverage.</p>
-      <a href="javascript:void(0)" class="service-link" data-service="insurance"></a>
-    </div>
-    <div class="service-card">
-      <div class="service-icon"><i class="bi bi-battery-charging"></i></div>
-      <h4>Battery Replacement</h4>
-      <p>Fast battery replacement service for every make and model.</p>
-      <a href="javascript:void(0)" class="service-link" data-service="battery"></a>
-    </div>
-    <div class="service-card">
-      <div class="service-icon"><i class="bi bi-droplet-fill"></i></div>
-      <h4>Oil Change</h4>
-      <p>Quick oil change service with our own trusted brand products.</p>
-      <a href="javascript:void(0)" class="service-link" data-service="oil"></a>
-    </div>
-    <div class="service-card">
-      <div class="service-icon"><i class="bi bi-headset"></i></div>
-      <h4>24/7 Support</h4>
-      <p>Round-the-clock customer support. Call us anytime you need help.</p>
-      <a href="javascript:void(0)" class="service-link" data-service="support"></a>
-    </div>
-  </div>
-</section>
-
-<script>
-(function () {
-  /* Mobile filter toggle */
-  var toggleBtn = document.getElementById('filterToggleBtn');
-  var sidebar   = document.getElementById('filterSidebar');
-  if (toggleBtn && sidebar) {
-    toggleBtn.addEventListener('click', function () {
-      sidebar.classList.toggle('open');
-      toggleBtn.innerHTML = sidebar.classList.contains('open')
-        ? '<i class="bi bi-x-lg"></i> Close Filters'
-        : '<i class="bi bi-funnel"></i> Filters <span class="filter-badge"><%= cars.length %></span>';
-    });
-  }
-})();
-</script>
-
-

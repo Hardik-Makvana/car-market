@@ -1,385 +1,681 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Sell Car — Ridehub</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-  /* ── Same base as login/register ── */
-  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    font-family: 'Inter', sans-serif;
-    background: #eef2f7;
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  .sc-page {
-    min-height: calc(100vh - 70px);
-    padding: 40px 24px 60px;
-    background: #eef2f7;
-    display: flex;
-    justify-content: center;
-  }
-
-  .sc-container {
-    width: 100%;
-    max-width: 860px;
-  }
-
-  /* ── Header (same style as auth-icon + auth-title) ── */
-  .sc-header {
-    text-align: center;
-    margin-bottom: 24px;
-  }
-  .sc-header-icon {
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    border: 2px solid #dde3ee;
-    display: flex; align-items: center; justify-content: center;
-    color: #2563eb; font-size: 1.2rem;
-    margin: 0 auto 14px;
-  }
-  .sc-header h1 {
-    font-size: 1.65rem; font-weight: 800;
-    color: #0f1c3f; line-height: 1.2; margin-bottom: 6px;
-  }
-  .sc-header p {
-    font-size: 0.88rem; color: #6b7fa8; line-height: 1.5;
-  }
-
-  /* ── Card (same as auth-card) ── */
-  .sc-card {
-    background: #fff;
-    border-radius: 16px;
-    width: 100%;
-    padding: 32px 36px 28px;
-    box-shadow: 0 4px 24px rgba(15,30,70,0.10), 0 1px 4px rgba(15,30,70,0.06);
-    margin-bottom: 16px;
-  }
-
-  .sc-section-title {
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: #2563eb;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 18px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .sc-section-title i { font-size: 0.82rem; }
-
-  /* ── Grid ── */
-  .sc-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
-  .sc-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-  .sc-grid-full { grid-column: 1 / -1; }
-
-  /* ── Fields (same as auth-field) ── */
-  .sc-field { display: flex; flex-direction: column; gap: 6px; }
-
-  .sc-label {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 0.85rem; font-weight: 600;
-    color: #0f1c3f;
-  }
-  .sc-label i { font-size: 0.85rem; color: #2563eb; }
-  .sc-req { color: #dc2626; margin-left: 1px; font-size: 0.7rem; }
-
-  /* ── Inputs (same as auth-input) ── */
-  .sc-input, .sc-select, .sc-textarea {
-    width: 100%;
-    padding: 13px 16px;
-    border: 1.5px solid #dde3ee;
-    border-radius: 10px;
-    font-size: 0.9rem; font-family: 'Inter', sans-serif;
-    color: #0f1c3f; background: #fff; outline: none;
-    transition: border-color 0.18s, box-shadow 0.18s;
-    -webkit-appearance: none; appearance: none;
-  }
-  .sc-input::placeholder, .sc-textarea::placeholder { color: #b0bcce; }
-  .sc-input:focus, .sc-select:focus, .sc-textarea:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
-  }
-  .sc-input:hover:not(:focus),
-  .sc-select:hover:not(:focus),
-  .sc-textarea:hover:not(:focus) { border-color: #c4cfe8; }
-
-  .sc-select-wrap { position: relative; }
-  .sc-select-wrap::after {
-    content: '\F282'; font-family: 'bootstrap-icons';
-    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-    color: #b0bcce; font-size: 0.8rem; pointer-events: none;
-  }
-  .sc-select { padding-right: 38px; cursor: pointer; }
-
-  .sc-textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
-
-  .sc-hint {
-    font-size: 0.75rem; color: #6b7fa8;
-    display: flex; align-items: flex-start; gap: 5px; line-height: 1.4;
-  }
-  .sc-hint i { color: #2563eb; flex-shrink: 0; margin-top: 1px; font-size: 0.75rem; }
-
-  .sc-char-row {
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .sc-char-count { font-size: 0.72rem; color: #b0bcce; }
-
-  /* ── Upload ── */
-  .sc-upload-area {
-    border: 1.5px dashed #c4cfe8;
-    border-radius: 10px;
-    padding: 22px 16px;
-    text-align: center;
-    cursor: pointer;
-    background: #f8faff;
-    transition: border-color 0.18s, background 0.18s;
-    position: relative;
-  }
-  .sc-upload-area:hover { border-color: #2563eb; background: #eff6ff; }
-  .sc-upload-area.has-files { border-color: #2563eb; background: #eff6ff; border-style: solid; }
-  .sc-upload-input {
-    position: absolute; inset: 0; opacity: 0;
-    cursor: pointer; width: 100%; height: 100%;
-  }
-  .sc-upload-icon { color: #2563eb; font-size: 1.4rem; margin-bottom: 6px; }
-  .sc-upload-title { font-size: 0.88rem; font-weight: 600; color: #0f1c3f; margin-bottom: 2px; }
-  .sc-upload-title span { color: #2563eb; }
-  .sc-upload-sub { font-size: 0.75rem; color: #6b7fa8; }
-  .sc-upload-preview { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; justify-content: center; }
-  .sc-preview-thumb {
-    width: 64px; height: 48px; border-radius: 6px;
-    object-fit: cover; border: 1.5px solid #dde3ee; display: none;
-  }
-  .sc-upload-count {
-    display: none; font-size: 0.76rem; font-weight: 600;
-    color: #16a34a; margin-top: 6px;
-    align-items: center; justify-content: center; gap: 5px;
-  }
-
-  /* ── Divider between sections ── */
-  .sc-divider {
-    height: 1px; background: #f0f4fb; margin: 20px 0;
-  }
-
-  /* ── Submit button (same as auth-btn) ── */
-  .sc-submit-btn {
-    width: 100%; padding: 14px;
-    background: #2563eb; color: #fff;
-    border: none; border-radius: 10px;
-    font-size: 0.92rem; font-weight: 700; font-family: 'Inter', sans-serif;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    transition: background 0.18s, transform 0.15s;
-    margin-top: 4px;
-  }
-  .sc-submit-btn:hover { background: #1d4fd7; transform: translateY(-1px); }
-  .sc-submit-btn:active { transform: translateY(0); }
-
-  .sc-submit-note {
-    text-align: center; margin-top: 12px;
-    font-size: 0.78rem; color: #6b7fa8;
-    display: flex; align-items: center; justify-content: center; gap: 5px;
-  }
-
-  @media (max-width: 700px) {
-    .sc-card { padding: 24px 20px 20px; }
-    .sc-grid { grid-template-columns: 1fr 1fr; }
-    .sc-grid-2 { grid-template-columns: 1fr; }
-    .sc-header h1 { font-size: 1.35rem; }
-    [style*="grid-template-columns:1fr 1fr 1fr 1fr"] {
-      grid-template-columns: 1fr 1fr !important;
-    }
-  }
-  @media (max-width: 480px) {
-    .sc-grid { grid-template-columns: 1fr; }
-    .sc-grid-2 { grid-template-columns: 1fr; }
-    [style*="grid-template-columns:1fr 1fr 1fr 1fr"] {
-      grid-template-columns: 1fr !important;
-    }
-  }
-</style>
-</head>
-<body>
 <div class="sc-page">
-  <div class="sc-container">
+<div class="sc-container">
 
-    <!-- Header -->
-    <div class="sc-header">
-      <!-- <div class="sc-header-icon"><i class="bi bi-car-front-fill"></i></div> -->
-      <h1>Sell Your Car</h1>
-      <p>Fill in the details below to list your car and reach thousands of buyers 🚗</p>
+  <!-- Header -->
+  <div class="sc-header">
+    <div class="sc-header-icon"><i class="bi bi-car-front-fill"></i></div>
+    <h1>List Your Car</h1>
+    <p>Reach thousands of genuine buyers — takes less than 5 minutes</p>
+    <div class="sc-steps">
+      <div class="sc-step active" data-step="1"><span>1</span> Basic Info</div>
+      <div class="sc-step-line"></div>
+      <div class="sc-step" data-step="2"><span>2</span> Specs</div>
+      <div class="sc-step-line"></div>
+      <div class="sc-step" data-step="3"><span>3</span> Condition</div>
+      <div class="sc-step-line"></div>
+      <div class="sc-step" data-step="4"><span>4</span> Contact</div>
+    </div>
+  </div>
+
+  <form action="/cars" method="POST" enctype="multipart/form-data" id="scForm">
+
+    <!-- ══ SECTION 1: BASIC INFO ══ -->
+    <div class="sc-card" id="section1">
+      <div class="sc-section-hd">
+        <div class="sc-section-num">01</div>
+        <div>
+          <div class="sc-section-title">Basic Information</div>
+          <div class="sc-section-sub">Car identity and pricing</div>
+        </div>
+      </div>
+
+      <div class="sc-grid-2">
+        <div class="sc-field sc-field-span2">
+          <label class="sc-label"><i class="bi bi-car-front"></i> Car Name / Model <span class="sc-req">*</span></label>
+          <input type="text" name="car[carName]" class="sc-input" placeholder="e.g. Maruti Suzuki Baleno Alpha 2022" required />
+          <span class="sc-hint"><i class="bi bi-info-circle"></i> Include brand, model and variant for better visibility</span>
+        </div>
+
+        <div class="sc-field">
+          <label class="sc-label"><i class="bi bi-currency-rupee"></i> Asking Price (₹) <span class="sc-req">*</span></label>
+          <div class="sc-input-prefix-wrap">
+            <span class="sc-input-prefix">₹</span>
+            <input type="number" name="car[price]" class="sc-input sc-input-prefixed" id="priceInput" placeholder="e.g. 750000" required min="0" />
+          </div>
+          <div class="sc-price-display" id="priceDisplay"></div>
+        </div>
+
+      </div>
+
+      <!-- Toggle badges -->
+      <div class="sc-toggles-row">
+        <label class="sc-toggle-card">
+          <input type="checkbox" name="car[negotiable]" value="true" class="sc-toggle-cb" />
+          <div class="sc-toggle-body">
+            <i class="bi bi-arrow-left-right"></i>
+            <span>Negotiable Price</span>
+            <div class="sc-toggle-switch"></div>
+          </div>
+        </label>
+        <label class="sc-toggle-card">
+          <input type="checkbox" name="car[urgentSale]" value="true" class="sc-toggle-cb" />
+          <div class="sc-toggle-body">
+            <i class="bi bi-lightning-charge"></i>
+            <span>Urgent Sale</span>
+            <div class="sc-toggle-switch"></div>
+          </div>
+        </label>
+        <label class="sc-toggle-card">
+          <input type="checkbox" name="car[sellerType]" value="Individual" class="sc-toggle-cb" id="sellerToggle" />
+          <div class="sc-toggle-body">
+            <i class="bi bi-person"></i>
+            <span>Individual Seller</span>
+            <div class="sc-toggle-switch"></div>
+          </div>
+        </label>
+      </div>
+
+      <!-- Photo Upload -->
+      <div class="sc-field" style="margin-top:20px;">
+        <label class="sc-label"><i class="bi bi-images"></i> Car Photos <span class="sc-req">*</span></label>
+        <div class="sc-upload-area" id="scUploadArea">
+          <input type="file" name="images" id="scImages" class="sc-upload-input" multiple accept="image/*" required />
+          <div class="sc-upload-center" id="uploadPlaceholder">
+            <div class="sc-upload-icon-wrap"><i class="bi bi-cloud-upload"></i></div>
+            <div class="sc-upload-title">Drop photos here or <span>browse files</span></div>
+            <div class="sc-upload-sub">Supports JPG, PNG · Max 10MB each · Up to 8 photos</div>
+            <div class="sc-upload-tips">
+              <span><i class="bi bi-check2"></i> Front view</span>
+              <span><i class="bi bi-check2"></i> Rear view</span>
+              <span><i class="bi bi-check2"></i> Interior</span>
+              <span><i class="bi bi-check2"></i> Dashboard</span>
+            </div>
+          </div>
+          <div class="sc-upload-preview" id="scPreview"></div>
+          <div class="sc-upload-count" id="scUploadCount">
+            <i class="bi bi-check-circle-fill"></i>
+            <span id="scUploadCountText"></span>
+            <button type="button" class="sc-reupload" id="scReupload">Change Photos</button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <form action="/cars" method="POST" enctype="multipart/form-data">
-
-      <!-- BASIC INFO + SPECS card -->
-      <div class="sc-card">
-
-        <div class="sc-section-title"><i class="bi bi-tag-fill"></i> Basic Information</div>
-        <div class="sc-grid-2">
-          <div class="sc-field">
-            <label class="sc-label"><i class="bi bi-car-front"></i> Car Name <span class="sc-req">*</span></label>
-            <input type="text" name="car[carName]" class="sc-input" placeholder="e.g. Toyota Fortuner 2022" required />
-          </div>
-          <div class="sc-field">
-            <label class="sc-label"><i class="bi bi-currency-rupee"></i> Asking Price (₹) <span class="sc-req">*</span></label>
-            <input type="number" name="car[price]" class="sc-input" placeholder="e.g. 1800000" required min="0" />
-          </div>
-        </div>
-
-        <div class="sc-divider"></div>
-
-        <div class="sc-section-title"><i class="bi bi-sliders"></i> Specifications</div>
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:18px; margin-bottom:0;">
-          <div class="sc-field">
-            <label class="sc-label"><i class="bi bi-calendar-check"></i> Model Year <span class="sc-req">*</span></label>
-            <input type="number" name="car[year]" class="sc-input" placeholder="e.g. 2021" min="1990" max="2026" required />
-          </div>
-          <div class="sc-field">
-            <label class="sc-label"><i class="bi bi-speedometer2"></i> Mileage (km) <span class="sc-req">*</span></label>
-            <input type="number" name="car[mileage]" class="sc-input" placeholder="e.g. 45000" required min="0" />
-          </div>
-          <div class="sc-field">
-            <label class="sc-label"><i class="bi bi-fuel-pump"></i> Fuel Type <span class="sc-req">*</span></label>
-            <div class="sc-select-wrap">
-              <select name="car[fuel]" class="sc-select" required>
-                <option value="">Select fuel type</option>
-                <option>Petrol</option><option>Diesel</option><option>CNG</option><option>Electric</option><option>Hybrid</option>
-              </select>
-            </div>
-          </div>
-          <div class="sc-field">
-            <label class="sc-label"><i class="bi bi-gear-wide-connected"></i> Transmission <span class="sc-req">*</span></label>
-            <div class="sc-select-wrap">
-              <select name="car[transmission]" class="sc-select" required>
-                <option value="">Select transmission</option>
-                <option>Manual</option><option>Automatic</option><option>CVT</option><option>AMT</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div style="margin-top:18px;">
-          <div class="sc-field">
-            <label class="sc-label"><i class="bi bi-images"></i> Car Photos <span class="sc-req">*</span></label>
-            <div class="sc-upload-area" id="scUploadArea">
-              <input type="file" name="images" id="scImages" class="sc-upload-input" multiple accept="image/*" required />
-              <div class="sc-upload-icon"><i class="bi bi-cloud-upload"></i></div>
-              <div class="sc-upload-title">Drop photos here or <span>browse</span></div>
-              <div class="sc-upload-sub">2–6 photos recommended · Max 10MB each</div>
-              <div class="sc-upload-preview" id="scPreview"></div>
-              <div class="sc-upload-count" id="scUploadCount">
-                <i class="bi bi-check-circle-fill"></i>
-                <span id="scUploadCountText"></span>
-              </div>
-            </div>
-            <p class="sc-hint"><i class="bi bi-info-circle"></i> Clear photos of front, rear, side & interior get more inquiries.</p>
-          </div>
+    <!-- ══ SECTION 2: SPECIFICATIONS ══ -->
+    <div class="sc-card" id="section2">
+      <div class="sc-section-hd">
+        <div class="sc-section-num">02</div>
+        <div>
+          <div class="sc-section-title">Vehicle Specifications</div>
+          <div class="sc-section-sub">Technical details buyers filter by</div>
         </div>
       </div>
 
-      <!-- LOCATION + CONTACT card -->
-      <div class="sc-card">
-
-        <div class="sc-section-title"><i class="bi bi-geo-alt-fill"></i> Location & Contact</div>
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:18px;">
-          <div class="sc-field">
-            <label class="sc-label"><i class="bi bi-building"></i> City <span class="sc-req">*</span></label>
-            <input type="text" name="car[city]" class="sc-input" placeholder="e.g. Rajkot" required />
-          </div>
-          <div class="sc-field">
-            <label class="sc-label"><i class="bi bi-map"></i> State <span class="sc-req">*</span></label>
-            <input type="text" name="car[state]" class="sc-input" placeholder="e.g. Gujarat" required />
-          </div>
-          <div class="sc-field">
-            <label class="sc-label"><i class="bi bi-person-badge"></i> Owner Name <span class="sc-req">*</span></label>
-            <input type="text" name="car[dealerName]" class="sc-input" placeholder="Your full name" required />
-          </div>
-          <div class="sc-field">
-            <label class="sc-label"><i class="bi bi-telephone-fill"></i> Phone Number <span class="sc-req">*</span></label>
-            <input type="tel" name="car[dealerPhone]" class="sc-input" placeholder="+91 98765 43210" required pattern="[0-9+\s-]+" />
-          </div>
-        </div>
-        <p class="sc-hint" style="margin-top:12px;"><i class="bi bi-shield-check"></i> Phone is only shared with genuine buyers.</p>
-      </div>
-
-      <!-- DESCRIPTION card -->
-      <div class="sc-card">
-        <div class="sc-section-title"><i class="bi bi-pencil-square"></i> Description</div>
+      <div class="sc-grid-4">
         <div class="sc-field">
-          <div class="sc-char-row">
-            <label class="sc-label"><i class="bi bi-file-text"></i> About Your Car</label>
-            <span class="sc-char-count" id="scCharCount">0 / 1000</span>
-          </div>
-          <textarea name="car[description]" class="sc-textarea" id="scDesc" maxlength="1000"
-            placeholder="Describe condition, service history, features, reason for selling…"></textarea>
-          <p class="sc-hint"><i class="bi bi-lightbulb"></i> Listings with good descriptions get 3× more inquiries.</p>
+          <label class="sc-label"><i class="bi bi-calendar-check"></i> Model Year <span class="sc-req">*</span></label>
+          <input type="number" name="car[year]" class="sc-input" placeholder="e.g. 2021" min="1990" max="2026" required />
         </div>
-
-        <div style="margin-top:20px;">
-          <button type="submit" class="sc-submit-btn">
-            <i class="bi bi-rocket-takeoff-fill"></i> Publish Listing
-          </button>
-          <p class="sc-submit-note"><i class="bi bi-check-circle"></i> Your listing goes live instantly after submission</p>
+        <div class="sc-field">
+          <label class="sc-label"><i class="bi bi-speedometer2"></i> KM Driven <span class="sc-req">*</span></label>
+          <input type="number" name="car[mileage]" class="sc-input" placeholder="e.g. 28000" required min="0" />
+        </div>
+        <div class="sc-field">
+          <label class="sc-label"><i class="bi bi-fuel-pump"></i> Fuel Type <span class="sc-req">*</span></label>
+          <div class="sc-select-wrap">
+            <select name="car[fuel]" class="sc-select" required>
+              <option value="">Select</option>
+              <option>Petrol</option><option>Diesel</option><option>CNG</option><option>Electric</option><option>Hybrid</option>
+            </select>
+          </div>
+        </div>
+        <div class="sc-field">
+          <label class="sc-label"><i class="bi bi-gear-wide-connected"></i> Transmission <span class="sc-req">*</span></label>
+          <div class="sc-select-wrap">
+            <select name="car[transmission]" class="sc-select" required>
+              <option value="">Select</option>
+              <option>Manual</option><option>Automatic</option><option>CVT</option><option>AMT</option>
+            </select>
+          </div>
+        </div>
+        <div class="sc-field">
+          <label class="sc-label"><i class="bi bi-people"></i> Seats</label>
+          <div class="sc-select-wrap">
+            <select name="car[seats]" class="sc-select">
+              <option value="">Select</option>
+              <option value="2">2 Seater</option>
+              <option value="4">4 Seater</option>
+              <option value="5">5 Seater</option>
+              <option value="7">7 Seater</option>
+              <option value="8">8 Seater</option>
+            </select>
+          </div>
+        </div>
+        <div class="sc-field">
+          <label class="sc-label"><i class="bi bi-cpu"></i> Engine (cc)</label>
+          <input type="number" name="car[engineCC]" class="sc-input" placeholder="e.g. 1197" min="0" />
+        </div>
+        <div class="sc-field">
+          <label class="sc-label"><i class="bi bi-lightning"></i> Power (bhp)</label>
+          <input type="number" name="car[powerBHP]" class="sc-input" placeholder="e.g. 88" min="0" />
+        </div>
+        <div class="sc-field">
+          <label class="sc-label"><i class="bi bi-person-badge"></i> Ownership <span class="sc-req">*</span></label>
+          <div class="sc-select-wrap">
+            <select name="car[ownership]" class="sc-select" required>
+              <option value="">Select</option>
+              <option>First Owner</option>
+              <option>Second Owner</option>
+              <option>Third Owner</option>
+              <option>Fourth+ Owner</option>
+            </select>
+          </div>
         </div>
       </div>
 
-    </form>
-  </div>
+      <!-- Registration -->
+      <div class="sc-subsection-hd"><i class="bi bi-file-earmark-text"></i> Registration Details</div>
+      <div class="sc-grid-3">
+        <div class="sc-field">
+          <label class="sc-label"><i class="bi bi-building"></i> Registration City</label>
+          <input type="text" name="car[registrationCity]" class="sc-input" placeholder="e.g. Rajkot" />
+        </div>
+        <div class="sc-field">
+          <label class="sc-label"><i class="bi bi-calendar3"></i> Registration Year</label>
+          <input type="number" name="car[registrationYear]" class="sc-input" placeholder="e.g. 2022" min="1990" max="2026" />
+        </div>
+        <div class="sc-field">
+          <label class="sc-label"><i class="bi bi-calendar-range"></i> Availability</label>
+          <div class="sc-select-wrap">
+            <select name="car[availability]" class="sc-select">
+              <option value="">Select</option>
+              <option>Immediate</option>
+              <option>Within 1 Week</option>
+              <option>Flexible</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Insurance -->
+      <div class="sc-subsection-hd"><i class="bi bi-shield-check"></i> Insurance</div>
+      <div class="sc-grid-2">
+        <div class="sc-field">
+          <label class="sc-label"><i class="bi bi-shield-fill-check"></i> Insurance Status</label>
+          <div class="sc-btn-group" data-name="car[insuranceStatus]">
+            <button type="button" class="sc-btn-opt" data-val="Active">
+              <i class="bi bi-shield-fill-check"></i> Active
+            </button>
+            <button type="button" class="sc-btn-opt" data-val="Expired">
+              <i class="bi bi-shield-x"></i> Expired
+            </button>
+          </div>
+          <input type="hidden" name="car[insuranceStatus]" id="insuranceStatusVal" />
+        </div>
+        <div class="sc-field" id="insuranceValidField" style="display:none;">
+          <label class="sc-label"><i class="bi bi-calendar-event"></i> Valid Till</label>
+          <input type="month" name="car[insuranceValidTill]" class="sc-input" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SECTION 3: CONDITION & FEATURES ══ -->
+    <div class="sc-card" id="section3">
+      <div class="sc-section-hd">
+        <div class="sc-section-num">03</div>
+        <div>
+          <div class="sc-section-title">Condition & Features</div>
+          <div class="sc-section-sub">Builds buyer trust and increases inquiries</div>
+        </div>
+      </div>
+
+      <!-- Condition -->
+      <div class="sc-field" style="margin-bottom:18px;">
+        <label class="sc-label" style="margin-bottom:10px;"><i class="bi bi-stars"></i> Overall Condition <span class="sc-req">*</span></label>
+        <div class="sc-condition-row">
+          <label class="sc-condition-opt">
+            <input type="radio" name="car[condition]" value="Excellent" required />
+            <div class="sc-condition-card excellent">
+              <i class="bi bi-trophy-fill"></i>
+              <span>Excellent</span>
+              <small>Like new, no issues</small>
+            </div>
+          </label>
+          <label class="sc-condition-opt">
+            <input type="radio" name="car[condition]" value="Good" />
+            <div class="sc-condition-card good">
+              <i class="bi bi-hand-thumbs-up-fill"></i>
+              <span>Good</span>
+              <small>Minor wear, well maintained</small>
+            </div>
+          </label>
+          <label class="sc-condition-opt">
+            <input type="radio" name="car[condition]" value="Fair" />
+            <div class="sc-condition-card fair">
+              <i class="bi bi-exclamation-circle-fill"></i>
+              <span>Fair</span>
+              <small>Visible wear, needs attention</small>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Accident + Service History -->
+      <div class="sc-grid-2" style="margin-bottom:20px;">
+        <div class="sc-field">
+          <label class="sc-label" style="margin-bottom:8px;"><i class="bi bi-car-front"></i> Accident History</label>
+          <div class="sc-btn-group" data-name="car[accidentHistory]">
+            <button type="button" class="sc-btn-opt sc-btn-safe" data-val="false">
+              <i class="bi bi-check-circle"></i> No Accident
+            </button>
+            <button type="button" class="sc-btn-opt sc-btn-warn" data-val="true">
+              <i class="bi bi-exclamation-triangle"></i> Has Accident
+            </button>
+          </div>
+          <input type="hidden" name="car[accidentHistory]" id="accidentVal" />
+        </div>
+        <div class="sc-field">
+          <label class="sc-label" style="margin-bottom:8px;"><i class="bi bi-journal-check"></i> Service History</label>
+          <div class="sc-btn-group" data-name="car[serviceHistory]">
+            <button type="button" class="sc-btn-opt sc-btn-safe" data-val="Available">
+              <i class="bi bi-file-earmark-check"></i> Available
+            </button>
+            <button type="button" class="sc-btn-opt" data-val="Not Available">
+              <i class="bi bi-file-earmark-x"></i> Not Available
+            </button>
+          </div>
+          <input type="hidden" name="car[serviceHistory]" id="serviceVal" />
+        </div>
+      </div>
+
+      <!-- Features checkboxes -->
+      <label class="sc-label" style="margin-bottom:12px;"><i class="bi bi-grid-3x3-gap"></i> Car Features</label>
+      <div class="sc-features-grid">
+
+        <% const FEATURES = [
+          {key:'ac', icon:'bi-wind', label:'Air Conditioning'},
+          {key:'powerSteering', icon:'bi-arrows-move', label:'Power Steering'},
+          {key:'powerWindows', icon:'bi-window', label:'Power Windows'},
+          {key:'abs', icon:'bi-shield-fill', label:'ABS Brakes'},
+          {key:'airbags', icon:'bi-balloon-fill', label:'Airbags'},
+          {key:'sunroof', icon:'bi-brightness-high', label:'Sunroof'},
+          {key:'touchscreen', icon:'bi-tablet', label:'Touchscreen'},
+          {key:'reverseCamera', icon:'bi-camera-video', label:'Reverse Camera'},
+          {key:'alloyWheels', icon:'bi-circle', label:'Alloy Wheels'},
+          {key:'bluetooth', icon:'bi-bluetooth', label:'Bluetooth'},
+          {key:'cruiseControl', icon:'bi-speedometer', label:'Cruise Control'},
+          {key:'keylessEntry', icon:'bi-key', label:'Keyless Entry'},
+        ]; %>
+        <% FEATURES.forEach(function(f){ %>
+        <label class="sc-feature-chip">
+          <input type="checkbox" name="car[features][<%= f.key %>]" value="true" class="sc-feature-cb" />
+          <span class="sc-feature-body">
+            <i class="bi <%= f.icon %>"></i>
+            <%= f.label %>
+          </span>
+        </label>
+        <% }); %>
+      </div>
+    </div>
+
+    <!-- ══ SECTION 4: LOCATION & CONTACT ══ -->
+    <div class="sc-card" id="section4">
+      <div class="sc-section-hd">
+        <div class="sc-section-num">04</div>
+        <div>
+          <div class="sc-section-title">Location & Contact</div>
+          <div class="sc-section-sub">Where buyers can reach you</div>
+        </div>
+      </div>
+
+      <div class="sc-grid-2">
+        <div class="sc-field">
+          <label class="sc-label"><i class="bi bi-building"></i> City <span class="sc-req">*</span></label>
+          <input type="text" name="car[city]" class="sc-input" placeholder="e.g. Rajkot" required />
+        </div>
+        <div class="sc-field">
+          <label class="sc-label"><i class="bi bi-map"></i> State <span class="sc-req">*</span></label>
+          <input type="text" name="car[state]" class="sc-input" placeholder="e.g. Gujarat" required />
+        </div>
+        <div class="sc-field">
+          <label class="sc-label"><i class="bi bi-person-badge"></i> Your Name <span class="sc-req">*</span></label>
+          <input type="text" name="car[dealerName]" class="sc-input" placeholder="Your full name" required />
+        </div>
+        <div class="sc-field">
+          <label class="sc-label"><i class="bi bi-telephone-fill"></i> Phone Number <span class="sc-req">*</span></label>
+          <input type="tel" name="car[dealerPhone]" class="sc-input" placeholder="+91 98765 43210" required pattern="[0-9+\s\-()]+" />
+        </div>
+      </div>
+      <p class="sc-hint"><i class="bi bi-shield-lock"></i> Your number is only shared with serious buyers. We never spam.</p>
+
+      <!-- Description -->
+      <div class="sc-field" style="margin-top:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <label class="sc-label"><i class="bi bi-file-text"></i> Description</label>
+          <span class="sc-char-count" id="scCharCount">0 / 1000</span>
+        </div>
+        <textarea name="car[description]" class="sc-textarea" id="scDesc" maxlength="1000"
+          placeholder="Describe the car's condition, service history, any modifications, reason for selling, and anything else buyers should know…"></textarea>
+        <p class="sc-hint"><i class="bi bi-lightbulb"></i> Listings with detailed descriptions get 3× more inquiries.</p>
+      </div>
+    </div>
+
+    <!-- ══ SUBMIT ══ -->
+    <div class="sc-submit-card">
+      <div class="sc-submit-left">
+        <div class="sc-submit-headline">Ready to publish?</div>
+        <div class="sc-submit-note">Your listing goes live instantly and reaches buyers in your area</div>
+      </div>
+      <div class="sc-submit-right">
+        <button type="submit" class="sc-submit-btn" id="scSubmitBtn">
+          <i class="bi bi-rocket-takeoff-fill"></i>
+          <span>Publish Listing</span>
+        </button>
+        <div class="sc-submit-meta">
+          <i class="bi bi-shield-check"></i> Free listing · No brokerage
+        </div>
+      </div>
+    </div>
+
+  </form>
 </div>
+</div>
+
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#eef2f7;-webkit-font-smoothing:antialiased}
+
+.sc-page{min-height:calc(100vh - 70px);padding:32px 20px 60px;display:flex;justify-content:center}
+.sc-container{width:100%;max-width:880px}
+
+/* Header */
+.sc-header{text-align:center;margin-bottom:28px}
+.sc-header-icon{width:52px;height:52px;border-radius:50%;background:#eff6ff;border:2px solid #bfdbfe;display:flex;align-items:center;justify-content:center;color:#2563eb;font-size:1.3rem;margin:0 auto 14px}
+.sc-header h1{font-size:1.7rem;font-weight:800;color:#0f172a;margin-bottom:5px}
+.sc-header p{font-size:.87rem;color:#64748b}
+
+/* Steps */
+.sc-steps{display:flex;align-items:center;justify-content:center;gap:0;margin-top:20px;flex-wrap:wrap;gap:4px}
+.sc-step{display:flex;align-items:center;gap:7px;font-size:.75rem;font-weight:600;color:#94a3b8;padding:6px 14px;border-radius:20px;transition:all .2s}
+.sc-step span{width:22px;height:22px;border-radius:50%;background:#e2e8f0;color:#94a3b8;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;transition:all .2s}
+.sc-step.active{color:#2563eb}
+.sc-step.active span{background:#2563eb;color:#fff}
+.sc-step.done{color:#16a34a}
+.sc-step.done span{background:#16a34a;color:#fff}
+.sc-step-line{width:32px;height:2px;background:#e2e8f0;flex-shrink:0}
+
+/* Card */
+.sc-card{background:#fff;border-radius:16px;padding:28px 30px;box-shadow:0 2px 12px rgba(15,23,42,.07),0 1px 3px rgba(15,23,42,.05);margin-bottom:16px;border:1px solid #f1f5f9}
+
+/* Section heading */
+.sc-section-hd{display:flex;align-items:center;gap:14px;margin-bottom:22px;padding-bottom:16px;border-bottom:1.5px solid #f1f5f9}
+.sc-section-num{width:36px;height:36px;border-radius:10px;background:#eff6ff;color:#2563eb;font-size:.85rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Inter',monospace}
+.sc-section-title{font-size:.95rem;font-weight:700;color:#0f172a}
+.sc-section-sub{font-size:.76rem;color:#94a3b8;margin-top:1px}
+.sc-subsection-hd{display:flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;margin:20px 0 12px;padding-bottom:8px;border-bottom:1px solid #f1f5f9}
+.sc-subsection-hd i{color:#2563eb}
+
+/* Grids */
+.sc-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.sc-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.sc-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px}
+.sc-field-span2{grid-column:1/-1}
+
+/* Fields */
+.sc-field{display:flex;flex-direction:column;gap:5px}
+.sc-label{display:flex;align-items:center;gap:6px;font-size:.83rem;font-weight:600;color:#1e293b}
+.sc-label i{color:#2563eb;font-size:.83rem}
+.sc-req{color:#ef4444;margin-left:1px;font-size:.68rem}
+
+/* Inputs */
+.sc-input,.sc-select,.sc-textarea{width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:.88rem;font-family:'Inter',sans-serif;color:#0f172a;background:#fff;outline:none;transition:border-color .18s,box-shadow .18s;-webkit-appearance:none;appearance:none}
+.sc-input::placeholder,.sc-textarea::placeholder{color:#cbd5e1}
+.sc-input:focus,.sc-select:focus,.sc-textarea:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.sc-input:hover:not(:focus),.sc-select:hover:not(:focus),.sc-textarea:hover:not(:focus){border-color:#bfdbfe}
+.sc-select-wrap{position:relative}
+.sc-select-wrap::after{content:'\F282';font-family:'bootstrap-icons';position:absolute;right:13px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:.78rem;pointer-events:none}
+.sc-select{padding-right:36px;cursor:pointer}
+.sc-textarea{resize:vertical;min-height:110px;line-height:1.65}
+.sc-hint{font-size:.74rem;color:#94a3b8;display:flex;align-items:flex-start;gap:5px;line-height:1.4;margin-top:2px}
+.sc-hint i{color:#2563eb;flex-shrink:0;margin-top:1px}
+.sc-char-count{font-size:.72rem;color:#94a3b8}
+
+/* Price prefix */
+.sc-input-prefix-wrap{position:relative}
+.sc-input-prefix{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#64748b;font-size:.88rem;font-weight:600;z-index:1}
+.sc-input-prefixed{padding-left:30px}
+.sc-price-display{font-size:.78rem;color:#16a34a;font-weight:600;min-height:16px;margin-top:2px}
+
+/* Color picker */
+.sc-color-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.sc-color-opt{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+.sc-color-radio{display:none}
+.sc-color-dot{width:26px;height:26px;border-radius:50%;border:2.5px solid #e2e8f0;transition:border-color .18s,transform .15s;cursor:pointer}
+.sc-color-lbl{font-size:.62rem;color:#94a3b8;font-weight:500;text-align:center}
+.sc-color-radio:checked + .sc-color-dot{border-color:#2563eb;transform:scale(1.18);box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+
+/* Toggles */
+.sc-toggles-row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.sc-toggle-card{cursor:pointer;flex:1;min-width:140px}
+.sc-toggle-card input{display:none}
+.sc-toggle-body{display:flex;align-items:center;gap:8px;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:.82rem;font-weight:600;color:#475569;background:#f8fafc;transition:all .18s;user-select:none}
+.sc-toggle-body i{font-size:.9rem;color:#94a3b8;transition:color .18s}
+.sc-toggle-body span{flex:1}
+.sc-toggle-switch{width:36px;height:20px;border-radius:10px;background:#e2e8f0;position:relative;flex-shrink:0;transition:background .2s}
+.sc-toggle-switch::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:2px;left:2px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.sc-toggle-cb:checked ~ .sc-toggle-body{border-color:#2563eb;background:#eff6ff;color:#1d4ed8}
+.sc-toggle-cb:checked ~ .sc-toggle-body i{color:#2563eb}
+.sc-toggle-cb:checked ~ .sc-toggle-body .sc-toggle-switch{background:#2563eb}
+.sc-toggle-cb:checked ~ .sc-toggle-body .sc-toggle-switch::after{transform:translateX(16px)}
+
+/* Upload */
+.sc-upload-area{border:2px dashed #cbd5e1;border-radius:12px;padding:24px 16px;text-align:center;cursor:pointer;background:#f8fafc;transition:border-color .18s,background .18s;position:relative;overflow:hidden}
+.sc-upload-area:hover{border-color:#2563eb;background:#eff6ff}
+.sc-upload-area.has-files{border-color:#16a34a;background:#f0fdf4;border-style:solid}
+.sc-upload-input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.sc-upload-center{}
+.sc-upload-icon-wrap{width:52px;height:52px;border-radius:14px;background:#eff6ff;color:#2563eb;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin:0 auto 10px}
+.sc-upload-title{font-size:.9rem;font-weight:600;color:#0f172a;margin-bottom:3px}
+.sc-upload-title span{color:#2563eb;text-decoration:underline}
+.sc-upload-sub{font-size:.75rem;color:#94a3b8;margin-bottom:10px}
+.sc-upload-tips{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.sc-upload-tips span{font-size:.72rem;color:#64748b;display:flex;align-items:center;gap:4px}
+.sc-upload-tips i{color:#16a34a}
+.sc-upload-preview{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;justify-content:center}
+.sc-preview-img{width:72px;height:54px;border-radius:8px;object-fit:cover;border:2px solid #e2e8f0}
+.sc-upload-count{display:none;align-items:center;justify-content:center;gap:8px;font-size:.82rem;font-weight:600;color:#16a34a;margin-top:8px}
+.sc-upload-count i{font-size:1rem}
+.sc-reupload{background:none;border:1px solid #e2e8f0;border-radius:6px;font-size:.72rem;color:#64748b;cursor:pointer;padding:3px 9px;font-family:'Inter',sans-serif;margin-left:4px;transition:border-color .18s}
+.sc-reupload:hover{border-color:#2563eb;color:#2563eb}
+
+/* Button groups */
+.sc-btn-group{display:flex;gap:8px;flex-wrap:wrap}
+.sc-btn-opt{display:flex;align-items:center;gap:6px;padding:9px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:.82rem;font-weight:600;color:#475569;background:#f8fafc;cursor:pointer;font-family:'Inter',sans-serif;transition:all .18s;flex:1;justify-content:center}
+.sc-btn-opt:hover{border-color:#2563eb;color:#1d4ed8;background:#eff6ff}
+.sc-btn-opt.selected{border-color:#2563eb;background:#eff6ff;color:#1d4ed8}
+.sc-btn-opt.sc-btn-safe.selected{border-color:#16a34a;background:#f0fdf4;color:#15803d}
+.sc-btn-opt.sc-btn-warn.selected{border-color:#ef4444;background:#fef2f2;color:#b91c1c}
+
+/* Condition */
+.sc-condition-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.sc-condition-opt input{display:none}
+.sc-condition-card{padding:16px 12px;border:1.5px solid #e2e8f0;border-radius:12px;text-align:center;cursor:pointer;transition:all .2s;background:#f8fafc}
+.sc-condition-card i{display:block;font-size:1.4rem;margin-bottom:6px}
+.sc-condition-card span{display:block;font-size:.85rem;font-weight:700;color:#1e293b;margin-bottom:3px}
+.sc-condition-card small{font-size:.7rem;color:#94a3b8;line-height:1.4;display:block}
+.sc-condition-opt input:checked + .sc-condition-card.excellent{border-color:#2563eb;background:#eff6ff}
+.sc-condition-opt input:checked + .sc-condition-card.excellent i{color:#2563eb}
+.sc-condition-opt input:checked + .sc-condition-card.good{border-color:#16a34a;background:#f0fdf4}
+.sc-condition-opt input:checked + .sc-condition-card.good i{color:#16a34a}
+.sc-condition-opt input:checked + .sc-condition-card.fair{border-color:#f59e0b;background:#fffbeb}
+.sc-condition-opt input:checked + .sc-condition-card.fair i{color:#f59e0b}
+.excellent i{color:#bfdbfe}.good i{color:#bbf7d0}.fair i{color:#fde68a}
+
+/* Features grid */
+.sc-features-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sc-feature-chip{cursor:pointer}
+.sc-feature-chip input{display:none}
+.sc-feature-body{display:flex;align-items:center;gap:7px;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:.79rem;font-weight:600;color:#475569;background:#f8fafc;transition:all .18s;user-select:none}
+.sc-feature-body i{font-size:.85rem;color:#94a3b8;transition:color .18s}
+.sc-feature-chip input:checked + .sc-feature-body{border-color:#2563eb;background:#eff6ff;color:#1d4ed8}
+.sc-feature-chip input:checked + .sc-feature-body i{color:#2563eb}
+
+/* Submit card */
+.sc-submit-card{background:#fff;border-radius:16px;padding:24px 30px;box-shadow:0 2px 12px rgba(15,23,42,.07);border:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.sc-submit-headline{font-size:1rem;font-weight:700;color:#0f172a;margin-bottom:3px}
+.sc-submit-note{font-size:.78rem;color:#64748b}
+.sc-submit-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.sc-submit-btn{display:flex;align-items:center;gap:8px;padding:13px 28px;background:#2563eb;color:#fff;border:none;border-radius:11px;font-size:.92rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .18s,transform .15s}
+.sc-submit-btn:hover{background:#1d4ed8;transform:translateY(-1px)}
+.sc-submit-btn:active{transform:none}
+.sc-submit-meta{font-size:.72rem;color:#94a3b8;display:flex;align-items:center;gap:4px}
+.sc-submit-meta i{color:#16a34a}
+
+@media(max-width:860px){
+  .sc-grid-4{grid-template-columns:1fr 1fr}
+  .sc-features-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:640px){
+  .sc-card{padding:20px 18px}
+  .sc-grid-2,.sc-grid-3{grid-template-columns:1fr}
+  .sc-grid-4{grid-template-columns:1fr 1fr}
+  .sc-condition-row{grid-template-columns:1fr}
+  .sc-features-grid{grid-template-columns:repeat(2,1fr)}
+  .sc-submit-card{flex-direction:column;align-items:stretch;text-align:center}
+  .sc-submit-right{align-items:stretch}
+  .sc-submit-btn{justify-content:center}
+  .sc-submit-meta{justify-content:center}
+  .sc-step-line{width:16px}
+}
+@media(max-width:400px){
+  .sc-grid-4{grid-template-columns:1fr}
+  .sc-features-grid{grid-template-columns:1fr 1fr}
+}
+</style>
 
 <script>
 (function(){
-  const input = document.getElementById('scImages'),
-        area  = document.getElementById('scUploadArea'),
-        preview = document.getElementById('scPreview'),
-        countWrap = document.getElementById('scUploadCount'),
-        countTxt  = document.getElementById('scUploadCountText');
+  /* ── Price display ── */
+  var priceInput = document.getElementById('priceInput');
+  var priceDisplay = document.getElementById('priceDisplay');
+  if(priceInput && priceDisplay){
+    priceInput.addEventListener('input', function(){
+      var v = parseInt(this.value);
+      if(!v){ priceDisplay.textContent = ''; return; }
+      var words = '';
+      if(v >= 10000000) words = '₹ ' + (v/10000000).toFixed(2) + ' Crore';
+      else if(v >= 100000) words = '₹ ' + (v/100000).toFixed(2) + ' Lakh';
+      else if(v >= 1000) words = '₹ ' + (v/1000).toFixed(1) + ' Thousand';
+      priceDisplay.textContent = words ? '≈ ' + words : '';
+    });
+  }
 
-  if (input) {
-    input.addEventListener('change', function () {
-      preview.innerHTML = '';
-      const files = [...this.files];
-      if (!files.length) { area.classList.remove('has-files'); countWrap.style.display = 'none'; return; }
-      files.slice(0, 6).forEach(function (file) {
-        const r = new FileReader();
-        r.onload = function (e) {
-          const img = document.createElement('img');
-          img.src = e.target.result; img.className = 'sc-preview-thumb'; img.style.display = 'block';
-          preview.appendChild(img);
-        };
-        r.readAsDataURL(file);
+  /* ── Color picker ── */
+  document.querySelectorAll('.sc-color-radio').forEach(function(r){
+    r.addEventListener('change', function(){
+      var h = document.getElementById('colorHidden');
+      if(h) h.value = this.value;
+    });
+  });
+
+  /* ── Button groups (insurance, accident, service) ── */
+  document.querySelectorAll('.sc-btn-group').forEach(function(group){
+    var hiddenName = group.dataset.name;
+    var hidden = document.querySelector('input[name="' + hiddenName + '"]');
+    group.querySelectorAll('.sc-btn-opt').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        group.querySelectorAll('.sc-btn-opt').forEach(function(b){ b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        if(hidden) hidden.value = btn.dataset.val;
+        /* Show insurance valid date field */
+        if(hiddenName === 'car[insuranceStatus]'){
+          var field = document.getElementById('insuranceValidField');
+          if(field) field.style.display = btn.dataset.val === 'Active' ? 'flex' : 'none';
+        }
       });
-      area.classList.add('has-files');
-      countWrap.style.display = 'flex';
-      countTxt.textContent = files.length + ' photo' + (files.length > 1 ? 's' : '') + ' selected';
+    });
+  });
+
+  /* ── Photo upload ── */
+  var input = document.getElementById('scImages');
+  var area = document.getElementById('scUploadArea');
+  var preview = document.getElementById('scPreview');
+  var countWrap = document.getElementById('scUploadCount');
+  var countTxt = document.getElementById('scUploadCountText');
+  var placeholder = document.getElementById('uploadPlaceholder');
+  var reupload = document.getElementById('scReupload');
+
+  function renderPreviews(files){
+    preview.innerHTML = '';
+    if(!files.length){ reset(); return; }
+    files.slice(0,8).forEach(function(file){
+      var r = new FileReader();
+      r.onload = function(e){
+        var img = document.createElement('img');
+        img.src = e.target.result;
+        img.className = 'sc-preview-img';
+        preview.appendChild(img);
+      };
+      r.readAsDataURL(file);
+    });
+    area.classList.add('has-files');
+    placeholder.style.display = 'none';
+    countWrap.style.display = 'flex';
+    countTxt.textContent = files.length + ' photo' + (files.length > 1 ? 's' : '') + ' selected';
+  }
+
+  function reset(){
+    area.classList.remove('has-files');
+    placeholder.style.display = '';
+    countWrap.style.display = 'none';
+  }
+
+  if(input) input.addEventListener('change', function(){ renderPreviews([...this.files]); });
+  if(reupload) reupload.addEventListener('click', function(e){ e.stopPropagation(); input.click(); });
+
+  /* Drag & drop */
+  if(area){
+    area.addEventListener('dragover', function(e){ e.preventDefault(); area.style.borderColor='#2563eb'; });
+    area.addEventListener('dragleave', function(){ area.style.borderColor=''; });
+    area.addEventListener('drop', function(e){
+      e.preventDefault(); area.style.borderColor='';
+      if(e.dataTransfer.files.length){ input.files = e.dataTransfer.files; renderPreviews([...e.dataTransfer.files]); }
     });
   }
 
-  if (area) {
-    area.addEventListener('dragover', function (e) { e.preventDefault(); area.style.borderColor = '#2563eb'; });
-    area.addEventListener('dragleave', function () { area.style.borderColor = ''; });
-    area.addEventListener('drop', function (e) {
-      e.preventDefault(); area.style.borderColor = '';
-      if (input && e.dataTransfer.files.length) { input.files = e.dataTransfer.files; input.dispatchEvent(new Event('change')); }
+  /* ── Char count ── */
+  var desc = document.getElementById('scDesc');
+  var cnt = document.getElementById('scCharCount');
+  if(desc && cnt){
+    desc.addEventListener('input', function(){
+      var l = this.value.length;
+      cnt.textContent = l + ' / 1000';
+      cnt.style.color = l > 900 ? '#ef4444' : l > 700 ? '#f59e0b' : '#94a3b8';
     });
   }
 
-  const desc = document.getElementById('scDesc'), cnt = document.getElementById('scCharCount');
-  if (desc && cnt) {
-    desc.addEventListener('input', function () {
-      const l = this.value.length; cnt.textContent = l + ' / 1000';
-      cnt.style.color = l > 900 ? '#dc2626' : l > 700 ? '#f59e0b' : '#b0bcce';
+  /* ── Step progress tracking ── */
+  var steps = document.querySelectorAll('.sc-step');
+  var sections = ['section1','section2','section3','section4'];
+  function updateSteps(){
+    sections.forEach(function(id, i){
+      var sec = document.getElementById(id);
+      if(!sec) return;
+      var inputs = sec.querySelectorAll('input[required], select[required]');
+      var filled = true;
+      inputs.forEach(function(inp){ if(!inp.value) filled = false; });
+      if(steps[i]){
+        steps[i].classList.remove('active','done');
+        if(filled && i < sections.length - 1) steps[i].classList.add('done');
+        else if(!filled) steps[i].classList.add('active');
+      }
     });
   }
+  document.getElementById('scForm').addEventListener('input', updateSteps);
+  updateSteps();
 })();
 </script>
-</body>
-</html>

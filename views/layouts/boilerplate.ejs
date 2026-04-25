@@ -1,123 +1,752 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ridehub</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RideHub — India's Trusted Car Marketplace</title>
 
-    <!-- Bootstrap CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/style.css" />
 
-    <!-- Bootstrap Icons (ONLY ONE) -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-      rel="stylesheet"
-    />
+  <style>
+    /* ═══════════════════════════════════════════
+       RIDEHUB NAVBAR — EMBEDDED STYLES
+    ═══════════════════════════════════════════ */
+    :root {
+      --rh-sky:        #4BBAE8;
+      --rh-sky-dark:   #2fa8d8;
+      --rh-navy:       #1E2D3D;
+      --rh-navy-deep:  #141E2B;
+      --rh-white:      #ffffff;
+      --rh-bg:         #F4F7FA;
+      --rh-border:     rgba(30, 45, 61, 0.10);
+      --rh-radius:     10px;
+      --rh-nav-h:      68px;
+      --rh-font:       'Plus Jakarta Sans', sans-serif;
+      --rh-ease:       0.22s cubic-bezier(.4, 0, .2, 1);
+    }
 
-    <!-- Google Font -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800;900&display=swap"
-      rel="stylesheet"
-    />
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; }
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/style.css" />
-  </head>
+    body { font-family: var(--rh-font); }
 
-  <body>
-    <!-- ================= NAVBAR ================= -->
-    <nav class="navbar navbar-expand-lg navbar-custom">
-      <div class="container-fluid d-flex align-items-center">
-        <!-- LOGO -->
-        <a class="navbar-brand ridehub-logo" href="/cars">
-          <span class="ride">Ride</span><span class="hub">hub</span>
-        </a>
+    /* ══════════════════════════════════════════
+       NAV SHELL
+    ══════════════════════════════════════════ */
+    .rh-nav {
+      position: fixed;
+      top: 0;
+      z-index: 1000;
+      width: 100%;
+      height: var(--rh-nav-h);
+      background: rgba(255, 255, 255, 0.93);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1.5px solid var(--rh-border);
+      box-shadow: 0 2px 16px rgba(30, 45, 61, 0.06);
+      transition: transform 0.3s ease, box-shadow var(--rh-ease), background var(--rh-ease);
+    }
+    .rh-nav.scrolled {
+      box-shadow: 0 6px 32px rgba(30, 45, 61, 0.12);
+      background: rgba(255, 255, 255, 0.98);
+    }
+    .rh-nav.nav-hidden  { transform: translateY(-100%); }
+    .rh-nav.nav-visible { transform: translateY(0); }
 
-        <!-- SEARCH BAR -->
-        <form class="search-wrapper mx-auto" method="GET" action="/cars">
-          <input
-            type="text"
-            name="search"
-            id="searchInput"
-            placeholder="Search cars..."
-          />
-          <button type="submit" class="search-submit-btn">
-            <i class="bi bi-search"></i>
-            <span>Search</span>
-          </button>
-        </form>
+    /* ── Inner layout ── */
+    .rh-nav-inner {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 28px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
 
-        <!-- RIGHT NAV -->
-        <ul class="navbar-nav align-items-center gap-4">
-          <li class="nav-item">
-            <a class="nav-link fw-medium" href="/cars/new">Sell Car</a>
-          </li>
+    /* ══════════════════════════════════════════
+       LOGO
+    ══════════════════════════════════════════ */
+    .rh-logo {
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      user-select: none;
+    }
+    .rh-logo-text {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.65rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.5px;
+    }
+    .rh-logo-ride { color: #38B6E0; }
+    .rh-logo-hub  { color: #2B3A4A; }
 
-          <li class="nav-item">
-            <a class="nav-link fw-medium" href="/cars">All Cars</a>
-          </li>
+    /* ══════════════════════════════════════════
+       SEARCH BAR
+    ══════════════════════════════════════════ */
+    .rh-search {
+      flex: 1;
+      max-width: 460px;
+      display: flex;
+      align-items: center;
+      background: var(--rh-bg);
+      border: 1.5px solid var(--rh-border);
+      border-radius: 50px;
+      overflow: hidden;
+      margin: 0 auto;
+      transition: border-color var(--rh-ease), box-shadow var(--rh-ease);
+    }
+    .rh-search:focus-within {
+      border-color: var(--rh-sky);
+      box-shadow: 0 0 0 3.5px rgba(75, 186, 232, 0.15);
+    }
+    .rh-search-icon {
+      padding: 0 12px 0 18px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      pointer-events: none;
+      flex-shrink: 0;
+    }
+    .rh-search input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: var(--rh-font);
+      font-size: 0.875rem;
+      color: var(--rh-navy);
+      padding: 11px 0;
+      min-width: 0;
+    }
+    .rh-search input::placeholder { color: #94a3b8; }
 
-          <% if (!currentUser) { %>
-          <li class="nav-item">
-            <a class="nav-link login-register" href="/login">
-              <i class="bi bi-person"></i>
-              <span>Login</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link login-register" href="/register">
-              <i class="bi bi-person"></i>
-              <span>Register</span>
-            </a>
-          </li>
-          <% } else { %>
-          <li class="nav-item d-flex align-items-center gap-2">
-            <img
-              src="https://ui-avatars.com/api/?name=<%= currentUser.username %>&background=0D6EFD&color=fff"
-              class="user-avatar"
-              alt="user"
-            />
-            <a class="nav-link logout-link" href="/logout">Logout</a>
-          </li>
-          <% } %>
-        </ul>
+
+
+    .rh-search-btn {
+  background: linear-gradient(135deg, #4da6ff, #1e90ff);
+  color: #fff;
+  border: none;
+
+  padding: 10px 24px;
+  font-family: var(--rh-font);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+
+  border-radius: 0 50px 50px 0;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  transition: all 0.3s ease;
+
+  box-shadow: 0 4px 12px rgba(30, 144, 255, 0.3);
+}
+    /* .rh-search-btn {
+      background: var(--rh-sky);
+      color: #fff;
+      border: none;
+      padding: 9px 22px;
+      font-family: var(--rh-font);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      border-radius: 0 50px 50px 0;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background var(--rh-ease);
+    } */
+    .rh-search-btn:hover { background: var(--rh-sky-dark); }
+
+    /* ══════════════════════════════════════════
+       NAV ACTIONS WRAPPER
+    ══════════════════════════════════════════ */
+    .rh-nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    /* ── Login Button ── */
+    /* .rh-btn-login {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 20px;
+      border-radius: var(--rh-radius);
+      border: 1.8px solid var(--rh-navy);
+      background: transparent;
+      color: var(--rh-navy);
+      font-family: var(--rh-font);
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background var(--rh-ease), color var(--rh-ease), transform var(--rh-ease), box-shadow var(--rh-ease);
+      white-space: nowrap;
+    } */
+
+.rh-btn-login {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 22px;
+  border-radius: 999px;
+
+  border: 1.5px solid #4da6ff;
+  background: rgba(77, 166, 255, 0.08); /* light blue glass */
+
+  color: #1e3a8a; /* deep navy blue */
+  font-family: var(--rh-font);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+
+  transition: all 0.3s ease;
+  white-space: nowrap;
+
+  backdrop-filter: blur(6px);
+}
+
+    .rh-btn-login:hover {
+      background: var(--rh-navy);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(30, 45, 61, 0.20);
+    }
+
+    /* ── Register Button ── */
+    /* .rh-btn-register {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 22px;
+      border-radius: var(--rh-radius);
+      border: 1.8px solid var(--rh-sky);
+      background: var(--rh-sky);
+      color: #fff;
+      font-family: var(--rh-font);
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background var(--rh-ease), border-color var(--rh-ease), transform var(--rh-ease), box-shadow var(--rh-ease);
+      white-space: nowrap;
+    } */
+
+    .rh-btn-register {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 24px;
+  border-radius: 50px;
+
+  border: 1.5px solid #4da6ff;
+  background: linear-gradient(135deg, #4da6ff, #1e90ff);
+
+  color: #fff;
+  font-family: var(--rh-font);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+
+  transition: all 0.3s ease;
+  white-space: nowrap;
+
+  box-shadow: 0 4px 12px rgba(30, 144, 255, 0.3);
+}
+    .rh-btn-register:hover {
+      background: var(--rh-sky-dark);
+      border-color: var(--rh-sky-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 18px rgba(75, 186, 232, 0.38);
+    }
+
+    /* ── Sell a Car Button (logged in) ── */
+    .rh-btn-sell {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 18px;
+      border-radius: var(--rh-radius);
+      border: 1.8px solid var(--rh-sky);
+      background: transparent;
+      color: var(--rh-sky);
+      font-family: var(--rh-font);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: background var(--rh-ease), color var(--rh-ease), transform var(--rh-ease);
+    }
+    .rh-btn-sell:hover {
+      background: var(--rh-sky);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    /* ══════════════════════════════════════════
+       USER MENU + DROPDOWN
+    ══════════════════════════════════════════ */
+    .rh-user-menu { position: relative; }
+
+    .rh-user-btn {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      background: var(--rh-bg);
+      border: 1.5px solid var(--rh-border);
+      border-radius: 50px;
+      padding: 5px 14px 5px 5px;
+      cursor: pointer;
+      font-family: var(--rh-font);
+      transition: border-color var(--rh-ease), box-shadow var(--rh-ease);
+    }
+    .rh-user-btn:hover {
+      border-color: var(--rh-sky);
+      box-shadow: 0 0 0 3px rgba(75, 186, 232, 0.14);
+    }
+    .rh-user-av {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+    }
+    .rh-user-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--rh-navy);
+      max-width: 110px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .rh-user-chevron {
+      font-size: 0.72rem;
+      color: #64748b;
+      transition: transform var(--rh-ease);
+    }
+
+    /* Dropdown panel */
+    .rh-user-dropdown {
+      position: absolute;
+      top: calc(100% + 12px);
+      right: 0;
+      min-width: 228px;
+      background: #fff;
+      border: 1.5px solid var(--rh-border);
+      border-radius: 14px;
+      box-shadow: 0 16px 48px rgba(30, 45, 61, 0.14);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px) scale(0.97);
+      transform-origin: top right;
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      overflow: hidden;
+    }
+    .rh-user-dropdown.open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+    .rh-dropdown-header { padding: 14px 16px 10px; }
+    .rh-dropdown-name  { font-size: 0.92rem; font-weight: 700; color: var(--rh-navy); }
+    .rh-dropdown-email { font-size: 0.78rem; color: #64748b; margin-top: 2px; }
+    .rh-dropdown-divider { height: 1px; background: var(--rh-border); }
+
+    .rh-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      font-family: var(--rh-font);
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--rh-navy-deep);
+      text-decoration: none;
+      transition: background var(--rh-ease), color var(--rh-ease);
+    }
+    .rh-dropdown-item:hover { background: var(--rh-bg); color: var(--rh-sky); }
+    .rh-dropdown-item i { font-size: 0.95rem; color: #94a3b8; transition: color var(--rh-ease); }
+    .rh-dropdown-item:hover i { color: var(--rh-sky); }
+
+    .rh-dropdown-logout { color: #dc2626 !important; }
+    .rh-dropdown-logout i { color: #dc2626 !important; }
+    .rh-dropdown-logout:hover { background: #fef2f2 !important; color: #b91c1c !important; }
+
+    /* ══════════════════════════════════════════
+       HAMBURGER
+    ══════════════════════════════════════════ */
+    .rh-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      margin-left: auto;
+      flex-shrink: 0;
+      transition: background var(--rh-ease);
+    }
+    .rh-hamburger:hover { background: var(--rh-bg); }
+    .rh-hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--rh-navy);
+      border-radius: 2px;
+      transition: transform 0.28s ease, opacity 0.28s ease;
+    }
+    .rh-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .rh-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .rh-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ══════════════════════════════════════════
+       MOBILE MENU
+    ══════════════════════════════════════════ */
+    .rh-mobile-menu {
+      display: none;
+      position: fixed;
+      top: var(--rh-nav-h);
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-bottom: 1.5px solid var(--rh-border);
+      box-shadow: 0 16px 40px rgba(30, 45, 61, 0.10);
+      padding: 16px 20px 24px;
+      z-index: 999;
+      opacity: 0;
+      transform: translateY(-8px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      pointer-events: none;
+    }
+    .rh-mobile-menu.open {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .rh-mobile-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.30);
+      backdrop-filter: blur(3px);
+      z-index: 998;
+    }
+    .rh-mobile-overlay.active { display: block; }
+
+    /* Mobile search */
+    .rh-mobile-search {
+      display: flex;
+      align-items: center;
+      background: var(--rh-bg);
+      border: 1.5px solid var(--rh-border);
+      border-radius: 50px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .rh-mobile-search i { padding: 0 10px 0 14px; color: #94a3b8; font-size: 0.9rem; }
+    .rh-mobile-search input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: var(--rh-font);
+      font-size: 0.875rem;
+      color: var(--rh-navy);
+      padding: 11px 0;
+    }
+    .rh-mobile-search button {
+      background: var(--rh-sky);
+      color: #fff;
+      border: none;
+      padding: 9px 18px;
+      font-family: var(--rh-font);
+      font-size: 0.82rem;
+      font-weight: 600;
+      border-radius: 0 50px 50px 0;
+      cursor: pointer;
+    }
+
+    /* Mobile links */
+    .rh-mobile-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 4px;
+      font-family: var(--rh-font);
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--rh-navy-deep);
+      text-decoration: none;
+      border-bottom: 1px solid var(--rh-border);
+      transition: color var(--rh-ease);
+    }
+    .rh-mobile-link:last-child { border-bottom: none; }
+    .rh-mobile-link:hover { color: var(--rh-sky); }
+    .rh-mobile-link i { font-size: 1rem; color: #94a3b8; }
+
+    /* Mobile auth buttons grid */
+    .rh-mobile-auth {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .rh-mobile-auth a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 12px;
+      border-radius: var(--rh-radius);
+      font-family: var(--rh-font);
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .rh-mob-login    { border: 1.8px solid var(--rh-navy); color: var(--rh-navy); }
+    .rh-mob-register { background: var(--rh-sky); color: #fff; border: 1.8px solid var(--rh-sky); }
+
+    /* Mobile user info */
+    .rh-mobile-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 4px 14px;
+      border-bottom: 1px solid var(--rh-border);
+      margin-bottom: 4px;
+    }
+    .rh-mobile-user img { width: 38px; height: 38px; border-radius: 50%; }
+    .rh-mobile-user span { font-size: 0.92rem; font-weight: 700; color: var(--rh-navy); }
+
+    .rh-mobile-logout { color: #dc2626 !important; }
+    .rh-mobile-logout i { color: #dc2626 !important; }
+
+    /* ══════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .rh-search { max-width: 320px; }
+    }
+    @media (max-width: 768px) {
+      .rh-search,
+      .rh-nav-actions { display: none !important; }
+      .rh-hamburger   { display: flex; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══════════════════════════════════
+       NAVBAR
+  ═══════════════════════════════════ -->
+  <nav class="rh-nav" id="rhNav">
+    <div class="rh-nav-inner">
+
+      <!-- Logo -->
+      <a class="rh-logo" href="/cars">
+        <span class="rh-logo-text">
+          <span class="rh-logo-ride">Ride</span><span class="rh-logo-hub">hub</span>
+        </span>
+      </a>
+
+      <!-- Search -->
+      <form class="rh-search" method="GET" action="/cars">
+        <i class="bi bi-search rh-search-icon"></i>
+        <input
+          type="text"
+          name="search"
+          id="searchInput"
+          placeholder="Search by car name, brand…"
+          autocomplete="off"
+        />
+        <button type="submit" class="rh-search-btn">Search</button>
+      </form>
+
+      <!-- Desktop Actions -->
+      <div class="rh-nav-actions">
+        <% if (!currentUser) { %>
+
+          <a href="/login" class="rh-btn-login">
+            <i class="bi bi-box-arrow-in-right"></i> Login
+          </a>
+          <a href="/register" class="rh-btn-register">
+            <i class="bi bi-person-plus"></i> Register
+          </a>
+
+        <% } else { %>
+
+          <a href="/cars/new" class="rh-btn-sell">
+            <i class="bi bi-plus-circle-fill"></i> Sell a Car
+          </a>
+
+          <div class="rh-user-menu">
+            <button class="rh-user-btn" id="rhUserBtn" aria-haspopup="true" aria-expanded="false">
+              <img
+                src="https://ui-avatars.com/api/?name=<%= currentUser.username %>&background=4BBAE8&color=fff&size=64"
+                alt="<%= currentUser.username %>"
+                class="rh-user-av"
+              />
+              <span class="rh-user-name"><%= currentUser.username %></span>
+              <i class="bi bi-chevron-down rh-user-chevron"></i>
+            </button>
+
+            <div class="rh-user-dropdown" id="rhUserDropdown">
+              <div class="rh-dropdown-header">
+                <div class="rh-dropdown-name"><%= currentUser.username %></div>
+                <div class="rh-dropdown-email"><%= currentUser.email || '' %></div>
+              </div>
+              <div class="rh-dropdown-divider"></div>
+              <a href="/cars/new"  class="rh-dropdown-item"><i class="bi bi-plus-circle"></i>   Sell a Car</a>
+              <a href="/cars"      class="rh-dropdown-item"><i class="bi bi-grid-3x3-gap"></i>   Browse Cars</a>
+
+              <div class="rh-dropdown-divider"></div>
+              <a href="/logout"    class="rh-dropdown-item rh-dropdown-logout">
+                <i class="bi bi-box-arrow-right"></i> Logout
+              </a>
+            </div>
+          </div>
+
+        <% } %>
       </div>
-    </nav>
 
-    <!-- FLASH -->
-    <div class="container mt-3"><%- include("../partials/flash") %></div>
+      <!-- Hamburger (mobile) -->
+      <button class="rh-hamburger" id="rhHamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
 
-    <!-- MAIN CONTENT -->
-    <div class="container mt-4"><%- body %></div>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- AUTO SEARCH -->
-    <!-- AUTO SEARCH & MAIN SCRIPT -->
-    <script src="/js/main.js"></script>
-
-    <!-- ================= IMAGE LIGHTBOX MODAL ================= -->
-    <div class="image-modal" id="imageModal">
-      <button class="image-modal-close">&times;</button>
-      <img class="image-modal-content" id="modalImage" src="" alt="Zoomed Car Image" />
     </div>
+  </nav>
 
-    <!-- ================= SERVICE MODAL ================= -->
-    <div class="service-modal" id="serviceModal">
-      <div class="service-modal-box">
-        <button class="modal-close">&times;</button>
-        <h3 id="modalTitle"></h3>
-        <p id="modalContent"></p>
+  <!-- ═══════════════════════════════════
+       MOBILE MENU
+  ═══════════════════════════════════ -->
+  <div class="rh-mobile-menu" id="rhMobileMenu">
+    <form class="rh-mobile-search" method="GET" action="/cars">
+      <i class="bi bi-search"></i>
+      <input type="text" name="search" placeholder="Search cars…" />
+      <button type="submit">Go</button>
+    </form>
+
+    <a href="/cars"     class="rh-mobile-link"><i class="bi bi-grid-3x3-gap"></i>    Browse Cars</a>
+    <a href="/cars/new" class="rh-mobile-link"><i class="bi bi-plus-circle-fill"></i> Sell Your Car</a>
+
+    <% if (!currentUser) { %>
+      <div class="rh-mobile-auth">
+        <a href="/login"    class="rh-mob-login"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+        <a href="/register" class="rh-mob-register"><i class="bi bi-person-plus"></i> Register</a>
       </div>
+    <% } else { %>
+      <div class="rh-mobile-user">
+        <img src="https://ui-avatars.com/api/?name=<%= currentUser.username %>&background=4BBAE8&color=fff" alt="User" />
+        <span><%= currentUser.username %></span>
+      </div>
+      <a href="/profile" class="rh-mobile-link"><i class="bi bi-person-circle"></i>  My Profile</a>
+      <a href="/logout"  class="rh-mobile-link rh-mobile-logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    <% } %>
+  </div>
+  <div class="rh-mobile-overlay" id="rhMobileOverlay"></div>
+
+  <!-- Flash Messages -->
+  <div class="rh-flash-container">
+    <%- include("../partials/flash") %>
+  </div>
+
+  <!-- Page Body -->
+  <%- body %>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Main Script -->
+  <script src="/js/main.js"></script>
+
+  <!-- Navbar Script -->
+  <script>
+  (function () {
+    /* ── User dropdown ── */
+    const userBtn  = document.getElementById('rhUserBtn');
+    const userDrop = document.getElementById('rhUserDropdown');
+    if (userBtn && userDrop) {
+      userBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        const open = userDrop.classList.toggle('open');
+        userBtn.setAttribute('aria-expanded', open);
+        userBtn.querySelector('.rh-user-chevron').style.transform = open ? 'rotate(180deg)' : '';
+      });
+      document.addEventListener('click', () => {
+        userDrop.classList.remove('open');
+        userBtn.setAttribute('aria-expanded', 'false');
+        const chev = userBtn.querySelector('.rh-user-chevron');
+        if (chev) chev.style.transform = '';
+      });
+    }
+
+    /* ── Mobile hamburger ── */
+    const ham     = document.getElementById('rhHamburger');
+    const mob     = document.getElementById('rhMobileMenu');
+    const overlay = document.getElementById('rhMobileOverlay');
+
+    const closeMob = () => {
+      mob.classList.remove('open');
+      overlay.classList.remove('active');
+      ham.classList.remove('open');
+      document.body.style.overflow = '';
+    };
+
+    if (ham) {
+      ham.addEventListener('click', () => {
+        const isOpen = mob.classList.toggle('open');
+        overlay.classList.toggle('active', isOpen);
+        ham.classList.toggle('open', isOpen);
+        document.body.style.overflow = isOpen ? 'hidden' : '';
+      });
+    }
+    if (overlay) overlay.addEventListener('click', closeMob);
+
+    /* ── Scroll hide / show ── */
+    const nav = document.getElementById('rhNav');
+    let last = 0;
+    window.addEventListener('scroll', () => {
+      const s = window.scrollY;
+      nav.classList.toggle('scrolled',    s > 20);
+      nav.classList.toggle('nav-hidden',  s > last + 80 && s > 120);
+      nav.classList.toggle('nav-visible', s < last);
+      last = s;
+    }, { passive: true });
+  })();
+  </script>
+
+  <!-- Image lightbox modal -->
+  <div class="image-modal" id="imageModal">
+    <button class="image-modal-close">&times;</button>
+    <img class="image-modal-content" id="modalImage" src="" alt="Zoomed Car Image" />
+  </div>
+
+  <!-- Service modal -->
+  <div class="service-modal" id="serviceModal">
+    <div class="service-modal-box">
+      <button class="modal-close">&times;</button>
+      <h3 id="modalTitle"></h3>
+      <p id="modalContent"></p>
     </div>
+  </div>
 
-    <!-- ================= FILTER OVERLAY (MOBILE) ================= -->
-    <div class="filter-overlay" id="filterOverlay"></div>
+  <div class="filter-overlay" id="filterOverlay"></div>
 
-    <%- include("../partials/footer") %>
-  </body>
+  <%- include("../partials/footer") %>
+</body>
 </html>
